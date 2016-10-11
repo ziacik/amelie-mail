@@ -4,13 +4,20 @@ const rx = require('rxjs/Observable');
 require('rxjs/add/observable/of');
 
 class ImapService {
-	listen() {
-		this.connect();
-		return rx.Observable.of(1);
+	constructor(imapLibrary, accountSettingsService) {
+		this.imapLibrary = imapLibrary;
+		this.accountSettingsService = accountSettingsService;
 	}
 
-	connect() {
+	listen() {
+		return this.accountSettingsService.getAll().then(accountSettings => {
+			this.connection = new this.imapLibrary(accountSettings);
+		}).then(() => {
+			return rx.Observable.of(1);
+		});
 	}
 }
 
 module.exports = ImapService;
+module.exports['@singleton'] = true;
+module.exports['@require'] = [ 'imap', 'account-settings-service' ];
