@@ -2,6 +2,7 @@
 
 const rx = require('rxjs/Observable');
 require('rxjs/add/observable/of');
+require('rxjs/add/operator/mergeMap');
 
 class ImapService {
 	constructor(imapLibrary, accountSettingsService) {
@@ -10,9 +11,8 @@ class ImapService {
 	}
 
 	listen() {
-		return this.accountSettingsService.getAll().then(accountSettings => {
+		return this.accountSettingsService.getAll().flatMap(accountSettings => {
 			this.connection = new this.imapLibrary(accountSettings);
-		}).then(() => {
 			return rx.Observable.of(1);
 		});
 	}
@@ -20,4 +20,4 @@ class ImapService {
 
 module.exports = ImapService;
 module.exports['@singleton'] = true;
-module.exports['@require'] = [ 'imap', 'account-settings-service' ];
+module.exports['@require'] = ['imap', 'account-settings-service'];
