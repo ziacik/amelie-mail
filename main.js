@@ -4,6 +4,13 @@ const electron = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
+const electrolyte = require('electrolyte');
+electrolyte.use(electrolyte.dir('server'));
+electrolyte.use(electrolyte.node_modules());
+
+let imapService = electrolyte.create('imap-service');
+imapService.listen().subscribe();
+
 let mainWindow;
 
 function createWindow() {
