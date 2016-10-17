@@ -49,7 +49,7 @@ describe('Imap Service', () => {
 		expect(() => subscription.unsubscribe()).not.to.throw();
 	});
 
-	it('creates a new imap instance on listen', () => {
+	it('creates a new connection on listen', () => {
 		let subscription = imapService.listen().subscribe();
 		expect(connectionFactory).to.have.been.calledWith(accountSettings);
 	});
