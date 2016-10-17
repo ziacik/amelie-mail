@@ -8,6 +8,9 @@ const sinon = require('sinon');
 const expect = chai.expect;
 chai.use(require('sinon-chai'));
 
+const os = require('os');
+const path = require('path');
+
 const AccountSetingsService = require('./account-settings-service');
 
 describe('Account Setings Service', () => {
@@ -33,7 +36,7 @@ describe('Account Setings Service', () => {
 
 		it('loads a settings file and parses it into an object', () => {
 			return accountSetingsService.getAll().subscribe(result => {
-				expect(fs.readFile).to.have.been.calledWith('~/.amelie-mail.accounts.json', 'utf8');
+				expect(fs.readFile).to.have.been.calledWith(path.join(os.homedir(), '.amelie-mail.accounts.json'), 'utf8');
 				expect(result).to.deep.equal(accountSettings);
 			});
 		});

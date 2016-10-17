@@ -1,5 +1,8 @@
 'use strict';
 
+const os = require('os');
+const path = require('path');
+
 const rx = require('rxjs/Observable');
 require('rxjs/add/observable/bindNodeCallback');
 require('rxjs/add/operator/map');
@@ -10,7 +13,7 @@ class AccountSettingsService {
 	}
 
 	getAll() {
-		return rx.Observable.bindNodeCallback(this.fs.readFile)('/home/UX/fziacikux/.amelie-mail.accounts.json', 'utf8').map(data => JSON.parse(data));
+		return rx.Observable.bindNodeCallback(this.fs.readFile)(path.join(os.homedir(), '.amelie-mail.accounts.json'), 'utf8').map(data => JSON.parse(data));
 	}
 }
 
