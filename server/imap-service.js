@@ -5,14 +5,15 @@ require('rxjs/add/observable/of');
 require('rxjs/add/operator/mergeMap');
 
 class ImapService {
-	constructor(imapLibrary, accountSettingsService) {
-		this.imapLibrary = imapLibrary;
+	constructor(connectionFactory, accountSettingsService) {
+		this.connectionFactory = connectionFactory;
 		this.accountSettingsService = accountSettingsService;
 	}
 
 	listen() {
 		return this.accountSettingsService.getAll().flatMap(accountSettings => {
-			this.connection = new this.imapLibrary(accountSettings);
+			this.connection = this.connectionFactory(accountSettings);
+			this.connection.once('ready', () => {});
 			return rx.Observable.of(1);
 		});
 	}

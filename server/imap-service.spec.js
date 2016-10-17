@@ -13,17 +13,25 @@ const ImapService = require('./imap-service');
 describe('Imap Service', () => {
 	let imapService;
 
-	let imapLibrary;
+	let connectionFactory;
+	let connection;
 	let accountSettingsService;
 	let accountSettings = {
 		login: 'fake.login'
 	};
 
+	let readySpy;
+
 	beforeEach(() => {
-		imapLibrary = sinon.stub();
+		readySpy = sinon.stub();
+		connection = {
+			once: sinon.stub()
+		};
+		connection.once.yields('ready');
+		connectionFactory = sinon.stub().returns(connection);
 		accountSettingsService = {};
 		accountSettingsService.getAll = sinon.stub().returns(rx.Observable.of(accountSettings));
-		imapService = new ImapService(imapLibrary, accountSettingsService);
+		imapService = new ImapService(connectionFactory, accountSettingsService);
 	});
 
 	it('allows us to listen for incoming mails', () => {
@@ -43,6 +51,11 @@ describe('Imap Service', () => {
 
 	it('creates a new imap instance on listen', () => {
 		let subscription = imapService.listen().subscribe();
-		expect(imapLibrary).to.have.been.calledWith(accountSettings);
+		expect(connectionFactory).to.have.been.calledWith(accountSettings);
+	});
+
+	it('waits for ready event on listen', () => {
+		imapService.listen().subscribe();
+		expect(connection.once).to.have.been.calledWith('ready');
 	});
 });
