@@ -1,5 +1,7 @@
 'use strict';
 
+const EventEmitter = require('events').EventEmitter;
+
 const rx = require('rxjs/Observable');
 require('rxjs/add/observable/of');
 
@@ -13,25 +15,21 @@ const ImapService = require('./imap-service');
 describe('Imap Service', () => {
 	let imapService;
 
-	let connectionFactory;
-	let connection;
+	let imapConstructor;
 	let accountSettingsService;
 	let accountSettings = {
 		login: 'fake.login'
 	};
 
-	let readySpy;
+	let imapStub;
 
 	beforeEach(() => {
-		readySpy = sinon.stub();
-		connection = {
-			once: sinon.stub()
-		};
-		connection.once.yields('ready');
-		connectionFactory = sinon.stub().returns(connection);
+		let imapStub = new EventEmitter();
+		imapStub.connect = sinon.stub();
+		imapConstructor = sinon.stub().returns(imapStub);
 		accountSettingsService = {};
 		accountSettingsService.getAll = sinon.stub().returns(rx.Observable.of(accountSettings));
-		imapService = new ImapService(connectionFactory, accountSettingsService);
+		imapService = new ImapService(imapConstructor, accountSettingsService);
 	});
 
 	it('allows us to listen for incoming mails', () => {
@@ -51,11 +49,25 @@ describe('Imap Service', () => {
 
 	it('creates a new connection on listen', () => {
 		let subscription = imapService.listen().subscribe();
-		expect(connectionFactory).to.have.been.calledWith(accountSettings);
+		expect(imapConstructor).to.have.been.calledWith(accountSettings);
 	});
 
-	it('waits for ready event on listen', () => {
+	it('subscribes to imap ready and error events on listen', () => {
+		imapStub.addListener = sinon.stub();
 		imapService.listen().subscribe();
-		expect(connection.once).to.have.been.calledWith('ready');
+		expect(imapStub.addListener).to.have.been.calledWith('ready');
+		expect(imapStub.addListener).to.have.been.calledWith('error');
+	});
+
+	it('passes an error event to the subscription', () => {
+		let observable = imapService.listen();
+		let thrownError = new Error('Some Error.');
+		let catchedError = null;
+		observable.catch(e => {
+			catchedError = e;
+			return [];
+		}).subscribe(() => {});
+		connection.emit('error', thrownError);
+		expect(catchedError).to.equal(thrownError);
 	});
 });

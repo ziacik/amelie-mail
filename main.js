@@ -9,7 +9,12 @@ electrolyte.use(electrolyte.dir('server'));
 electrolyte.use(electrolyte.node_modules());
 
 let imapService = electrolyte.create('imap-service');
-imapService.listen().subscribe();
+imapService.listen().catch(e => {
+	console.error(e)
+	return [];
+}).subscribe(a => {
+	console.log('Subscription event', a);
+});
 
 let mainWindow;
 
