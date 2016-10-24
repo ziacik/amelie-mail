@@ -37,37 +37,40 @@ describe('Imap Service', () => {
 		expect(observable).to.exist;
 	});
 
-	it('allows us to subscribe for incoming mails', () => {
-		let subscription = imapService.listen().subscribe();
-		expect(subscription).to.exist;
-	});
+	describe('listen', () => {
+		it('allows us to subscribe for incoming mails', () => {
+			let subscription = imapService.listen().subscribe();
+			expect(subscription).to.exist;
+		});
 
-	it('allows us to unsubscribe from incoming mails', () => {
-		let subscription = imapService.listen().subscribe();
-		expect(() => subscription.unsubscribe()).not.to.throw();
-	});
+		it('can be unsubscribed from', () => {
+			let subscription = imapService.listen().subscribe();
+			expect(() => subscription.unsubscribe()).not.to.throw();
+		});
 
-	it('creates a new connection on listen', () => {
-		let subscription = imapService.listen().subscribe();
-		expect(imapConstructor).to.have.been.calledWith(accountSettings);
-	});
+		it('creates a new imap instance', () => {
+			let subscription = imapService.listen().subscribe();
+			expect(imapConstructor).to.have.been.calledWith(accountSettings);
+		});
 
-	it('subscribes to imap ready and error events on listen', () => {
-		imapStub.addListener = sinon.stub();
-		imapService.listen().subscribe();
-		expect(imapStub.addListener).to.have.been.calledWith('ready');
-		expect(imapStub.addListener).to.have.been.calledWith('error');
-	});
+		it('calls imap.connect and subscribes to imap ready and error events on listen', () => {
+			imapStub.addListener = sinon.stub();
+			imapService.listen().subscribe();
+			expect(imapStub.connect).to.have.been.calledWith();
+			expect(imapStub.addListener).to.have.been.calledWith('ready');
+			expect(imapStub.addListener).to.have.been.calledWith('error');
+		});
 
-	it('passes an error event to the subscription', () => {
-		let observable = imapService.listen();
-		let thrownError = new Error('Some Error.');
-		let catchedError = null;
-		observable.catch(e => {
-			catchedError = e;
-			return [];
-		}).subscribe(() => {});
-		connection.emit('error', thrownError);
-		expect(catchedError).to.equal(thrownError);
+		it('passes an error event to the subscription', () => {
+			let observable = imapService.listen();
+			let thrownError = new Error('Some Error.');
+			let catchedError = null;
+			observable.catch(e => {
+				catchedError = e;
+				return [];
+			}).subscribe(() => {});
+			connection.emit('error', thrownError);
+			expect(catchedError).to.equal(thrownError);
+		});
 	});
 });

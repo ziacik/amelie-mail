@@ -5,7 +5,6 @@ require('rxjs/add/observable/of');
 require('rxjs/add/observable/fromEvent');
 require('rxjs/add/observable/merge');
 require('rxjs/add/observable/throw');
-require('rxjs/add/operator/mergeMap');
 require('rxjs/add/operator/catch');
 
 class ImapService {
