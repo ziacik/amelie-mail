@@ -6,6 +6,8 @@ require('rxjs/add/observable/fromEvent');
 require('rxjs/add/observable/merge');
 require('rxjs/add/observable/throw');
 require('rxjs/add/operator/catch');
+require('rxjs/add/operator/mergeMap');
+require('rxjs/add/observable/bindNodeCallback');
 
 class ImapService {
 	constructor(imapConstructor, accountSettingsService) {
@@ -15,6 +17,7 @@ class ImapService {
 
 	listen() {
 		return this.accountSettingsService.getAll().flatMap(accountSettings => {
+			accountSettings.debug = console.log;
 			this.imap = new this.imapConstructor(accountSettings);
 			this.imap.connect();
 
@@ -22,6 +25,8 @@ class ImapService {
 				rx.Observable.fromEvent(this.imap, 'error').flatMap(rx.Observable.throw),
 				rx.Observable.fromEvent(this.imap, 'ready')
 			);
+		}).flatMap(() => {
+			return rx.Observable.bindNodeCallback(this.imap.openBox.bind(this.imap))('INBOX');
 		});
 	}
 }

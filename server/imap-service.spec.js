@@ -24,7 +24,7 @@ describe('Imap Service', () => {
 	let imapStub;
 
 	beforeEach(() => {
-		let imapStub = new EventEmitter();
+		imapStub = new EventEmitter();
 		imapStub.connect = sinon.stub();
 		imapConstructor = sinon.stub().returns(imapStub);
 		accountSettingsService = {};
@@ -69,8 +69,26 @@ describe('Imap Service', () => {
 				catchedError = e;
 				return [];
 			}).subscribe(() => {});
-			connection.emit('error', thrownError);
+			imapStub.emit('error', thrownError);
 			expect(catchedError).to.equal(thrownError);
+		});
+
+		describe('when ready', () => {
+			let subscription;
+			let mailStream;
+			let inboxStub;
+
+			beforeEach(() => {
+				imapStub.connect = sinon.stub();
+				imapStub.openBox = sinon.stub();
+				mailStream = sinon.stub();
+				subscription = imapService.listen().subscribe(mailStream);
+				imapStub.emit('ready');
+			});
+
+			it('opens inbox', () => {
+				expect(imapStub.openBox).to.have.been.calledWith('INBOX');
+			});
 		});
 	});
 });
