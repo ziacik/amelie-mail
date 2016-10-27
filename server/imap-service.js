@@ -23,7 +23,7 @@ class ImapService {
 		// }).flatMap(() => {
 		// 	return rx.Observable.fromPromise(this.imap.selectMailbox('INBOX'));
 		}).flatMap(() => {
-			return rx.Observable.fromPromise(this.imap.listMessages('INBOX', '1:*', ['uid', 'body[]']));
+			return rx.Observable.fromPromise(this.imap.listMessages('INBOX', '1', ['uid', 'flags', 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]']));
 		});
 
 			// return rx.Observable.merge(
