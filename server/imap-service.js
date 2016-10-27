@@ -2,6 +2,7 @@
 
 const rx = require('rxjs/Observable');
 require('rxjs/add/observable/of');
+require('rxjs/add/observable/fromPromise');
 require('rxjs/add/observable/fromEvent');
 require('rxjs/add/observable/merge');
 require('rxjs/add/observable/throw');
@@ -10,27 +11,32 @@ require('rxjs/add/operator/mergeMap');
 require('rxjs/add/observable/bindNodeCallback');
 
 class ImapService {
-	constructor(imapConstructor, accountSettingsService) {
-		this.imapConstructor = imapConstructor;
+	constructor(imap, accountSettingsService) {
+		this.imap = imap;
 		this.accountSettingsService = accountSettingsService;
 	}
 
 	listen() {
 		return this.accountSettingsService.getAll().flatMap(accountSettings => {
-			accountSettings.debug = console.log;
-			this.imap = new this.imapConstructor(accountSettings);
-			this.imap.connect();
-
-			return rx.Observable.merge(
-				rx.Observable.fromEvent(this.imap, 'error').flatMap(rx.Observable.throw),
-				rx.Observable.fromEvent(this.imap, 'ready')
-			);
+			this.imap = new this.imap('imap.gmail.com', 993, accountSettings);
+			return rx.Observable.fromPromise(this.imap.connect());
+		// }).flatMap(() => {
+		// 	return rx.Observable.fromPromise(this.imap.selectMailbox('INBOX'));
 		}).flatMap(() => {
-			return rx.Observable.bindNodeCallback(this.imap.openBox.bind(this.imap))('INBOX');
+			return rx.Observable.fromPromise(this.imap.listMessages('INBOX', '1:*', ['uid', 'body[]']));
 		});
+
+			// return rx.Observable.merge(
+			// 	rx.Observable.fromEvent(this.imap, 'error').flatMap(rx.Observable.throw),
+			// 	rx.Observable.fromEvent(this.imap, 'ready')
+			// );
+		// });
+		// }).flatMap(() => {
+		// 	return rx.Observable.bindNodeCallback(this.imap.openBox.bind(this.imap))('INBOX');
+		// });
 	}
 }
 
 module.exports = ImapService;
 module.exports['@singleton'] = true;
-module.exports['@require'] = ['imap', 'account-settings-service'];
+module.exports['@require'] = ['emailjs-imap-client', 'account-settings-service'];

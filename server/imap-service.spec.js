@@ -9,8 +9,10 @@ const chai = require('chai');
 const sinon = require('sinon');
 const expect = chai.expect;
 chai.use(require('sinon-chai'));
+require('sinon-as-promised');
 
 const ImapService = require('./imap-service');
+const imap = require('imap-simple');
 
 describe('Imap Service', () => {
 	let imapService;
@@ -21,15 +23,15 @@ describe('Imap Service', () => {
 		login: 'fake.login'
 	};
 
-	let imapStub;
-
 	beforeEach(() => {
-		imapStub = new EventEmitter();
-		imapStub.connect = sinon.stub();
-		imapConstructor = sinon.stub().returns(imapStub);
+		sinon.stub(imap, 'connect').resolves();
 		accountSettingsService = {};
 		accountSettingsService.getAll = sinon.stub().returns(rx.Observable.of(accountSettings));
-		imapService = new ImapService(imapConstructor, accountSettingsService);
+		imapService = new ImapService(imap, accountSettingsService);
+	});
+
+	afterEach(() => {
+		imap.connect.restore();
 	});
 
 	it('allows us to listen for incoming mails', () => {
@@ -48,32 +50,27 @@ describe('Imap Service', () => {
 			expect(() => subscription.unsubscribe()).not.to.throw();
 		});
 
-		it('creates a new imap instance', () => {
-			let subscription = imapService.listen().subscribe();
-			expect(imapConstructor).to.have.been.calledWith(accountSettings);
-		});
-
-		it('calls imap.connect and subscribes to imap ready and error events on listen', () => {
-			imapStub.addListener = sinon.stub();
+		it('calls imap.connect', () => {
 			imapService.listen().subscribe();
-			expect(imapStub.connect).to.have.been.calledWith();
-			expect(imapStub.addListener).to.have.been.calledWith('ready');
-			expect(imapStub.addListener).to.have.been.calledWith('error');
+			expect(imap.connect).to.have.been.calledWith(accountSettings);
 		});
 
-		it('passes an error event to the subscription', () => {
-			let observable = imapService.listen();
+		it('receives an error when connect fails', () => {
 			let thrownError = new Error('Some Error.');
-			let catchedError = null;
-			observable.catch(e => {
-				catchedError = e;
+			imap.connect.rejects(thrownError);
+			return imapService.listen().catch(e => {
+				expect(e).to.equal(thrownError);
 				return [];
-			}).subscribe(() => {});
-			imapStub.emit('error', thrownError);
-			expect(catchedError).to.equal(thrownError);
+			}).subscribe(() => {
+				throw new Error('Expected an error.');
+			})
 		});
 
-		describe('when ready', () => {
+		it('opens inbox', () => {
+			
+		});
+
+		describe('when connected', () => {
 			let subscription;
 			let mailStream;
 			let inboxStub;
@@ -89,6 +86,16 @@ describe('Imap Service', () => {
 			it('opens inbox', () => {
 				expect(imapStub.openBox).to.have.been.calledWith('INBOX');
 			});
+
+			describe('when inbox is open', () => {
+				beforeEach(() => {
+
+				});
+
+				it('fetches all headers', () => {
+
+				});
+			})
 		});
 	});
 });

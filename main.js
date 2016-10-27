@@ -13,7 +13,7 @@ imapService.listen().catch(e => {
 	console.error(e)
 	return [];
 }).subscribe(a => {
-	console.log('Subscription event', a);
+	console.log(require('util').inspect(a, { depth: null }));
 });
 
 let mainWindow;
