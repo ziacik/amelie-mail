@@ -18,12 +18,12 @@ class ImapService {
 
 	listen() {
 		return this.accountSettingsService.getAll().flatMap(accountSettings => {
-			this.imap = new this.imap('imap.gmail.com', 993, accountSettings);
+			this.imap = new this.imap(accountSettings.host, accountSettings.port, accountSettings.options);
 			return rx.Observable.fromPromise(this.imap.connect());
 		// }).flatMap(() => {
 		// 	return rx.Observable.fromPromise(this.imap.selectMailbox('INBOX'));
 		}).flatMap(() => {
-			return rx.Observable.fromPromise(this.imap.listMessages('INBOX', '1', ['uid', 'flags', 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]']));
+			return rx.Observable.fromPromise(this.imap.listMessages('INBOX', '1:*', ['uid', 'flags', 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]']));
 		});
 
 			// return rx.Observable.merge(
