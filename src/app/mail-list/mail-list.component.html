@@ -1,0 +1,5 @@
+<div class="ui segemnts">
+	<div class="ui segment" *ngFor="let mail of mails" [class.blue]="!mail.flags || mail.flags.indexOf('\\Seen') < 0" [class.inverted]="mail.flags &amp;&amp; mail.flags.indexOf('\\Flagged') >= 0">
+		{{ mail[ 'body[header.fields (subject)]'] }}
+	</div>
+</div>

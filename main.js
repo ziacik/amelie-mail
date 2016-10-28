@@ -13,7 +13,14 @@ imapService.listen().catch(e => {
 	console.error(e)
 	return [];
 }).subscribe(a => {
-	console.log(require('util').inspect(a, { depth: null }));
+	//console.log(require('util').inspect(a, { depth: null }));
+	sender.send('fetch', a);
+});
+
+let sender;
+
+electron.ipcMain.on('listen', event => {
+	sender = event.sender;
 });
 
 let mainWindow;

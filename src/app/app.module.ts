@@ -3,10 +3,12 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
+import { MailListComponent } from './mail-list/mail-list.component';
 
 @NgModule({
 	declarations: [
-		AppComponent
+		AppComponent,
+		MailListComponent
 	],
 	imports: [
 		BrowserModule,
