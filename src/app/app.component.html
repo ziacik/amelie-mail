@@ -3,6 +3,11 @@
 		<h1>{{ title }}</h1>
 	</div>
 </div>
-<div class="ui main container">
-	<app-mail-list></app-mail-list>
+<div class="ui fluid container">
+	<div class="ui internally celled grid">
+		<div class="row">
+			<app-mail-list class="six wide column"></app-mail-list>
+			<app-mail-view class="ten wide column"></app-mail-view>
+		</div>
+	</div>
 </div>
