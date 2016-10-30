@@ -9,6 +9,7 @@ electrolyte.use(electrolyte.dir('server'));
 electrolyte.use(electrolyte.node_modules());
 
 
+
 electron.ipcMain.on('listen', event => {
 	let imapService = electrolyte.create('imap-service');
 	imapService.listen().catch(e => {
@@ -31,6 +32,11 @@ function createWindow() {
 }
 app.on('ready', () => {
 	createWindow();
+	electron.protocol.registerBufferProtocol('cid', (request, callback) => {
+		callback({mimeType: 'text/html', data: new Buffer('<h5>Response</h5>')})
+	}, (error) => {
+		if (error) console.error('Failed to register protocol')
+	})
 });
 app.on('window-all-closed', function() {
 	if (process.platform !== 'darwin') {

@@ -5,17 +5,21 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { MailListComponent } from './mail-list/mail-list.component';
 import { MailViewComponent } from './mail-view/mail-view.component';
+import { MailContentViewComponent } from './mail-content-view/mail-content-view.component';
+import { routing } from './app.routing';
 
 @NgModule({
 	declarations: [
 		AppComponent,
 		MailListComponent,
-		MailViewComponent
+		MailViewComponent,
+		MailContentViewComponent
 	],
 	imports: [
 		BrowserModule,
 		CommonModule,
-		FormsModule
+		FormsModule,
+		routing
 	],
 	providers: [],
 	bootstrap: [AppComponent]

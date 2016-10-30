@@ -13,10 +13,11 @@ export class MailListComponent implements OnInit {
 	constructor(private zone: NgZone) { }
 
 	ngOnInit() {
-		electron.ipcRenderer.send('listen');
-		electron.ipcRenderer.on('fetch', (event, mails) => {
-			console.log(mails);
-			this.zone.run(() => this.mails = mails);
-		});
+		if (electron) {
+			electron.ipcRenderer.send('listen');
+			electron.ipcRenderer.on('fetch', (event, mails) => {
+				this.zone.run(() => this.mails = mails);
+			});
+		}
 	}
 }
