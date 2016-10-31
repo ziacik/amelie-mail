@@ -35,6 +35,15 @@ class ImapService {
 		// 	return rx.Observable.bindNodeCallback(this.imap.openBox.bind(this.imap))('INBOX');
 		// });
 	}
+
+	get(uid) {
+		return this.imap.listMessages('INBOX', uid, ['BODY[]'], {
+			byUid: true
+		}).then(m => {
+			console.log(m);
+			return m;
+		});
+	}
 }
 
 module.exports = ImapService;

@@ -8,16 +8,24 @@ const electrolyte = require('electrolyte');
 electrolyte.use(electrolyte.dir('server'));
 electrolyte.use(electrolyte.node_modules());
 
-
+const imapService = electrolyte.create('imap-service');
 
 electron.ipcMain.on('listen', event => {
-	let imapService = electrolyte.create('imap-service');
 	imapService.listen().catch(e => {
 		console.error(e)
 		return [];
 	}).subscribe(a => {
 		//console.log(require('util').inspect(a, { depth: null }));
 		event.sender.send('fetch', a);
+	});
+});
+
+electron.ipcMain.on('get', (event, uid) => {
+	imapService.get(uid ).then(message => {
+		console.log(message);
+		event.sender.send('got', message);
+	}).catch(err => {
+		console.log(err);
 	});
 });
 

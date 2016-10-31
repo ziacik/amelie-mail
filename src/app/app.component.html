@@ -6,8 +6,8 @@
 <div class="ui fluid container">
 	<div class="ui internally celled grid">
 		<div class="row">
-			<app-mail-list class="six wide column"></app-mail-list>
-			<app-mail-view class="ten wide column"></app-mail-view>
+			<app-mail-list class="six wide column" (selectedMail)="selectedMail=$event"></app-mail-list>
+			<app-mail-view class="ten wide column" [selectedMail]="selectedMail"></app-mail-view>
 		</div>
 	</div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, AfterViewInit, Input } from '@angular/core';
 
 declare global {
 	interface JQuery {
@@ -9,18 +9,21 @@ declare global {
 declare var $: any;
 
 @Component({
-  selector: 'app-mail-view',
-  templateUrl: './mail-view.component.html',
-  styleUrls: ['./mail-view.component.css']
+	selector: 'app-mail-view',
+	templateUrl: './mail-view.component.html',
+	styleUrls: ['./mail-view.component.css']
 })
 export class MailViewComponent implements AfterViewInit {
 
-  constructor(private elementRef: ElementRef) { }
+	@Input() selectedMail: any;
 
-  ngAfterViewInit() {
-	  let dropdown = this.elementRef.nativeElement.firstChild;
-	  console.log(dropdown);
-	$(dropdown).embed();
-  }
+
+	constructor(private elementRef: ElementRef) { }
+
+	ngAfterViewInit() {
+		let dropdown = this.elementRef.nativeElement.firstChild;
+		console.log(dropdown);
+		$(dropdown).embed();
+	}
 
 }
