@@ -5,7 +5,7 @@
   "angular-cli": {},
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "electron main.js",
     "lint": "tslint \"src/**/*.ts\"",
     "test": "ng test",
     "pree2e": "webdriver-manager update --standalone false --gecko false",
@@ -31,6 +31,7 @@
     "@types/jasmine": "2.5.38",
     "@types/node": "^6.0.42",
     "angular-cli": "1.0.0-beta.24",
+    "chai": "^3.5.0",
     "codelyzer": "~2.0.0-beta.1",
     "jasmine-core": "2.5.2",
     "jasmine-spec-reporter": "2.5.0",
@@ -40,6 +41,9 @@
     "karma-jasmine": "^1.0.2",
     "karma-remap-istanbul": "^0.2.1",
     "protractor": "~4.0.13",
+    "sinon": "^1.17.7",
+    "sinon-as-promised": "^4.0.2",
+    "sinon-chai": "^2.8.0",
     "ts-node": "1.2.1",
     "tslint": "^4.0.2",
     "typescript": "~2.0.3"
