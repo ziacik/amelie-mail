@@ -46,7 +46,7 @@
 			"template": false
 		},
 		"spec": {
-			"class": false,
+			"class": true,
 			"component": true,
 			"directive": true,
 			"module": false,
