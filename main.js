@@ -8,7 +8,11 @@ const electrolyte = require('electrolyte');
 electrolyte.use(electrolyte.dir('server'));
 electrolyte.use(electrolyte.node_modules());
 
-const imapService = electrolyte.create('imap-service');
+let imapService;
+
+electrolyte.create('imap-service').then(service => {
+	imapService = service;
+});
 
 electron.ipcMain.on('listen', event => {
 	imapService.listen().catch(e => {
@@ -21,7 +25,7 @@ electron.ipcMain.on('listen', event => {
 });
 
 electron.ipcMain.on('get', (event, uid) => {
-	imapService.get(uid ).then(message => {
+	imapService.get(uid).then(message => {
 		console.log(message);
 		event.sender.send('got', message);
 	}).catch(err => {
@@ -41,7 +45,10 @@ function createWindow() {
 app.on('ready', () => {
 	createWindow();
 	electron.protocol.registerBufferProtocol('cid', (request, callback) => {
-		callback({mimeType: 'text/html', data: new Buffer('<h5>Response</h5>')})
+		callback({
+			mimeType: 'text/html',
+			data: new Buffer('<h5>Response</h5>')
+		})
 	}, (error) => {
 		if (error) console.error('Failed to register protocol')
 	})

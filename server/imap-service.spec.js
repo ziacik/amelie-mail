@@ -12,26 +12,28 @@ chai.use(require('sinon-chai'));
 require('sinon-as-promised');
 
 const ImapService = require('./imap-service');
-const imap = require('imap-simple');
 
-describe('Imap Service', () => {
+describe.only('Imap Service', () => {
 	let imapService;
+	let ClientClass;
+	let client;
 
-	let imapConstructor;
 	let accountSettingsService;
 	let accountSettings = {
-		login: 'fake.login'
+		host: 'some.host',
+		port: 993,
+		options: {}
 	};
 
 	beforeEach(() => {
-		sinon.stub(imap, 'connect').resolves();
+		client = {
+			connect: sinon.stub().resolves(),
+			listMessages: sinon.stub().resolves([])
+		};
+		ClientClass = sinon.stub().returns(client);
 		accountSettingsService = {};
 		accountSettingsService.getAll = sinon.stub().returns(rx.Observable.of(accountSettings));
-		imapService = new ImapService(imap, accountSettingsService);
-	});
-
-	afterEach(() => {
-		imap.connect.restore();
+		imapService = new ImapService(accountSettingsService, ClientClass);
 	});
 
 	it('allows us to listen for incoming mails', () => {
@@ -50,14 +52,19 @@ describe('Imap Service', () => {
 			expect(() => subscription.unsubscribe()).not.to.throw();
 		});
 
-		it('calls imap.connect', () => {
+		it('sets up the client with account settings', () => {
 			imapService.listen().subscribe();
-			expect(imap.connect).to.have.been.calledWith(accountSettings);
+			expect(ClientClass).to.have.been.calledWith(accountSettings.host, accountSettings.port, accountSettings.options);
+		});
+
+		it('calls client.connect', () => {
+			imapService.listen().subscribe();
+			expect(client.connect).to.have.been.calledWith();
 		});
 
 		it('receives an error when connect fails', () => {
 			let thrownError = new Error('Some Error.');
-			imap.connect.rejects(thrownError);
+			client.connect.rejects(thrownError);
 			return imapService.listen().catch(e => {
 				expect(e).to.equal(thrownError);
 				return [];
@@ -66,36 +73,10 @@ describe('Imap Service', () => {
 			})
 		});
 
-		it('opens inbox', () => {
-			
-		});
-
 		describe('when connected', () => {
-			let subscription;
-			let mailStream;
-			let inboxStub;
+			beforeEach(() => {});
 
-			beforeEach(() => {
-				imapStub.connect = sinon.stub();
-				imapStub.openBox = sinon.stub();
-				mailStream = sinon.stub();
-				subscription = imapService.listen().subscribe(mailStream);
-				imapStub.emit('ready');
-			});
-
-			it('opens inbox', () => {
-				expect(imapStub.openBox).to.have.been.calledWith('INBOX');
-			});
-
-			describe('when inbox is open', () => {
-				beforeEach(() => {
-
-				});
-
-				it('fetches all headers', () => {
-
-				});
-			})
+			it('lists messages', () => {});
 		});
 	});
 });
