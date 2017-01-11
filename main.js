@@ -19,7 +19,9 @@ electron.ipcMain.on('listen', event => {
 		console.error(e)
 		return [];
 	}).subscribe(a => {
-		//console.log(require('util').inspect(a, { depth: null }));
+		console.log(require('util').inspect(a, {
+			depth: null
+		}));
 		event.sender.send('fetch', a);
 	});
 });

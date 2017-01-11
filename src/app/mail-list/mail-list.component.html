@@ -1,5 +1,5 @@
 <div class="ui divided list container">
 	<div class="item" *ngFor="let mail of mails" [class.blue]="!mail.flags || mail.flags.indexOf('\\Seen') < 0" [class.inverted]="mail.flags &amp;&amp; mail.flags.indexOf('\\Flagged') >= 0" (click)="load(mail)">
-		{{ mail[ 'body[header.fields (subject)]'] }}
+		{{ mail.subject }} from {{ mail.from }}
 	</div>
 </div>
