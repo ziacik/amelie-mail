@@ -1,14 +1,11 @@
-<div class="ui top fixed inverted menu">
-	<div class="item">
-		<a [routerLink]="['view']">{{ title }}</a>
+<div id="container">
+	<div class="ui inverted segment" id="nav">
+		<div class="ui basic inverted circular button">Compose</div>
+	</div>
+	<div class="ui segment" id="list">
+		<app-mail-list class="six wide column" (selectedMail)="selectedMail=$event"></app-mail-list>
+	</div>
+	<div id="main">
+		<app-mail-view class="ten wide column" [selectedMail]="selectedMail"></app-mail-view>
 	</div>
 </div>
-<div class="ui fluid container">
-	<div class="ui internally celled grid">
-		<div class="row">
-			<app-mail-list class="six wide column" (selectedMail)="selectedMail=$event"></app-mail-list>
-			<app-mail-view class="ten wide column" [selectedMail]="selectedMail"></app-mail-view>
-		</div>
-	</div>
-</div>
-<router-outlet></router-outlet>
