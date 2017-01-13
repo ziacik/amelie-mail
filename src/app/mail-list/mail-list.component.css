@@ -1,3 +1,20 @@
-.ui {
-	margin-top:6em;
+.item,
+.ui.divided.items > .item:first-child {
+	padding: 1em !important;
+}
+
+h4 {
+	font-weight: bold;
+	font-size: 1.2rem;
+}
+
+h5 {
+	text-transform: uppercase;
+	color: #999;
+	font-size: 0.95rem;
+}
+
+h4,
+h5 {
+	margin: 0;
 }

@@ -17,6 +17,7 @@ export class MailListComponent implements OnInit {
 		if (electron) {
 			electron.ipcRenderer.send('listen');
 			electron.ipcRenderer.on('fetch', (event, mails) => {
+				console.log(mails);
 				this.zone.run(() => this.mails = mails);
 			});
 		}

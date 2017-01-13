@@ -1,5 +1,12 @@
-<div class="ui divided list container">
-	<div class="item" *ngFor="let mail of mails" [class.blue]="!mail.flags || mail.flags.indexOf('\\Seen') < 0" [class.inverted]="mail.flags &amp;&amp; mail.flags.indexOf('\\Flagged') >= 0" (click)="load(mail)">
-		{{ mail.subject }} from {{ mail.from }}
+<div class="ui divided selection list">
+	<div *ngFor="let mail of mails" class="item">
+		<div class="ui mini image"><img src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ mail.from[0].name || mail.from[0].address }}&w=35&h=35" /></div>
+		<div class="content">
+			<div class="header">
+				<h5>{{ mail.from[0].name || mail.from[0].address }}</h5>
+				<h4>{{ mail.subject }}</h4>
+			</div>
+			<div class="description">Hey, I had some feedback for pull request #51. We should center the menu so it looks better on mobile.</div>
+		</div>
 	</div>
 </div>
