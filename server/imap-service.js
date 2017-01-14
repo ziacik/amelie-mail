@@ -1,6 +1,7 @@
 'use strict';
 
 const Mail = require('./mail');
+const codec = require('emailjs-mime-codec');
 
 const rx = require('rxjs/Observable');
 require('rxjs/add/observable/of');
@@ -52,7 +53,7 @@ class ImapService {
 		return this.client.connect()
 			.then(() => this.client.selectMailbox('INBOX'))
 			.then(inboxInfo => {
-				let last1oo = inboxInfo.exists - 100;
+				let last1oo = inboxInfo.exists - 78;
 				return this.client.listMessages('INBOX', last1oo + ':*', ['uid', 'flags', 'envelope', 'bodystructure']);
 			})
 			.then(messages => this.addPlainTexts(messages));
@@ -69,7 +70,10 @@ class ImapService {
 					let message = messages.filter(it => it.uid === bodyMessage.uid)[0];
 
 					if (message) {
-						message.body = bodyMessage[`body[${partInfo.part}]`];
+						let part = this.getPlainTextPart(message.bodystructure);
+						let bodyEncoded = bodyMessage[`body[${partInfo.part}]`];
+						let bodyDecoded = this.decode(bodyEncoded, part.encoding, (part.parameters || {}).charset);
+						message.body = bodyDecoded;
 						message.preview = message.body.substr(0, 200);
 					}
 				});
@@ -78,14 +82,26 @@ class ImapService {
 		return Promise.all(promises).then(() => messages);
 	}
 
+	decode(bodyEncoded, encoding, charset) {
+		if (encoding === 'quoted-printable') {
+			return codec.quotedPrintableDecode(bodyEncoded, charset);
+		} else if (encoding === 'base64') {
+			return codec.base64Decode(bodyEncoded, charset);
+		} else {
+			return bodyEncoded;
+		}
+	}
+
 	/* private */
 	getPlainTextPartCodeMap(messages) {
 		let map = {};
 		messages.forEach(message => {
-			let part = this.getPlainTextPartCodeMapFrom(message.bodystructure);
+			console.log(JSON.stringify(message.bodystructure, null, '   '));
+			let part = this.getPlainTextPart(message.bodystructure);
 			if (part !== undefined) {
-				map[part] = map[part] || [];
-				map[part].push(message.uid);
+				let partCode = part.part || '1';
+				map[partCode] = map[partCode] || [];
+				map[partCode].push(message.uid);
 			}
 		});
 		return Object.keys(map).map(part => {
@@ -97,14 +113,14 @@ class ImapService {
 	}
 
 	/* private */
-	getPlainTextPartCodeMapFrom(structure) {
+	getPlainTextPart(structure) {
 		if (structure.type === 'text/plain') {
-			return structure.part || '1';
+			return structure;
 		}
 
 		if (structure.childNodes) {
 			for (let i = 0; i < structure.childNodes.length; i++) {
-				let childPart = this.getPlainTextPartCodeMapFrom(structure.childNodes[i]);
+				let childPart = this.getPlainTextPart(structure.childNodes[i]);
 				if (childPart !== undefined) {
 					return childPart;
 				}

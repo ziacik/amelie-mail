@@ -19,19 +19,15 @@ electron.ipcMain.on('listen', event => {
 		console.error(e)
 		return [];
 	}).subscribe(a => {
-		console.log(require('util').inspect(a, {
-			depth: null
-		}));
 		event.sender.send('fetch', a);
 	});
 });
 
 electron.ipcMain.on('get', (event, uid) => {
 	imapService.get(uid).then(message => {
-		console.log(message);
 		event.sender.send('got', message);
 	}).catch(err => {
-		console.log(err);
+		console.error(err);
 	});
 });
 
