@@ -45,6 +45,11 @@ class Mail {
 		return this;
 	}
 
+	withPreview(preview) {
+		this.preview = preview;
+		return this;
+	}
+
 	withBodyType(bodyType) {
 		this.bodyType = bodyType;
 		return this;
