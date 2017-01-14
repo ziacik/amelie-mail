@@ -1,6 +1,6 @@
 .item,
 .ui.divided.items > .item:first-child {
-	padding: 1em !important;
+	padding: 12px !important;
 }
 
 h4 {
@@ -17,4 +17,9 @@ h5 {
 h4,
 h5 {
 	margin: 0;
+}
+
+.description {
+	max-width: 269px;
+	word-wrap: break-word;
 }
