@@ -41,7 +41,7 @@ describe('MailItemComponent', () => {
 		fixture.detectChanges();
 		let field = fixture.debugElement.query(By.css('h5'));
 		expect(field).toBeTruthy();
-		expect(field.nativeElement.innerText).toEqual('Unknown');
+		expect(field.nativeElement.innerText).toEqual('UNKNOWN');
 	});
 
 	it('should display "Unknown" if "from" is empty"', () => {
@@ -49,13 +49,13 @@ describe('MailItemComponent', () => {
 		fixture.detectChanges();
 		let field = fixture.debugElement.query(By.css('h5'));
 		expect(field).toBeTruthy();
-		expect(field.nativeElement.innerText).toEqual('Unknown');
+		expect(field.nativeElement.innerText).toEqual('UNKNOWN');
 	});
 
 	it('should display "from" names and addresses', () => {
 		let field = fixture.debugElement.query(By.css('h5'));
 		expect(field).toBeTruthy();
-		expect(field.nativeElement.innerText).toEqual('Amelie Some, only@address');
+		expect(field.nativeElement.innerText).toEqual('AMELIE SOME, ONLY@ADDRESS');
 	});
 
 	it('should display a subject', () => {
@@ -65,7 +65,7 @@ describe('MailItemComponent', () => {
 	});
 
 	it('should display a preview', () => {
-		let field = fixture.debugElement.query(By.css('.preview'));
+		let field = fixture.debugElement.query(By.css('.description'));
 		expect(field).toBeTruthy();
 		expect(field.nativeElement.innerText).toEqual(mail.preview);
 	});
@@ -73,14 +73,12 @@ describe('MailItemComponent', () => {
 	it('should not have an unseen class when the mail is seen', () => {
 		mail.isSeen = true;
 		fixture.detectChanges();
-		let field = fixture.debugElement.query(By.css('.wrapper'));
-		expect(field.nativeElement.classList.contains('unseen')).toBeFalsy();
+		expect(fixture.nativeElement.classList.contains('unseen')).toBeFalsy();
 	});
 
 	it('should have an unseen class when the mail is unseen', () => {
 		mail.isSeen = false;
 		fixture.detectChanges();
-		let field = fixture.debugElement.query(By.css('.wrapper'));
-		expect(field.nativeElement.classList.contains('unseen')).toBeTruthy();
+		expect(fixture.nativeElement.classList.contains('unseen')).toBeTruthy();
 	});
 });

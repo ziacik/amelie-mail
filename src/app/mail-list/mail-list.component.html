@@ -1,12 +1,3 @@
 <div class="ui divided selection list">
-	<div *ngFor="let mail of mails" class="item" [class.unseen]="!mail.isSeen">
-		<div class="ui mini image"><img src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ mail.from[0].name || mail.from[0].address }}&w=35&h=35" /></div>
-		<div class="content">
-			<div class="header">
-				<h5>{{ mail.from[0].name || mail.from[0].address }}</h5>
-				<h4>{{ mail.subject }}</h4>
-			</div>
-			<div class="description">{{ mail.preview }}</div>
-		</div>
-	</div>
+	<app-mail-item *ngFor="let mail of mails" class="item" [mail]="mail"></app-mail-item>
 </div>

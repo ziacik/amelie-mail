@@ -3,7 +3,8 @@ import { Component, OnInit, Input } from '@angular/core';
 @Component({
 	selector: 'app-mail-item',
 	templateUrl: './mail-item.component.html',
-	styleUrls: ['./mail-item.component.css']
+	styleUrls: ['./mail-item.component.css'],
+	host: { '[class.unseen]': '!mail.isSeen' }
 })
 export class MailItemComponent implements OnInit {
 	@Input()

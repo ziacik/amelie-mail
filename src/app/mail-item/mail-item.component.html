@@ -1,10 +1,8 @@
-<div class="wrapper" [class.unseen]="!mail.isSeen">
-	<div class="ui mini image"><img src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ getFromDisplayNames() }}&w=35&h=35" /></div>
-	<div class="content">
-		<div class="header">
-			<h5>{{ getFromDisplayNames() }}</h5>
-			<h4>{{ mail.subject }}</h4>
-		</div>
-		<div class="preview">{{ mail.preview }}</div>
+<div class="ui mini image"><img src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ getFromDisplayNames() }}&w=35&h=35" /></div>
+<div class="content">
+	<div class="header">
+		<h5>{{ getFromDisplayNames() }}</h5>
+		<h4>{{ mail.subject }}</h4>
 	</div>
+	<div class="description">{{ mail.preview }}</div>
 </div>
