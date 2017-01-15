@@ -7,13 +7,15 @@ import { MailListComponent } from './mail-list/mail-list.component';
 import { MailViewComponent } from './mail-view/mail-view.component';
 import { MailContentViewComponent } from './mail-content-view/mail-content-view.component';
 import { routing } from './app.routing';
+import { MailItemComponent } from './mail-item/mail-item.component';
 
 @NgModule({
 	declarations: [
 		AppComponent,
 		MailListComponent,
 		MailViewComponent,
-		MailContentViewComponent
+		MailContentViewComponent,
+		MailItemComponent
 	],
 	imports: [
 		BrowserModule,

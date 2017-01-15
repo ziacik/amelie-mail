@@ -3,7 +3,7 @@
 import { TestBed, async, inject } from '@angular/core/testing';
 import { AppStateService } from './app-state.service';
 
-fdescribe('AppStateService', () => {
+describe('AppStateService', () => {
 	let service: AppStateService;
 
 	beforeEach(() => {
