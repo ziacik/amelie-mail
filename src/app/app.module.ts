@@ -6,8 +6,8 @@ import { AppComponent } from './app.component';
 import { MailListComponent } from './mail-list/mail-list.component';
 import { MailViewComponent } from './mail-view/mail-view.component';
 import { MailContentViewComponent } from './mail-content-view/mail-content-view.component';
-import { routing } from './app.routing';
 import { MailItemComponent } from './mail-item/mail-item.component';
+import { AppStateService } from './shared/app-state.service';
 
 @NgModule({
 	declarations: [
@@ -20,10 +20,11 @@ import { MailItemComponent } from './mail-item/mail-item.component';
 	imports: [
 		BrowserModule,
 		CommonModule,
-		FormsModule,
-		routing
+		FormsModule
 	],
-	providers: [],
+	providers: [
+		AppStateService
+	],
 	bootstrap: [AppComponent]
 })
 export class AppModule {

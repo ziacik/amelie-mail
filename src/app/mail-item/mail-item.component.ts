@@ -1,19 +1,20 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { AppStateService } from '../shared/app-state.service';
 
 @Component({
 	selector: 'app-mail-item',
 	templateUrl: './mail-item.component.html',
 	styleUrls: ['./mail-item.component.css'],
-	host: { '[class.unseen]': '!mail.isSeen' }
+	host: {
+		'[class.unseen]': '!mail.isSeen',
+		'[class.active]': 'isActive()'
+	}
 })
-export class MailItemComponent implements OnInit {
+export class MailItemComponent {
 	@Input()
 	public mail: any;
 
-	constructor() {
-	}
-
-	ngOnInit() {
+	constructor(private appStateService: AppStateService) {
 	}
 
 	private getFromDisplayNames() {
@@ -22,5 +23,9 @@ export class MailItemComponent implements OnInit {
 		} else {
 			return this.mail.from.map(from => from.name || from.address || 'Unknown').join(', ');
 		}
+	}
+
+	private isActive(): boolean {
+		return this.appStateService.getActiveMail() === this.mail;
 	}
 }

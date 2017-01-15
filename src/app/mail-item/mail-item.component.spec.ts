@@ -3,22 +3,26 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
+import { AppStateService } from '../shared/app-state.service';
 import { Mail } from '../shared/mail';
-
 import { MailItemComponent } from './mail-item.component';
 
 describe('MailItemComponent', () => {
 	let component: MailItemComponent;
 	let fixture: ComponentFixture<MailItemComponent>;
 	let mail: Mail;
+	let appStateService: AppStateService;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [MailItemComponent]
+			declarations: [MailItemComponent],
+			providers: [AppStateService]
 		}).compileComponents();
 	}));
 
 	beforeEach(() => {
+		appStateService = TestBed.get(AppStateService);
+		spyOn(appStateService, 'getActiveMail');
 		mail = new Mail();
 		mail.from = [
 			{
@@ -80,5 +84,23 @@ describe('MailItemComponent', () => {
 		mail.isSeen = false;
 		fixture.detectChanges();
 		expect(fixture.nativeElement.classList.contains('unseen')).toBeTruthy();
+	});
+
+	it('should not have an active class when there is no active mail set', () => {
+		appStateService.getActiveMail.and.returnValue(undefined);
+		fixture.detectChanges();
+		expect(fixture.nativeElement.classList.contains('active')).toBeFalsy();
+	});
+
+	it('should not have an active class when the mail is not an active mail', () => {
+		appStateService.getActiveMail.and.returnValue({});
+		fixture.detectChanges();
+		expect(fixture.nativeElement.classList.contains('active')).toBeFalsy();
+	});
+
+	it('should have an active class when the mail is an active mail', () => {
+		appStateService.getActiveMail.and.returnValue(mail);
+		fixture.detectChanges();
+		expect(fixture.nativeElement.classList.contains('active')).toBeTruthy();
 	});
 });
