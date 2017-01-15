@@ -1,4 +1,3 @@
-<div class="ui embed" data-url="cid://qweqweqw" style="height:100%" [innerHTML]="selectedMail ? selectedMail['body[]'] : ''">
-
-</div>
-Kvaky
+<iframe style="height:100%" [srcdoc]="appStateService.getActiveMail() ? appStateService.getActiveMail().body : ''">
+ ...Loading?
+</iframe>
