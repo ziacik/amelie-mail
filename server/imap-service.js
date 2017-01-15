@@ -35,6 +35,7 @@ class ImapService {
 						.withFrom(message.envelope.from || [])
 						.withTo(message.envelope.to || [])
 						.withBody(message.body)
+						.withBodyType(message.bodyType)
 						.withPreview(message.preview)
 						.withIsSeen(message.flags && message.flags.indexOf('\\Seen') >= 0)
 				})
@@ -57,12 +58,13 @@ class ImapService {
 				let last1oo = inboxInfo.exists - 8;
 				return this.client.listMessages('INBOX', last1oo + ':*', ['uid', 'flags', 'envelope', 'bodystructure']);
 			})
-			.then(messages => this.addPlainTexts(messages));
+			.then(messages => this.addBodies(messages, 'text/plain'))
+			.then(messages => this.addBodies(messages, 'text/html'));
 	}
 
 	/* private */
-	addPlainTexts(messages) {
-		let plainTextPartMap = this.getPlainTextPartCodeMap(messages);
+	addBodies(messages, partType) {
+		let plainTextPartMap = this.getPartCodeMap(messages, partType);
 		let promises = plainTextPartMap.map(partInfo => {
 			return this.client.listMessages('INBOX', partInfo.uidList, ['uid', `body.peek[${partInfo.part}]`], {
 				byUid: true
@@ -71,11 +73,15 @@ class ImapService {
 					let message = messages.filter(it => it.uid === bodyMessage.uid)[0];
 
 					if (message) {
-						let part = this.getPlainTextPart(message.bodystructure);
+						let part = this.getPart(message.bodystructure, partType);
 						let bodyEncoded = bodyMessage[`body[${partInfo.part}]`];
 						let bodyDecoded = this.decode(bodyEncoded, part.encoding, (part.parameters || {}).charset);
 						message.body = bodyDecoded;
-						message.preview = message.body.substr(0, 200);
+						message.bodyType = partType;
+
+						if (partType === 'text/plain') {
+							message.preview = message.body.substr(0, 200);
+						}
 					}
 				});
 			});
@@ -94,11 +100,11 @@ class ImapService {
 	}
 
 	/* private */
-	getPlainTextPartCodeMap(messages) {
+	getPartCodeMap(messages, partType) {
 		let map = {};
 		messages.forEach(message => {
 			console.log(JSON.stringify(message, null, '   '));
-			let part = this.getPlainTextPart(message.bodystructure);
+			let part = this.getPart(message.bodystructure, partType);
 			if (part !== undefined) {
 				let partCode = part.part || '1';
 				map[partCode] = map[partCode] || [];
@@ -114,14 +120,14 @@ class ImapService {
 	}
 
 	/* private */
-	getPlainTextPart(structure) {
-		if (structure.type === 'text/plain') {
+	getPart(structure, partType) {
+		if (structure.type === partType) {
 			return structure;
 		}
 
 		if (structure.childNodes) {
 			for (let i = 0; i < structure.childNodes.length; i++) {
-				let childPart = this.getPlainTextPart(structure.childNodes[i]);
+				let childPart = this.getPart(structure.childNodes[i], partType);
 				if (childPart !== undefined) {
 					return childPart;
 				}
