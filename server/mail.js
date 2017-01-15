@@ -54,6 +54,11 @@ class Mail {
 		this.bodyType = bodyType;
 		return this;
 	}
+
+	withIsSeen(isSeen) {
+		this.isSeen = isSeen;
+		return this;
+	}
 }
 
 module.exports = Mail;

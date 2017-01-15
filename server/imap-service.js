@@ -35,7 +35,8 @@ class ImapService {
 						.withFrom(message.envelope.from || [])
 						.withTo(message.envelope.to || [])
 						.withBody(message.body)
-						.withPreview(message.preview);
+						.withPreview(message.preview)
+						.withIsSeen(message.flags && message.flags.indexOf('\\Seen') >= 0)
 				})
 			});
 	}
@@ -53,7 +54,7 @@ class ImapService {
 		return this.client.connect()
 			.then(() => this.client.selectMailbox('INBOX'))
 			.then(inboxInfo => {
-				let last1oo = inboxInfo.exists - 78;
+				let last1oo = inboxInfo.exists - 8;
 				return this.client.listMessages('INBOX', last1oo + ':*', ['uid', 'flags', 'envelope', 'bodystructure']);
 			})
 			.then(messages => this.addPlainTexts(messages));
@@ -96,7 +97,7 @@ class ImapService {
 	getPlainTextPartCodeMap(messages) {
 		let map = {};
 		messages.forEach(message => {
-			console.log(JSON.stringify(message.bodystructure, null, '   '));
+			console.log(JSON.stringify(message, null, '   '));
 			let part = this.getPlainTextPart(message.bodystructure);
 			if (part !== undefined) {
 				let partCode = part.part || '1';

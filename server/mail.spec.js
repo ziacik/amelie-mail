@@ -1,7 +1,6 @@
 'use strict';
 
 const chai = require('chai');
-const sinon = require('sinon');
 const expect = chai.expect;
 chai.use(require('sinon-chai'));
 
@@ -61,6 +60,18 @@ describe.only('Mail', () => {
 	it('can have a body', () => {
 		let result = mail.withBody('Some body.');
 		expect(mail.body).to.equal('Some body.');
+		expect(result).to.equal(mail);
+	})
+
+	it('can have a preview', () => {
+		let result = mail.withPreview('Some preview.');
+		expect(mail.preview).to.equal('Some preview.');
+		expect(result).to.equal(mail);
+	})
+
+	it('can be seen or not seen', () => {
+		let result = mail.withIsSeen(true);
+		expect(mail.isSeen).to.equal(true);
 		expect(result).to.equal(mail);
 	})
 });

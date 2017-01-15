@@ -23,3 +23,11 @@ h5 {
 	max-width: 269px;
 	word-wrap: break-word;
 }
+
+.item {
+	border-left: 6px solid transparent;
+}
+
+.unseen {
+	border-left: 6px solid #1b98f8;
+}
