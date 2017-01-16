@@ -36,6 +36,16 @@ export class MailViewComponent {
 		return activeMail.bodyType === 'text/html';
 	}
 
+	private getText(): string {
+		let activeMail = this.getActiveMail();
+
+		if (!activeMail || !activeMail.body) {
+			return '';
+		}
+
+		return activeMail.body;
+	}
+
 	private getHtml(): SafeHtml {
 		let activeMail = this.getActiveMail();
 
