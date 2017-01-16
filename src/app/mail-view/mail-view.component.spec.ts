@@ -6,7 +6,7 @@ import { DebugElement } from '@angular/core';
 import { AppStateService } from '../shared/app-state.service';
 import { MailViewComponent } from './mail-view.component';
 
-fdescribe('MailViewComponent', () => {
+describe('MailViewComponent', () => {
 	let component: MailViewComponent;
 	let fixture: ComponentFixture<MailViewComponent>;
 	let appStateService: AppStateService;
