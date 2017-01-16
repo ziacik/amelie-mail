@@ -64,5 +64,12 @@ fdescribe('MailViewComponent', () => {
 			expect(!!iframe).toBeTruthy();
 			expect(iframe.nativeElement.srcdoc).toEqual('<h1>some body</h1>');
 		});
+
+		it('should not remove html tags', () => {
+			mail.body = '<html>whatever</html>';
+			fixture.detectChanges();
+			let iframe = fixture.debugElement.query(By.css('iframe'));
+			expect(iframe.nativeElement.srcdoc).toEqual('<html>whatever</html>');
+		});
 	});
 });

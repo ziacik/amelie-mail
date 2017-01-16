@@ -1,4 +1,4 @@
-<iframe *ngIf="isHtml()" [srcdoc]="getActiveMail()?.body">
+<iframe *ngIf="isHtml()" [srcdoc]="getHtml()">
  ...Loading?
 </iframe>
-<div *ngIf="isText()">{{ appStateService.getActiveMail()?.body }}</div>
+<div *ngIf="isText()">{{ getActiveMail()?.body }}</div>
