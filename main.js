@@ -34,7 +34,13 @@ electron.ipcMain.on('get', (event, uid) => {
 let mainWindow;
 
 function createWindow() {
-	mainWindow = new BrowserWindow();
+	mainWindow = new BrowserWindow({
+		webPreferences: {
+			defaultFontFamily: {
+				standard: 'Helvetica Neue'
+			}
+		}
+	});
 	mainWindow.loadURL(`file://${__dirname}/dist/index.html`);
 	mainWindow.on('closed', function() {
 		mainWindow = null;
