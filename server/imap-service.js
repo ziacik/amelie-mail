@@ -7,9 +7,11 @@ const rx = require('rxjs/Observable');
 require('rxjs/add/observable/of');
 require('rxjs/add/observable/fromPromise');
 require('rxjs/add/observable/fromEvent');
+require('rxjs/add/observable/fromEventPattern');
 require('rxjs/add/observable/merge');
 require('rxjs/add/observable/throw');
 require('rxjs/add/operator/catch');
+require('rxjs/add/operator/merge');
 require('rxjs/add/operator/mergeMap');
 require('rxjs/add/observable/bindNodeCallback');
 
@@ -24,7 +26,8 @@ class ImapService {
 		return this.accountSettingsService.getAll()
 			.flatMap(accountSettings => {
 				this.client = new this.Client(accountSettings.host, accountSettings.port, accountSettings.options);
-				return rx.Observable.fromPromise(this.connectAndStart());
+				this.client.logLevel = this.client.LOG_LEVEL_INFO;
+				return this.connectAndStart().merge(this._listen());
 			})
 			.map(messages => {
 				return messages.map(message => {
@@ -42,6 +45,30 @@ class ImapService {
 			});
 	}
 
+	_listen() {
+		return rx.Observable.fromEventPattern(
+			handler => {
+				this.client.onupdate = handler;
+			},
+			() => {
+				this.client.onpudate = null;
+			},
+			(path, type, value) => ({
+				path: path,
+				type: type,
+				value: value
+			})
+		).map(updateInfo => {
+			if (updateInfo.type === 'exists') {
+				let sequenceStr = this.inboxInfo.exists + ':' + updateInfo.value;
+				this.inboxInfo.exists = updateInfo.value;
+				return this._load(sequenceStr);
+			} else {
+				return [];
+			}
+		});
+	}
+
 	get(uid) {
 		return this.client.listMessages('INBOX', uid, ['BODY[]'], {
 			byUid: true
@@ -52,18 +79,36 @@ class ImapService {
 
 	/* private */
 	connectAndStart() {
-		return this.client.connect()
+		return rx.Observable.fromPromise(
+			this.client.connect()
 			.then(() => this.client.selectMailbox('INBOX'))
 			.then(inboxInfo => {
-				let last1oo = inboxInfo.exists - 8;
-				return this.client.listMessages('INBOX', last1oo + ':*', ['uid', 'flags', 'envelope', 'bodystructure']);
+				this.inboxInfo = inboxInfo;
+				return inboxInfo;
 			})
+		).map(inboxInfo => {
+			console.log(inboxInfo);
+			let last1oo = inboxInfo.exists - 8;
+			console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. asdfasdf');
+			return this._load(last1oo + ':*');
+		});
+	}
+
+	_load(sequenceStr) {
+		console.log('>>>>>>>>>>>>>>>>>>>>>> LOAD', sequenceStr);
+		return rx.Observable.fromPromise(
+			this.client.listMessages('INBOX', sequenceStr, ['uid', 'flags', 'envelope', 'bodystructure'])
 			.then(messages => this.addBodies(messages, 'text/plain'))
-			.then(messages => this.addBodies(messages, 'text/html'));
+			.then(messages => this.addBodies(messages, 'text/html'))
+		).map(mess => {
+			console.log('GOT MESS', mess.length);
+			return mess;
+		})
 	}
 
 	/* private */
 	addBodies(messages, partType) {
+		console.log('>>>> ADDB');
 		let plainTextPartMap = this.getPartCodeMap(messages, partType);
 		let promises = plainTextPartMap.map(partInfo => {
 			return this.client.listMessages('INBOX', partInfo.uidList, ['uid', `body.peek[${partInfo.part}]`], {
@@ -86,7 +131,10 @@ class ImapService {
 				});
 			});
 		});
-		return Promise.all(promises).then(() => messages);
+		return Promise.all(promises).then(() => {
+			console.log('DONE', messages);
+			return messages;
+		});
 	}
 
 	decode(bodyEncoded, encoding, charset) {
@@ -103,7 +151,6 @@ class ImapService {
 	getPartCodeMap(messages, partType) {
 		let map = {};
 		messages.forEach(message => {
-			console.log(JSON.stringify(message, null, '   '));
 			let part = this.getPart(message.bodystructure, partType);
 			if (part !== undefined) {
 				let partCode = part.part || '1';
