@@ -14,6 +14,7 @@ require('rxjs/add/operator/catch');
 require('rxjs/add/operator/merge');
 require('rxjs/add/operator/mergeMap');
 require('rxjs/add/observable/bindNodeCallback');
+require('rxjs/add/observable/empty');
 
 class ImapService {
 	constructor(accountSettingsService, Client, codec) {
@@ -27,8 +28,9 @@ class ImapService {
 			.flatMap(accountSettings => {
 				this.client = new this.Client(accountSettings.host, accountSettings.port, accountSettings.options);
 				this.client.logLevel = this.client.LOG_LEVEL_INFO;
-				return this.connectAndStart().merge(this._listen());
+				return this.connectAndStart()
 			})
+			.merge(this._listen())
 			.map(messages => {
 				return messages.map(message => {
 					return new Mail()
@@ -68,15 +70,6 @@ class ImapService {
 			}
 		});
 	}
-
-	get(uid) {
-		return this.client.listMessages('INBOX', uid, ['BODY[]'], {
-			byUid: true
-		}).then(m => {
-			return m;
-		});
-	}
-
 	/* private */
 	connectAndStart() {
 		return rx.Observable.fromPromise(
@@ -86,29 +79,33 @@ class ImapService {
 				this.inboxInfo = inboxInfo;
 				return inboxInfo;
 			})
-		).map(inboxInfo => {
-			console.log(inboxInfo);
-			let last1oo = inboxInfo.exists - 8;
-			console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. asdfasdf');
-			return this._load(last1oo + ':*');
+		).flatMap(inboxInfo => {
+			if (inboxInfo.exists === 0) {
+				return rx.Observable.empty();
+			}
+
+			let last1oo = inboxInfo.exists - 100;
+
+			if (last1oo <= 0) {
+				return this._load('*');
+			} else {
+				return this._load(last1oo + ':*');
+			}
 		});
 	}
 
 	_load(sequenceStr) {
-		console.log('>>>>>>>>>>>>>>>>>>>>>> LOAD', sequenceStr);
 		return rx.Observable.fromPromise(
 			this.client.listMessages('INBOX', sequenceStr, ['uid', 'flags', 'envelope', 'bodystructure'])
 			.then(messages => this.addBodies(messages, 'text/plain'))
 			.then(messages => this.addBodies(messages, 'text/html'))
 		).map(mess => {
-			console.log('GOT MESS', mess.length);
 			return mess;
 		})
 	}
 
 	/* private */
 	addBodies(messages, partType) {
-		console.log('>>>> ADDB');
 		let plainTextPartMap = this.getPartCodeMap(messages, partType);
 		let promises = plainTextPartMap.map(partInfo => {
 			return this.client.listMessages('INBOX', partInfo.uidList, ['uid', `body.peek[${partInfo.part}]`], {
@@ -132,7 +129,6 @@ class ImapService {
 			});
 		});
 		return Promise.all(promises).then(() => {
-			console.log('DONE', messages);
 			return messages;
 		});
 	}
@@ -150,6 +146,7 @@ class ImapService {
 	/* private */
 	getPartCodeMap(messages, partType) {
 		let map = {};
+
 		messages.forEach(message => {
 			let part = this.getPart(message.bodystructure, partType);
 			if (part !== undefined) {

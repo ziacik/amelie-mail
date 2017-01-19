@@ -6,7 +6,7 @@ chai.use(require('sinon-chai'));
 
 const Mail = require('./mail');
 
-describe.only('Mail', () => {
+describe('Mail', () => {
 	let mail;
 
 	beforeEach(() => {
