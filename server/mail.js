@@ -1,15 +1,12 @@
 'use strict';
 
 class Mail {
-	constructor() {
-		this.errors = {
-			mustBeArray: what => `Array expected in ${what}.`
-		};
-	}
-
-	withUid(uid) {
+	constructor(uid) {
 		this.uid = uid;
-		return this;
+		this.errors = {
+			mustBeArray: what => `Array expected in ${what}.`,
+			missingBodyType: 'Missing bodyType argument'
+		};
 	}
 
 	withMessageId(messageId) {
@@ -40,24 +37,38 @@ class Mail {
 		return this;
 	}
 
-	withBody(body) {
+	withBody(body, bodyType) {
+		if (!bodyType) {
+			throw new Error(this.errors.missingBodyType);
+		}
+
 		this.body = body;
-		return this;
-	}
-
-	withPreview(preview) {
-		this.preview = preview;
-		return this;
-	}
-
-	withBodyType(bodyType) {
 		this.bodyType = bodyType;
+
+		if (bodyType === 'text/plain') {
+			this.preview = this._calculatePreview(body);
+		}
+
 		return this;
 	}
 
 	withIsSeen(isSeen) {
 		this.isSeen = isSeen;
 		return this;
+	}
+
+	_calculatePreview(body) {
+		if (!body || body.length <= 200) {
+			return body;
+		}
+
+		let lastDotIndex = body.lastIndexOf('.', 200);
+
+		if (lastDotIndex >= 150) {
+			return body.substr(0, lastDotIndex + 1);
+		} else {
+			return body.substr(0, 199) + '…';
+		}
 	}
 }
 

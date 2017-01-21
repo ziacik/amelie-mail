@@ -33,16 +33,13 @@ class ImapService {
 			.merge(this._listen())
 			.map(messages => {
 				return messages.map(message => {
-					return new Mail()
-						.withUid(message.uid)
+					return new Mail(message.uid)
 						.withMessageId(message.envelope['message-id'])
 						.withSubject(message.envelope.subject)
 						.withFrom(message.envelope.from || [])
 						.withTo(message.envelope.to || [])
-						.withBody(message.body)
-						.withBodyType(message.bodyType)
-						.withPreview(message.preview)
-						.withIsSeen(message.flags && message.flags.indexOf('\\Seen') >= 0)
+						.withBody(message.body, message.bodyType)
+						.withIsSeen(!!message.flags && message.flags.indexOf('\\Seen') >= 0)
 				})
 			});
 	}
@@ -120,10 +117,6 @@ class ImapService {
 						let bodyDecoded = this.decode(bodyEncoded, part.encoding, (part.parameters || {}).charset);
 						message.body = bodyDecoded;
 						message.bodyType = partType;
-
-						if (partType === 'text/plain') {
-							message.preview = message.body.substr(0, 200);
-						}
 					}
 				});
 			});
