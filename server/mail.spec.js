@@ -66,28 +66,25 @@ describe.only('Mail', () => {
 		expect(result).to.equal(mail);
 	})
 
-	it('should set a preview from plain text', () => {
+	it('should set a plainBody from plain text body', () => {
 		mail.withBody('Some plain text', 'text/plain');
-		expect(mail.preview).to.equal('Some plain text');
+		expect(mail.plainBody).to.equal('Some plain text');
 	});
 
-	it('should not set a preview from html', () => {
+	it('should not set a plainBody from html if already set from plain text', () => {
+		mail.withBody('Some text', 'text/plain');
 		mail.withBody('Some html', 'text/html');
-		expect(mail.preview).to.be.undefined;
+		expect(mail.plainBody).to.equal('Some text');
 	});
 
-	it('should not trim the preview if it is less than 200 characters', () => {
-		mail.withBody('Proin in lectus sit amet lacus ultricies ornare vitae ultrices tellus.', 'text/plain');
-		expect(mail.preview).to.equal('Proin in lectus sit amet lacus ultricies ornare vitae ultrices tellus.');
+	it('should replace plainBody if another plain text body set', () => {
+		mail.withBody('Some text', 'text/plain');
+		mail.withBody('Another text', 'text/plain');
+		expect(mail.plainBody).to.equal('Another text');
 	});
 
-	it('should trim the preview to at most 200 characters, ending with a dot if possible.', () => {
-		mail.withBody('Lorem kva ipsum dolor sit amet, consectetur adipiscing elit. Donec varius convallis dignissim. Cras enim lacus, volutpat et justo in, feugiat cursus dui. Duis aliquam tortor quam, id tempor sem sollicitudin eget. Maecenas ac vulputate metus, id volutpat.', 'text/plain');
-		expect(mail.preview).to.equal('Lorem kva ipsum dolor sit amet, consectetur adipiscing elit. Donec varius convallis dignissim. Cras enim lacus, volutpat et justo in, feugiat cursus dui.');
-	});
-
-	it('should trim the preview to at most 200 characters, ending with ellipsis if a dot ending is not possible.', () => {
-		mail.withBody('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec varius convallis dignissim. Cras enim lacus, volutpat et justo in, feugiat cursus dui, duis aliquam tortor quam, id tempor sem sollicitudin eget. Maecenas ac vulputate metus, id volutpat.', 'text/plain');
-		expect(mail.preview).to.equal('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec varius convallis dignissim. Cras enim lacus, volutpat et justo in, feugiat cursus dui, duis aliquam tortor quam, id tempor sem sollicitu…');
+	it('should extract text from html to plainBody not already set', () => {
+		mail.withBody('<html><head><title>Some title</title></head><body><p>Some text</p><div>Another text</div></body></html>', 'text/html');
+		expect(mail.plainBody).to.equal('Some text Another text');
 	});
 });

@@ -1,5 +1,7 @@
 'use strict';
 
+const cheerio = require('cheerio');
+
 class Mail {
 	constructor(uid) {
 		this.uid = uid;
@@ -45,8 +47,8 @@ class Mail {
 		this.body = body;
 		this.bodyType = bodyType;
 
-		if (bodyType === 'text/plain') {
-			this.preview = this._calculatePreview(body);
+		if (!this.plainBody || bodyType === 'text/plain') {
+			this.plainBody = this._getPlainText(body, bodyType);
 		}
 
 		return this;
@@ -57,18 +59,19 @@ class Mail {
 		return this;
 	}
 
-	_calculatePreview(body) {
-		if (!body || body.length <= 200) {
+	_getPlainText(body, bodyType) {
+		if (bodyType === 'text/plain') {
 			return body;
+		} else if (bodyType === 'text/html') {
+			return this._htmlToText(body);
 		}
+	}
 
-		let lastDotIndex = body.lastIndexOf('.', 200);
-
-		if (lastDotIndex >= 150) {
-			return body.substr(0, lastDotIndex + 1);
-		} else {
-			return body.substr(0, 199) + '…';
-		}
+	_htmlToText(body) {
+		let $ = cheerio.load(body);
+		return $('body *').contents().map(function() {
+			return (this.type === 'text') ? $(this).text() + ' ' : '';
+		}).get().join('').trim();
 	}
 }
 

@@ -21,6 +21,7 @@
     "@angular/platform-browser": "^2.3.1",
     "@angular/platform-browser-dynamic": "^2.3.1",
     "@angular/router": "^3.3.1",
+    "cheerio": "^0.22.0",
     "core-js": "^2.4.1",
     "electrolyte": "^0.4.0",
     "emailjs-imap-client": "^2.0.3",
