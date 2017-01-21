@@ -22,3 +22,21 @@ h5 {
 :host.unseen {
 	border-left: 6px solid #1b98f8;
 }
+
+.description,
+h4,
+h5 {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	display: -webkit-box !important;
+	-webkit-box-orient: vertical;
+}
+
+h4,
+h5 {
+	-webkit-line-clamp: 1;
+}
+
+.description {
+	-webkit-line-clamp: 4;
+}
