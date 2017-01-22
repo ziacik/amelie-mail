@@ -1,6 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-
-import { AppStateService } from '../shared/app-state.service';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
 	selector: 'app-mail-header',
@@ -8,32 +6,26 @@ import { AppStateService } from '../shared/app-state.service';
 	styleUrls: ['./mail-header.component.css']
 })
 export class MailHeaderComponent implements OnInit {
-	constructor(private appStateService: AppStateService) {
+	@Input() mail: any;
+
+	constructor() {
 	}
 
 	ngOnInit() {
 	}
 
-	private getActiveMail(): any {
-		return this.appStateService.getActiveMail();
-	}
-
 	// TODO should refactor to make this dry (move to Mail)
 	private getFromDisplayNames() {
-		let mail = this.getActiveMail();
-
-		if (!mail.from || !mail.from.length) {
+		if (!this.mail.from || !this.mail.from.length) {
 			return 'Unknown';
 		} else {
-			return mail.from.map(from => from.name || from.address || 'Unknown').join(', ');
+			return this.mail.from.map(from => from.name || from.address || 'Unknown').join(', ');
 		}
 	}
 
 	// TODO should refactor to make this dry (move to Mail)
 	private getToDisplayNames() {
-		let mail = this.getActiveMail();
-
-		let recipients = (mail.to || []).concat(mail.cc || []);
+		let recipients = (this.mail.to || []).concat(this.mail.cc || []);
 
 		if (!recipients.length) {
 			return '';

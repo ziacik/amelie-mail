@@ -3,19 +3,16 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { AppStateService } from '../shared/app-state.service';
 import { MailHeaderComponent } from './mail-header.component';
 
 describe('MailHeaderComponent', () => {
 	let component: MailHeaderComponent;
 	let fixture: ComponentFixture<MailHeaderComponent>;
-	let appStateService: AppStateService;
 	let mail: any;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [MailHeaderComponent],
-			providers: [AppStateService]
+			declarations: [MailHeaderComponent]
 		}).compileComponents();
 	}));
 
@@ -40,10 +37,9 @@ describe('MailHeaderComponent', () => {
 					address: 'second.cc@localhost'
 				}]
 		};
-		appStateService = TestBed.get(AppStateService);
-		spyOn(appStateService, 'getActiveMail').and.returnValue(mail);
 		fixture = TestBed.createComponent(MailHeaderComponent);
 		component = fixture.componentInstance;
+		component.mail = mail;
 		fixture.detectChanges();
 	});
 
