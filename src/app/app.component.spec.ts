@@ -6,6 +6,7 @@ import { DebugElement } from '@angular/core';
 import { AppComponent } from './app.component';
 import { AppStateService } from './shared/app-state.service';
 import { MailListComponent } from './mail-list/mail-list.component';
+import { MailHeaderComponent } from './mail-header/mail-header.component';
 import { MailViewComponent } from './mail-view/mail-view.component';
 
 describe('App: AmelieMail', () => {
@@ -19,6 +20,7 @@ describe('App: AmelieMail', () => {
 			declarations: [
 				AppComponent,
 				MailListComponent,
+				MailHeaderComponent,
 				MailViewComponent
 			],
 			providers: [
@@ -45,6 +47,12 @@ describe('App: AmelieMail', () => {
 		fixture = TestBed.createComponent(AppComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
+	});
+
+	it('has a mail header component with active mail set', () => {
+		let mailHeader = fixture.debugElement.query(By.directive(MailHeaderComponent));
+		expect(!!mailHeader).toBeTruthy();
+		expect(mailHeader.componentInstance.mail).toBe(activeMail);
 	});
 
 	it('has a mail view component with active mail set', () => {

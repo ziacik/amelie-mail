@@ -3,9 +3,10 @@
 		<div class="ui basic inverted circular button">Compose</div>
 	</div>
 	<div class="ui segment" id="list">
-		<app-mail-list class="six wide column" [mails]="mails"></app-mail-list>
+		<app-mail-list [mails]="mails"></app-mail-list>
 	</div>
 	<div id="main">
-		<app-mail-view class="ten wide column" [mail]="appStateService.getActiveMail()"></app-mail-view>
+		<app-mail-header [mail]="appStateService.getActiveMail()"></app-mail-header>
+		<app-mail-view [mail]="appStateService.getActiveMail()"></app-mail-view>
 	</div>
 </div>
