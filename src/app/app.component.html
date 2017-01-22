@@ -6,7 +6,7 @@
 		<app-mail-list [mails]="mails"></app-mail-list>
 	</div>
 	<div id="main">
-		<app-mail-header [mail]="appStateService.getActiveMail()"></app-mail-header>
-		<app-mail-view [mail]="appStateService.getActiveMail()"></app-mail-view>
+		<app-mail-header *ngIf="appStateService.getActiveMail()" [mail]="appStateService.getActiveMail()"></app-mail-header>
+		<app-mail-view *ngIf="appStateService.getActiveMail()" [mail]="appStateService.getActiveMail()"></app-mail-view>
 	</div>
 </div>

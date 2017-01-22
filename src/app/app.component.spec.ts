@@ -13,7 +13,6 @@ describe('App: AmelieMail', () => {
 	let component: AppComponent;
 	let fixture: ComponentFixture<AppComponent>;
 	let appStateService: AppStateService;
-	let activeMail: amy;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
@@ -39,25 +38,45 @@ describe('App: AmelieMail', () => {
 	}));
 
 	beforeEach(() => {
-		activeMail = {
-			some: 'thing'
-		};
 		appStateService = TestBed.get(AppStateService);
-		spyOn(appStateService, 'getActiveMail').and.returnValue(activeMail);
 		fixture = TestBed.createComponent(AppComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});
 
-	it('has a mail header component with active mail set', () => {
-		let mailHeader = fixture.debugElement.query(By.directive(MailHeaderComponent));
-		expect(!!mailHeader).toBeTruthy();
-		expect(mailHeader.componentInstance.mail).toBe(activeMail);
+	describe('with no active mail', () => {
+		it('has no mail header component', () => {
+			let mailHeader = fixture.debugElement.query(By.directive(MailHeaderComponent));
+			expect(!!mailHeader).toBeFalsy();
+		});
+
+		it('has no mail view component', () => {
+			let mailView = fixture.debugElement.query(By.directive(MailViewComponent));
+			expect(!!mailView).toBeFalsy();
+		});
 	});
 
-	it('has a mail view component with active mail set', () => {
-		let mailView = fixture.debugElement.query(By.directive(MailViewComponent));
-		expect(!!mailView).toBeTruthy();
-		expect(mailView.componentInstance.mail).toBe(activeMail);
+	describe('with active mail', () => {
+		let activeMail;
+
+		beforeEach(() => {
+			activeMail = {
+				some: 'thing'
+			};
+			spyOn(appStateService, 'getActiveMail').and.returnValue(activeMail);
+			fixture.detectChanges();
+		})
+
+		it('has a mail header component with the mail set', () => {
+			let mailHeader = fixture.debugElement.query(By.directive(MailHeaderComponent));
+			expect(!!mailHeader).toBeTruthy();
+			expect(mailHeader.componentInstance.mail).toBe(activeMail);
+		});
+
+		it('has a mail view component with the mail set', () => {
+			let mailView = fixture.debugElement.query(By.directive(MailViewComponent));
+			expect(!!mailView).toBeTruthy();
+			expect(mailView.componentInstance.mail).toBe(activeMail);
+		});
 	});
 });
