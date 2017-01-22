@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 import { AppStateService } from '../shared/app-state.service';
@@ -9,51 +9,41 @@ import { AppStateService } from '../shared/app-state.service';
 	styleUrls: ['./mail-view.component.css']
 })
 export class MailViewComponent {
-	constructor(private domSanitizer: DomSanitizer, private appStateService: AppStateService) {
-	}
+	@Input() mail: any;
 
-	private getActiveMail(): any {
-		return this.appStateService.getActiveMail();
+	constructor(private domSanitizer: DomSanitizer) {
 	}
 
 	private isText(): boolean {
-		let activeMail = this.getActiveMail();
-
-		if (!activeMail) {
+		if (!this.mail) {
 			return false;
 		}
 
-		return activeMail.bodyType === 'text/plain';
+		return this.mail.bodyType === 'text/plain';
 	}
 
 	private isHtml(): boolean {
-		let activeMail = this.getActiveMail();
-
-		if (!activeMail) {
+		if (!this.mail) {
 			return false;
 		}
 
-		return activeMail.bodyType === 'text/html';
+		return this.mail.bodyType === 'text/html';
 	}
 
 	private getText(): string {
-		let activeMail = this.getActiveMail();
-
-		if (!activeMail || !activeMail.body) {
+		if (!this.mail || !this.mail.body) {
 			return '';
 		}
 
-		return activeMail.body;
+		return this.mail.body;
 	}
 
 	private getHtml(): SafeHtml {
-		let activeMail = this.getActiveMail();
-
-		if (!activeMail || !activeMail.body) {
+		if (!this.mail || !this.mail.body) {
 			return '';
 		}
 
 		// FIXME Security Issue. Without this, <html> tags (and thus also stylings) are removed. What should we do?
-		return this.domSanitizer.bypassSecurityTrustHtml(activeMail.body);
+		return this.domSanitizer.bypassSecurityTrustHtml(this.mail.body);
 	}
 }

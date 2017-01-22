@@ -6,6 +6,6 @@
 		<app-mail-list class="six wide column" [mails]="mails"></app-mail-list>
 	</div>
 	<div id="main">
-		<app-mail-view class="ten wide column"></app-mail-view>
+		<app-mail-view class="ten wide column" [mail]="appStateService.getActiveMail()"></app-mail-view>
 	</div>
 </div>

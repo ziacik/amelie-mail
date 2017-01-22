@@ -1,4 +1,5 @@
 import { Component, OnInit, NgZone } from '@angular/core';
+import { AppStateService } from './shared/app-state.service';
 
 declare var electron: any;
 
@@ -10,7 +11,7 @@ declare var electron: any;
 export class AppComponent implements OnInit {
 	mails: any[];
 
-	constructor(private zone: NgZone) {
+	constructor(private zone: NgZone, private appStateService: AppStateService) {
 	}
 
 	ngOnInit() {

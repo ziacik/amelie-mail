@@ -11,6 +11,8 @@ import { MailViewComponent } from './mail-view/mail-view.component';
 describe('App: AmelieMail', () => {
 	let component: AppComponent;
 	let fixture: ComponentFixture<AppComponent>;
+	let appStateService: AppStateService;
+	let activeMail: amy;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
@@ -35,8 +37,19 @@ describe('App: AmelieMail', () => {
 	}));
 
 	beforeEach(() => {
+		activeMail = {
+			some: 'thing'
+		};
+		appStateService = TestBed.get(AppStateService);
+		spyOn(appStateService, 'getActiveMail').and.returnValue(activeMail);
 		fixture = TestBed.createComponent(AppComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
+	});
+
+	it('has a mail view component with active mail set', () => {
+		let mailView = fixture.debugElement.query(By.directive(MailViewComponent));
+		expect(!!mailView).toBeTruthy();
+		expect(mailView.componentInstance.mail).toBe(activeMail);
 	});
 });

@@ -3,28 +3,24 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { AppStateService } from '../shared/app-state.service';
 import { MailViewComponent } from './mail-view.component';
 
 describe('MailViewComponent', () => {
 	let component: MailViewComponent;
 	let fixture: ComponentFixture<MailViewComponent>;
-	let appStateService: AppStateService;
 	let mail;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [MailViewComponent],
-			providers: [AppStateService]
+			declarations: [MailViewComponent]
 		}).compileComponents();
-		appStateService = TestBed.get(AppStateService);
-		mail = {};
-		spyOn(appStateService, 'getActiveMail').and.returnValue(mail);
 	}));
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(MailViewComponent);
 		component = fixture.componentInstance;
+		mail = {};
+		component.mail = mail;
 		fixture.detectChanges();
 	});
 
