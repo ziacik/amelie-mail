@@ -1,0 +1,21 @@
+:host {
+	display: block;
+	padding: 1em 2em;
+	border-bottom: 1px solid #ddd;
+}
+
+.mailinfo {
+	float: left;
+}
+
+.toolbox {
+	float: right;
+}
+
+h1 {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	display: -webkit-box !important;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 1;
+}

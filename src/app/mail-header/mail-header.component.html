@@ -1,5 +1,11 @@
-<h1>{{ mail.subject }}</h1>
-<div class="from">{{ getFromDisplayNames() }}</div>
-<div class="date"> {{ mail.date | date }}</div>
-<div class="to"> {{ getToDisplayNames() }}</div>
-<button class="reply">Reply</button>
+<h1 class="ui header">{{ mail.subject }}</h1>
+<div class="ui middle aligned grid">
+	<div class="twelve wide column">
+		<div class="from">From {{ getFromDisplayNames() }}</div>
+		<div class="date">At {{ mail.date | date }}</div>
+		<div class="to">To {{ getToDisplayNames() }}</div>
+	</div>
+	<div class="right aligned four wide column">
+		<button class="ui basic circular reply button">Reply</button>
+	</div>
+</div>
