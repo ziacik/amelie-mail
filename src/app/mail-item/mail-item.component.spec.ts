@@ -33,7 +33,7 @@ describe('MailItemComponent', () => {
 			}
 		];
 		mail.subject = 'Save the world';
-		mail.preview = 'A preview of how to save the world.';
+		mail.plainBody = 'A preview of how to save the world.';
 		fixture = TestBed.createComponent(MailItemComponent);
 		component = fixture.componentInstance;
 		component.mail = mail;
@@ -68,10 +68,10 @@ describe('MailItemComponent', () => {
 		expect(field.nativeElement.innerText).toEqual(mail.subject);
 	});
 
-	it('should display a preview', () => {
+	it('should display a plain text preview', () => {
 		let field = fixture.debugElement.query(By.css('.description'));
 		expect(field).toBeTruthy();
-		expect(field.nativeElement.innerText).toEqual(mail.preview);
+		expect(field.nativeElement.innerText).toEqual(mail.plainBody);
 	});
 
 	it('should not have an unseen class when the mail is seen', () => {

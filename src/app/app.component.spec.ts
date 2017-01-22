@@ -1,33 +1,42 @@
 /* tslint:disable:no-unused-variable */
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { DebugElement } from '@angular/core';
 
-import { TestBed, async } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { AppStateService } from './shared/app-state.service';
+import { MailListComponent } from './mail-list/mail-list.component';
+import { MailViewComponent } from './mail-view/mail-view.component';
 
 describe('App: AmelieMail', () => {
-	beforeEach(() => {
+	let component: AppComponent;
+	let fixture: ComponentFixture<AppComponent>;
+
+	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			declarations: [
-				AppComponent
+				AppComponent,
+				MailListComponent,
+				MailViewComponent
 			],
+			providers: [
+				AppStateService
+			]
 		});
-	});
 
-	it('should create the app', async(() => {
-		let fixture = TestBed.createComponent(AppComponent);
-		let app = fixture.debugElement.componentInstance;
-		expect(app).toBeTruthy();
+		TestBed.overrideComponent(MailListComponent, {
+			set: {
+				template: '<div>Overridden template here</div>'
+
+			}
+		});
+
+		TestBed.compileComponents();
 	}));
 
-	it(`should have a title`, async(() => {
-		let fixture = TestBed.createComponent(AppComponent);
-		let app = fixture.debugElement.componentInstance;
-		expect(app.title).toEqual('Amelie Mail');
-	}));
-
-	it('should render title in a h1 tag', async(() => {
-		let fixture = TestBed.createComponent(AppComponent);
+	beforeEach(() => {
+		fixture = TestBed.createComponent(AppComponent);
+		component = fixture.componentInstance;
 		fixture.detectChanges();
-		let compiled = fixture.debugElement.nativeElement;
-		expect(compiled.querySelector('h1').textContent).toContain('Amelie Mail');
-	}));
+	});
 });

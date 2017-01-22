@@ -14,7 +14,7 @@ export class AppComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		if (electron) {
+		if (typeof electron !== 'undefined') {
 			electron.ipcRenderer.send('listen');
 			electron.ipcRenderer.on('fetch', (event, mails) => {
 				console.log(mails);
