@@ -2,6 +2,7 @@
 
 const rx = require('rxjs/Observable');
 require('rxjs/add/observable/of');
+require('rxjs/add/operator/delay');
 
 const chai = require('chai');
 const sinon = require('sinon');
@@ -38,7 +39,7 @@ describe.only('Imap Service', () => {
 		ClientClass = sinon.stub().returns(client);
 
 		accountSettingsService = {};
-		accountSettingsService.getAll = sinon.stub().returns(rx.Observable.of(accountSettings));
+		accountSettingsService.getAll = sinon.stub().returns(rx.Observable.of(accountSettings).delay(1));
 		imapService = new ImapService(accountSettingsService, ClientClass);
 	});
 
@@ -198,7 +199,7 @@ describe.only('Imap Service', () => {
 					}, done);
 				});
 
-				describe.only('after fetching the bodies', () => {
+				describe('after fetching the bodies', () => {
 					beforeEach(() => {
 						messages = [{
 							uid: 3,

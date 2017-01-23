@@ -14,12 +14,12 @@ electrolyte.create('imap-service').then(service => {
 	imapService = service;
 });
 
-electron.ipcMain.on('listen', event => {
+electron.ipcMain.on('mail:listen', event => {
 	imapService.listen().catch(e => {
 		console.error(e)
 		return [];
 	}).subscribe(a => {
-		event.sender.send('fetch', a);
+		event.sender.send('mail:fetch', a);
 	});
 });
 

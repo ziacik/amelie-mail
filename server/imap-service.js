@@ -30,16 +30,21 @@ class ImapService {
 				this.client.logLevel = this.client.LOG_LEVEL_INFO;
 				return this._connectAndStart();
 			})
-			.merge(this._listen())
+			// .merge(this._listen())
 			.map(messages => {
 				return messages.map(message => {
-					return new Mail(message.uid)
+					let mail = new Mail(message.uid)
 						.withMessageId(message.envelope['message-id'])
 						.withSubject(message.envelope.subject)
 						.withFrom(message.envelope.from || [])
 						.withTo(message.envelope.to || [])
-						.withBody(message.body, message.bodyType)
-						.withIsSeen(!!message.flags && message.flags.indexOf('\\Seen') >= 0)
+						.withIsSeen(!!message.flags && message.flags.indexOf('\\Seen') >= 0);
+
+					if (message.body && message.bodyType) {
+						mail.withBody(message.body, message.bodyType);
+					}
+
+					return mail;
 				})
 			});
 	}
@@ -47,6 +52,7 @@ class ImapService {
 	_listen() {
 		return rx.Observable.fromEventPattern(
 			handler => {
+				console.log('SETTTT');
 				this.client.onupdate = handler;
 			},
 			() => {
