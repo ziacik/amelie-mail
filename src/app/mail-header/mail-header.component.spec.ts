@@ -20,22 +20,28 @@ describe('MailHeaderComponent', () => {
 		mail = {
 			subject: 'Some subject',
 			receivedAt: new Date(2017, 2, 3, 15, 50, 20, 153),
-			from: [{
-				name: 'Some One',
-				address: 'some.one@localhost'
-			}],
-			to: [{
-				name: 'First To',
-				address: 'first.recipient@localhost',
-			}, {
+			from: [
+				{
+					name: 'Some One',
+					address: 'some.one@localhost'
+				}
+			],
+			to: [
+				{
+					name: 'First To',
+					address: 'first.recipient@localhost',
+				}, {
 					address: 'second.recipient@localhost',
-				}],
-			cc: [{
-				name: 'First Cc',
-				address: 'some.one@localhost'
-			}, {
+				}
+			],
+			cc: [
+				{
+					name: 'First Cc',
+					address: 'some.one@localhost'
+				}, {
 					address: 'second.cc@localhost'
-				}]
+				}
+			]
 		};
 		fixture = TestBed.createComponent(MailHeaderComponent);
 		component = fixture.componentInstance;
@@ -52,7 +58,7 @@ describe('MailHeaderComponent', () => {
 	it('should show who is the active mail from', () => {
 		let element = fixture.debugElement.query(By.css('.from'));
 		expect(!!element).toBeTruthy();
-		expect(element.nativeElement.innerText).toEqual('Some One');
+		expect(element.nativeElement.innerText).toEqual('From Some One');
 	});
 
 	it('should show who is the active mail from even if she only has an address and no name', () => {
@@ -60,7 +66,7 @@ describe('MailHeaderComponent', () => {
 		fixture.detectChanges();
 		let element = fixture.debugElement.query(By.css('.from'));
 		expect(!!element).toBeTruthy();
-		expect(element.nativeElement.innerText).toEqual('some.one@localhost');
+		expect(element.nativeElement.innerText).toEqual('From some.one@localhost');
 	});
 
 	it('should show when the mail has arrived', () => {
@@ -72,7 +78,7 @@ describe('MailHeaderComponent', () => {
 	it('should show who the mail is addressed to', () => {
 		let element = fixture.debugElement.query(By.css('.to'));
 		expect(!!element).toBeTruthy();
-		expect(element.nativeElement.innerText).toEqual('First To, second.recipient@localhost, First Cc, second.cc@localhost');
+		expect(element.nativeElement.innerText).toEqual('To First To, second.recipient@localhost, First Cc, second.cc@localhost');
 	});
 
 	it('should have a reply button', () => {
