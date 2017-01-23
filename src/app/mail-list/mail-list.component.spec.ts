@@ -45,7 +45,7 @@ describe('MailListComponent', () => {
 		expect(mailItems.length).toEqual(0);
 	});
 
-	it('should display a mail item for each mail in the list in reverse order', () => {
+	it('should display a mail item for each mail in the list', () => {
 		let mails = [
 			{
 				body: 'first'
@@ -58,7 +58,7 @@ describe('MailListComponent', () => {
 		let mailItems = fixture.debugElement.queryAll(By.directive(MailItemComponent));
 		expect(mailItems.length).toEqual(2);
 		mailItems.forEach((mailItem, i) => {
-			expect(mailItem.componentInstance.mail).toBe(mails[mails.length - i - 1]);
+			expect(mailItem.componentInstance.mail).toBe(mails[i]);
 		});
 	});
 

@@ -1,4 +1,3 @@
 <div class="ui divided selection list">
-	<!-- FIXME The reversion should be done via pipe or something like that. -->
-	<app-mail-item *ngFor="let mail of mails?.slice().reverse()" class="item" [mail]="mail" (click)="setActive(mail)"></app-mail-item>
+	<app-mail-item *ngFor="let mail of mails" class="item" [mail]="mail" (click)="setActive(mail)"></app-mail-item>
 </div>
