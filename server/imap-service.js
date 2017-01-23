@@ -28,7 +28,7 @@ class ImapService {
 			.flatMap(accountSettings => {
 				this.client = new this.Client(accountSettings.host, accountSettings.port, accountSettings.options);
 				this.client.logLevel = this.client.LOG_LEVEL_INFO;
-				return this.connectAndStart()
+				return this._connectAndStart();
 			})
 			.merge(this._listen())
 			.map(messages => {
@@ -67,8 +67,8 @@ class ImapService {
 			}
 		});
 	}
-	/* private */
-	connectAndStart() {
+
+	_connectAndStart() {
 		return rx.Observable.fromPromise(
 			this.client.connect()
 			.then(() => this.client.selectMailbox('INBOX'))
@@ -94,16 +94,15 @@ class ImapService {
 	_load(sequenceStr) {
 		return rx.Observable.fromPromise(
 			this.client.listMessages('INBOX', sequenceStr, ['uid', 'flags', 'envelope', 'bodystructure'])
-			.then(messages => this.addBodies(messages, 'text/plain'))
-			.then(messages => this.addBodies(messages, 'text/html'))
+			.then(messages => this._addBodies(messages, 'text/plain'))
+			.then(messages => this._addBodies(messages, 'text/html'))
 		).map(mess => {
 			return mess;
 		})
 	}
 
-	/* private */
-	addBodies(messages, partType) {
-		let plainTextPartMap = this.getPartCodeMap(messages, partType);
+	_addBodies(messages, partType) {
+		let plainTextPartMap = this._getPartCodeMap(messages, partType);
 		let promises = plainTextPartMap.map(partInfo => {
 			return this.client.listMessages('INBOX', partInfo.uidList, ['uid', `body.peek[${partInfo.part}]`], {
 				byUid: true
@@ -112,9 +111,9 @@ class ImapService {
 					let message = messages.filter(it => it.uid === bodyMessage.uid)[0];
 
 					if (message) {
-						let part = this.getPart(message.bodystructure, partType);
+						let part = this._getPart(message.bodystructure, partType);
 						let bodyEncoded = bodyMessage[`body[${partInfo.part}]`];
-						let bodyDecoded = this.decode(bodyEncoded, part.encoding, (part.parameters || {}).charset);
+						let bodyDecoded = this._decode(bodyEncoded, part.encoding, (part.parameters || {}).charset);
 						message.body = bodyDecoded;
 						message.bodyType = partType;
 					}
@@ -126,7 +125,7 @@ class ImapService {
 		});
 	}
 
-	decode(bodyEncoded, encoding, charset) {
+	_decode(bodyEncoded, encoding, charset) {
 		if (encoding === 'quoted-printable') {
 			return codec.quotedPrintableDecode(bodyEncoded, charset);
 		} else if (encoding === 'base64') {
@@ -136,12 +135,11 @@ class ImapService {
 		}
 	}
 
-	/* private */
-	getPartCodeMap(messages, partType) {
+	_getPartCodeMap(messages, partType) {
 		let map = {};
 
 		messages.forEach(message => {
-			let part = this.getPart(message.bodystructure, partType);
+			let part = this._getPart(message.bodystructure, partType);
 			if (part !== undefined) {
 				let partCode = part.part || '1';
 				map[partCode] = map[partCode] || [];
@@ -156,15 +154,14 @@ class ImapService {
 		});
 	}
 
-	/* private */
-	getPart(structure, partType) {
+	_getPart(structure, partType) {
 		if (structure.type === partType) {
 			return structure;
 		}
 
 		if (structure.childNodes) {
 			for (let i = 0; i < structure.childNodes.length; i++) {
-				let childPart = this.getPart(structure.childNodes[i], partType);
+				let childPart = this._getPart(structure.childNodes[i], partType);
 				if (childPart !== undefined) {
 					return childPart;
 				}
