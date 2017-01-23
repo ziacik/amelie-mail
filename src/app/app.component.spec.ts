@@ -5,6 +5,7 @@ import { DebugElement } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { AppStateService } from './shared/app-state.service';
+import { MailService } from './shared/mail.service';
 import { MailListComponent } from './mail-list/mail-list.component';
 import { MailHeaderComponent } from './mail-header/mail-header.component';
 import { MailViewComponent } from './mail-view/mail-view.component';
@@ -13,6 +14,7 @@ describe('App: AmelieMail', () => {
 	let component: AppComponent;
 	let fixture: ComponentFixture<AppComponent>;
 	let appStateService: AppStateService;
+	let mailService: MailService;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
@@ -23,14 +25,14 @@ describe('App: AmelieMail', () => {
 				MailViewComponent
 			],
 			providers: [
-				AppStateService
+				AppStateService,
+				MailService
 			]
 		});
 
 		TestBed.overrideComponent(MailListComponent, {
 			set: {
 				template: '<div>Overridden template here</div>'
-
 			}
 		});
 
@@ -39,9 +41,19 @@ describe('App: AmelieMail', () => {
 
 	beforeEach(() => {
 		appStateService = TestBed.get(AppStateService);
+		mailService = TestBed.get(MailService);
 		fixture = TestBed.createComponent(AppComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
+	});
+
+	it('has a mail list component with mails property set to mailService.getMails', () => {
+		let mails = [{}, {}];
+		spyOn(mailService, 'getMails').and.returnValue(mails);
+		fixture.detectChanges();
+		let mailListComponent = fixture.debugElement.query(By.directive(MailListComponent));
+		expect(!!mailListComponent).toBeTruthy();
+		expect(mailListComponent.componentInstance.mails).toBe(mails);
 	});
 
 	describe('with no active mail', () => {

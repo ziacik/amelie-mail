@@ -1,7 +1,6 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AppStateService } from './shared/app-state.service';
-
-declare var electron: any;
+import { MailService } from './shared/mail.service';
 
 @Component({
 	selector: 'app-root',
@@ -9,18 +8,9 @@ declare var electron: any;
 	styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-	mails: any[];
-
-	constructor(private zone: NgZone, private appStateService: AppStateService) {
+	constructor(private appStateService: AppStateService, private mailService: MailService) {
 	}
 
 	ngOnInit() {
-		if (typeof electron !== 'undefined') {
-			electron.ipcRenderer.send('listen');
-			electron.ipcRenderer.on('fetch', (event, mails) => {
-				console.log(mails);
-				this.zone.run(() => this.mails = mails);
-			});
-		}
 	}
 }

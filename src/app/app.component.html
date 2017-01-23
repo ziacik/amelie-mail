@@ -3,7 +3,7 @@
 		<div class="ui basic inverted circular button">Compose</div>
 	</div>
 	<div class="ui segment" id="list">
-		<app-mail-list [mails]="mails"></app-mail-list>
+		<app-mail-list [mails]="mailService.getMails()"></app-mail-list>
 	</div>
 	<div id="main">
 		<app-mail-header id="header" *ngIf="appStateService.getActiveMail()" [mail]="appStateService.getActiveMail()"></app-mail-header>
