@@ -10,6 +10,7 @@ require('rxjs/add/observable/fromEvent');
 require('rxjs/add/observable/fromEventPattern');
 require('rxjs/add/observable/merge');
 require('rxjs/add/observable/throw');
+require('rxjs/add/operator/concat');
 require('rxjs/add/operator/catch');
 require('rxjs/add/operator/merge');
 require('rxjs/add/operator/mergeMap');
@@ -30,7 +31,7 @@ class ImapService {
 				this.client.logLevel = this.client.LOG_LEVEL_INFO;
 				return this._connectAndStart();
 			})
-			// .merge(this._listen())
+			.concat(this._listen())
 			.map(messages => {
 				return messages.map(message => {
 					let mail = new Mail(message.uid)
@@ -52,7 +53,6 @@ class ImapService {
 	_listen() {
 		return rx.Observable.fromEventPattern(
 			handler => {
-				console.log('SETTTT');
 				this.client.onupdate = handler;
 			},
 			() => {
@@ -63,13 +63,13 @@ class ImapService {
 				type: type,
 				value: value
 			})
-		).map(updateInfo => {
+		).flatMap(updateInfo => {
 			if (updateInfo.type === 'exists') {
 				let sequenceStr = this.inboxInfo.exists + ':' + updateInfo.value;
 				this.inboxInfo.exists = updateInfo.value;
 				return this._load(sequenceStr);
 			} else {
-				return [];
+				return rx.Observable.empty();
 			}
 		});
 	}

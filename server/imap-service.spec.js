@@ -285,6 +285,40 @@ describe.only('Imap Service', () => {
 						}, done);
 					});
 				});
+
+				describe('on new mail arrival', () => {
+					it('should fetch it and update inbox info', done => {
+						inboxInfo.exists = 0;
+						imapService.listen().subscribe(mails => {
+							expect(client.listMessages).to.have.been.calledWith('INBOX', '0:1');
+							expect(client.listMessages).to.have.been.calledWith('INBOX', '33');
+							expect(inboxInfo.exists).to.equal(1);
+							expect(mails.length).to.equal(1);
+							let mail = mails[0];
+							expect(mail.body).to.equal('Some new mail');
+							expect(mail.bodyType).to.equal('text/plain');
+							done();
+						}, done);
+
+						setTimeout(() => {
+							client.listMessages.onCall(0).resolves([{
+								uid: 33,
+								bodystructure: {
+									type: 'text/plain'
+								},
+								envelope: {}
+							}]);
+							client.listMessages.onCall(1).resolves([{
+								uid: 33,
+								'body[1]': 'Some new mail'
+							}]);
+
+							if (client.onupdate) {
+								client.onupdate('INBOX', 'exists', 1);
+							}
+						}, 100);
+					});
+				});
 			});
 		});
 	});
