@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 
 declare var electron: any;
 
@@ -6,7 +6,7 @@ declare var electron: any;
 export class MailService {
 	private mails: any[];
 
-	constructor() {
+	constructor(private zone: NgZone) {
 		this.mails = [];
 
 		if (typeof electron !== 'undefined') {
@@ -25,7 +25,9 @@ export class MailService {
 
 	private registerFetch() {
 		electron.ipcRenderer.on('mail:fetch', (event, mails) => {
-			this.mails = mails.slice().reverse().concat(this.mails);
+			this.zone.run(() => {
+				this.mails = mails.slice().reverse().concat(this.mails);
+			});
 		});
 	}
 }
