@@ -120,21 +120,23 @@ describe('MailHeaderComponent', () => {
 		expect(!!element).toBeFalsy();
 	});
 
-	it('should call mailService.markSeen when Read button clicked', () => {
+	it('should call mailService.markSeen when Read button clicked and mark the mail seen', () => {
 		mail.isSeen = false;
 		fixture.detectChanges();
 		let element = fixture.debugElement.query(By.css('button#read'));
 		element.nativeElement.click();
 		fixture.detectChanges();
 		expect(mailService.markSeen).toHaveBeenCalledWith(mail);
+		expect(mail.isSeen).toEqual(true);
 	});
 
-	it('should call mailService.unmarkSeen when Unread button clicked', () => {
+	it('should call mailService.unmarkSeen when Unread button clicked and mark the mail unseen', () => {
 		mail.isSeen = true;
 		fixture.detectChanges();
 		let element = fixture.debugElement.query(By.css('button#unread'));
 		element.nativeElement.click();
 		fixture.detectChanges();
 		expect(mailService.unmarkSeen).toHaveBeenCalledWith(mail);
+		expect(mail.isSeen).toEqual(false);
 	});
 });

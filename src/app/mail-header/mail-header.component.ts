@@ -17,10 +17,12 @@ export class MailHeaderComponent implements OnInit {
 
 	private read() {
 		this.mailService.markSeen(this.mail);
+		this.mail.isSeen = true;
 	}
 
 	private unread() {
 		this.mailService.unmarkSeen(this.mail);
+		this.mail.isSeen = false;
 	}
 
 	// TODO should refactor to make this dry (move to Mail)
