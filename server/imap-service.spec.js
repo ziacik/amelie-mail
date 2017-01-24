@@ -244,11 +244,15 @@ describe.only('Imap Service', () => {
 							},
 							envelope: {
 								'message-id': 'message.id',
+								'date': 'Fri, 13 Sep 2013 15:01:00 +0300',
 								from: [{
 									some: 'body'
 								}],
 								to: [{
 									some: 'body'
+								}],
+								cc: [{
+									another: 'body'
 								}],
 								subject: 'Some subject'
 							}
@@ -274,6 +278,8 @@ describe.only('Imap Service', () => {
 							expect(mail.subject).to.equal('Some subject');
 							expect(mail.from).to.equal(messages[0].envelope.from);
 							expect(mail.to).to.equal(messages[0].envelope.to);
+							expect(mail.cc).to.equal(messages[0].envelope.cc);
+							expect(mail.date).to.deep.equal(new Date(messages[0].envelope.date));
 							done();
 						}, done);
 					});

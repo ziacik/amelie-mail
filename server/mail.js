@@ -7,6 +7,7 @@ class Mail {
 		this.uid = uid;
 		this.errors = {
 			mustBeArray: what => `Array expected in ${what}.`,
+			mustBeDate: what => `Date expected in ${what}.`,
 			missingBodyType: 'Missing bodyType argument'
 		};
 	}
@@ -34,8 +35,26 @@ class Mail {
 		return this;
 	}
 
+	withCc(cc) {
+		if (!Array.isArray(cc)) {
+			throw new Error(this.errors.mustBeArray('cc'));
+		}
+
+		this.cc = cc;
+		return this;
+	}
+
 	withSubject(subject) {
 		this.subject = subject;
+		return this;
+	}
+
+	withDate(date) {
+		if (!(date instanceof Date)) {
+			throw new Error(this.errors.mustBeDate('date'));
+		}
+
+		this.date = date;
 		return this;
 	}
 

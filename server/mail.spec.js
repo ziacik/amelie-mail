@@ -31,6 +31,14 @@ describe.only('Mail', () => {
 		expect(() => mail.withTo('to')).to.throw(mail.errors.mustBeArray('to'));
 	});
 
+	it('fails when setting a cc that is not an array', () => {
+		expect(() => mail.withCc('cc')).to.throw(mail.errors.mustBeArray('cc'));
+	});
+
+	it('fails when setting date that is not a date', () => {
+		expect(() => mail.withDate('kva')).to.throw(mail.errors.mustBeDate('date'));
+	});
+
 	it('can have a from', () => {
 		let result = mail.withFrom(['one', 'two']);
 		expect(mail.from).to.deep.equal(['one', 'two']);
@@ -40,6 +48,12 @@ describe.only('Mail', () => {
 	it('can have a to', () => {
 		let result = mail.withTo(['one', 'two']);
 		expect(mail.to).to.deep.equal(['one', 'two']);
+		expect(result).to.equal(mail);
+	})
+
+	it('can have a cc', () => {
+		let result = mail.withCc(['one', 'two']);
+		expect(mail.cc).to.deep.equal(['one', 'two']);
 		expect(result).to.equal(mail);
 	})
 

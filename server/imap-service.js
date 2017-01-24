@@ -38,6 +38,8 @@ class ImapService {
 						.withSubject(message.envelope.subject)
 						.withFrom(message.envelope.from || [])
 						.withTo(message.envelope.to || [])
+						.withCc(message.envelope.cc || [])
+						.withDate(new Date(message.envelope.date))
 						.withIsSeen(!!message.flags && message.flags.indexOf('\\Seen') >= 0);
 
 					if (message.body && message.bodyType) {
