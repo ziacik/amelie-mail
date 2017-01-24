@@ -1,7 +1,6 @@
 'use strict';
 
 const Mail = require('./mail');
-const codec = require('emailjs-mime-codec');
 
 const rx = require('rxjs/Observable');
 require('rxjs/add/observable/of');
@@ -132,12 +131,10 @@ class ImapService {
 	}
 
 	_decode(bodyEncoded, encoding, charset) {
-		if (encoding === 'quoted-printable') {
-			return codec.quotedPrintableDecode(bodyEncoded, charset);
-		} else if (encoding === 'base64') {
-			return codec.base64Decode(bodyEncoded, charset);
+		if (encoding === 'base64') {
+			return this.codec.base64Decode(bodyEncoded, charset);
 		} else {
-			return bodyEncoded;
+			return this.codec.quotedPrintableDecode(bodyEncoded, charset);
 		}
 	}
 

@@ -16,6 +16,7 @@ describe.only('Imap Service', () => {
 	let imapService;
 	let ClientClass;
 	let client;
+	let codec;
 	let inboxInfo;
 
 	let accountSettingsService;
@@ -36,11 +37,16 @@ describe.only('Imap Service', () => {
 			selectMailbox: sinon.stub().resolves(inboxInfo)
 		}
 
+		codec = {
+			base64Decode: sinon.stub().returnsArg(0),
+			quotedPrintableDecode: sinon.stub().returnsArg(0)
+		}
+
 		ClientClass = sinon.stub().returns(client);
 
 		accountSettingsService = {};
 		accountSettingsService.getAll = sinon.stub().returns(rx.Observable.of(accountSettings).delay(1));
-		imapService = new ImapService(accountSettingsService, ClientClass);
+		imapService = new ImapService(accountSettingsService, ClientClass, codec);
 	});
 
 	it('allows us to listen for incoming mails', () => {
@@ -251,7 +257,39 @@ describe.only('Imap Service', () => {
 						}, done);
 					});
 
-					it('should a html into body if there is one', done => {
+					it('should decode the body from base64 and specified charset if base64 encoding set', done => {
+						messages[0].bodystructure.childNodes[0].encoding = 'base64';
+						messages[0].bodystructure.childNodes[0].parameters = {
+							charset: 'somecharset'
+						};
+
+						codec.base64Decode = sinon.stub().returns('something decoded');
+
+						imapService.listen().subscribe(mails => {
+							expect(codec.base64Decode).to.have.been.calledWith('<p>Some html</p>', 'somecharset');
+							let mail = mails[0];
+							expect(mail.body).to.equal('something decoded');
+							done();
+						}, done);
+					});
+
+					it('should decode the body from quoted printable and specified charset if any other than base64 encoding set', done => {
+						messages[0].bodystructure.childNodes[0].encoding = 'anything';
+						messages[0].bodystructure.childNodes[0].parameters = {
+							charset: 'somecharset'
+						};
+
+						codec.quotedPrintableDecode = sinon.stub().returns('something decoded');
+
+						imapService.listen().subscribe(mails => {
+							expect(codec.quotedPrintableDecode).to.have.been.calledWith('<p>Some html</p>', 'somecharset');
+							let mail = mails[0];
+							expect(mail.body).to.equal('something decoded');
+							done();
+						}, done);
+					});
+
+					it('should set html into body if there is one', done => {
 						imapService.listen().subscribe(mails => {
 							let mail = mails[0];
 							expect(mail.body).to.equal('<p>Some html</p>');
