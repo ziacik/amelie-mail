@@ -6,8 +6,16 @@ import { MailService } from './mail.service';
 describe('MailService', () => {
 	let service: MailService;
 	let channels: any;
+	let mails: any[];
 
 	beforeEach(() => {
+		mails = [
+			{
+				uid: 1
+			}, {
+				uid: 2
+			}
+		];
 		channels = {};
 		global.electron = {
 			ipcRenderer: {
@@ -31,17 +39,18 @@ describe('MailService', () => {
 		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:listen');
 	});
 
-	describe('when mails are sent via mail:fetch channel', () => {
-		let mails: any[];
+	it('can send a mail:mark:seen signal', () => {
+		service.markSeen(mails[1]);
+		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:mark:seen', 2);
+	});
 
+	it('can send a mail:unmark:seen signal', () => {
+		service.unmarkSeen(mails[0]);
+		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:unmark:seen', 1);
+	});
+
+	describe('when mails are sent via mail:fetch channel', () => {
 		beforeEach(() => {
-			mails = [
-				{
-					uid: 1
-				}, {
-					uid: 2
-				}
-			];
 			channels['mail:fetch'](null, mails);
 		});
 
