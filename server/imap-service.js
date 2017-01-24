@@ -49,6 +49,22 @@ class ImapService {
 			});
 	}
 
+	setFlag(uid, flag) {
+		return rx.Observable.fromPromise(this.client.setFlags('INBOX', '' + uid, {
+			set: [flag]
+		}, {
+			byUid: true
+		}));
+	}
+
+	removeFlag(uid, flag) {
+		return rx.Observable.fromPromise(this.client.setFlags('INBOX', '' + uid, {
+			remove: [flag]
+		}, {
+			byUid: true
+		}));
+	}
+
 	_listen() {
 		return rx.Observable.fromEventPattern(
 			handler => {
@@ -64,7 +80,7 @@ class ImapService {
 			})
 		).flatMap(updateInfo => {
 			if (updateInfo.type === 'exists') {
-				let sequenceStr = this.inboxInfo.exists + ':' + updateInfo.value;
+				let sequenceStr = (this.inboxInfo.exists + 1) + ':' + updateInfo.value;
 				this.inboxInfo.exists = updateInfo.value;
 				return this._load(sequenceStr);
 			} else {

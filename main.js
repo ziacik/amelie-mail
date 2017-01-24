@@ -16,18 +16,28 @@ electrolyte.create('imap-service').then(service => {
 
 electron.ipcMain.on('mail:listen', event => {
 	imapService.listen().catch(e => {
-		console.error(e)
+		console.error(e);
 		return [];
 	}).subscribe(a => {
 		event.sender.send('mail:fetch', a);
 	});
 });
 
-electron.ipcMain.on('get', (event, uid) => {
-	imapService.get(uid).then(message => {
-		event.sender.send('got', message);
-	}).catch(err => {
-		console.error(err);
+electron.ipcMain.on('mail:mark:seen', (event, uid) => {
+	imapService.setFlag(uid, '\\Seen').catch(e => {
+		console.error(e);
+		return [];
+	}).subscribe(() => {
+		event.sender.send('mail:marked:seen', uid);
+	});
+});
+
+electron.ipcMain.on('mail:unmark:seen', (event, uid) => {
+	imapService.removeFlag(uid, '\\Seen').catch(e => {
+		console.error(e);
+		return [];
+	}).subscribe(() => {
+		event.sender.send('mail:unmarked:seen', uid);
 	});
 });
 
@@ -52,10 +62,12 @@ app.on('ready', () => {
 		callback({
 			mimeType: 'text/html',
 			data: new Buffer('<h5>Response</h5>')
-		})
-	}, (error) => {
-		if (error) console.error('Failed to register protocol')
-	})
+		});
+	}, error => {
+		if (error) {
+			console.error('Failed to register protocol', error);
+		}
+	});
 });
 app.on('window-all-closed', function() {
 	if (process.platform !== 'darwin') {

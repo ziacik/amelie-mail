@@ -34,7 +34,8 @@ describe.only('Imap Service', () => {
 		client = {
 			connect: sinon.stub().resolves(),
 			listMessages: sinon.stub().resolves([]),
-			selectMailbox: sinon.stub().resolves(inboxInfo)
+			selectMailbox: sinon.stub().resolves(inboxInfo),
+			setFlags: sinon.stub().resolves()
 		}
 
 		codec = {
@@ -96,6 +97,10 @@ describe.only('Imap Service', () => {
 		});
 
 		describe('when connected', () => {
+			beforeEach(() => {
+				imapService.client = client;
+			});
+
 			it('selects an INBOX mailbox', done => {
 				imapService.listen().subscribe(() => {
 					expect(client.selectMailbox).to.have.been.calledWith('INBOX');
@@ -127,6 +132,28 @@ describe.only('Imap Service', () => {
 				}, done);
 			});
 
+			it('allows setting a flag on a mail', done => {
+				imapService.setFlag(123, '\\Seen').subscribe(() => {
+					expect(client.setFlags).to.have.been.calledWith('INBOX', '123', {
+						set: ['\\Seen']
+					}, {
+						byUid: true
+					});
+					done();
+				});
+			});
+
+			it('allows removing a flag from a mail', done => {
+				imapService.removeFlag(123, '\\Seen').subscribe(() => {
+					expect(client.setFlags).to.have.been.calledWith('INBOX', '123', {
+						remove: ['\\Seen']
+					}, {
+						byUid: true
+					});
+					done();
+				});
+			});
+
 			describe('after listing messages', () => {
 				let messages;
 				let byUid = {
@@ -151,14 +178,12 @@ describe.only('Imap Service', () => {
 						bodystructure: {
 							type: 'multipart',
 							childNodes: [{
-									part: '1.1',
-									type: 'something/unknown'
-								},
-								{
-									part: '1.2',
-									type: 'text/plain'
-								},
-							]
+								part: '1.1',
+								type: 'something/unknown'
+							}, {
+								part: '1.2',
+								type: 'text/plain'
+							}]
 						},
 						envelope: {}
 					}, {
@@ -166,14 +191,12 @@ describe.only('Imap Service', () => {
 						bodystructure: {
 							type: 'multipart',
 							childNodes: [{
-									part: '1.1',
-									type: 'text/plain'
-								},
-								{
-									part: '1.2',
-									type: 'text/html'
-								},
-							]
+								part: '1.1',
+								type: 'text/plain'
+							}, {
+								part: '1.2',
+								type: 'text/html'
+							}]
 						},
 						envelope: {}
 					}];
@@ -212,14 +235,12 @@ describe.only('Imap Service', () => {
 							bodystructure: {
 								type: 'multipart',
 								childNodes: [{
-										part: '1.1',
-										type: 'text/html'
-									},
-									{
-										part: '1.2',
-										type: 'text/plain'
-									}
-								]
+									part: '1.1',
+									type: 'text/html'
+								}, {
+									part: '1.2',
+									type: 'text/plain'
+								}]
 							},
 							envelope: {
 								'message-id': 'message.id',
@@ -328,7 +349,7 @@ describe.only('Imap Service', () => {
 					it('should fetch it and update inbox info', done => {
 						inboxInfo.exists = 0;
 						imapService.listen().subscribe(mails => {
-							expect(client.listMessages).to.have.been.calledWith('INBOX', '0:1');
+							expect(client.listMessages).to.have.been.calledWith('INBOX', '1:1');
 							expect(client.listMessages).to.have.been.calledWith('INBOX', '33');
 							expect(inboxInfo.exists).to.equal(1);
 							expect(mails.length).to.equal(1);
