@@ -33,9 +33,17 @@
 	position: fixed;
 	height: 140px;
 	width: calc(100vw - 500px);
+	display: block;
+	padding: 1em 2em;
+	border-bottom: 1px solid #ddd;
 }
 
 #view {
 	position: fixed;
 	top: 140px;
+	width: calc(100vw - 500px);
+	height: calc(100vh - 140px);
+	display: block;
+	padding: 1em 2em;
+	border-bottom: 1px solid #ddd;
 }
