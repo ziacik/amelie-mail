@@ -19,6 +19,14 @@ export class MailService {
 		return this.mails;
 	}
 
+	public markSeen(mail: any) {
+		electron.ipcRenderer.send('mail:mark:seen', mail.uid);
+	}
+
+	public unmarkSeen(mail: any) {
+		electron.ipcRenderer.send('mail:unmark:seen', mail.uid);
+	}
+
 	private startListening() {
 		electron.ipcRenderer.send('mail:listen');
 	}

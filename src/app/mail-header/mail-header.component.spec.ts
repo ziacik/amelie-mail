@@ -3,16 +3,19 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
+import { MailService } from '../shared/mail.service';
 import { MailHeaderComponent } from './mail-header.component';
 
 describe('MailHeaderComponent', () => {
 	let component: MailHeaderComponent;
 	let fixture: ComponentFixture<MailHeaderComponent>;
+	let mailService: MailService;
 	let mail: any;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [MailHeaderComponent]
+			declarations: [MailHeaderComponent],
+			providers: [MailService]
 		}).compileComponents();
 	}));
 
@@ -47,6 +50,9 @@ describe('MailHeaderComponent', () => {
 		component = fixture.componentInstance;
 		component.mail = mail;
 		fixture.detectChanges();
+		mailService = TestBed.get(MailService);
+		spyOn(mailService, 'markSeen');
+		spyOn(mailService, 'unmarkSeen');
 	});
 
 	it('should show subject of an active mail in h1', () => {
@@ -81,8 +87,54 @@ describe('MailHeaderComponent', () => {
 		expect(element.nativeElement.innerText).toEqual('To First To, second.recipient@localhost, First Cc, second.cc@localhost');
 	});
 
-	it('should have a reply button', () => {
-		let element = fixture.debugElement.query(By.css('button.reply'));
+	it('should have a Reply button', () => {
+		let element = fixture.debugElement.query(By.css('button#reply'));
 		expect(!!element).toBeTruthy();
+	});
+
+	it('should have a Read button if the mail is unseen', () => {
+		mail.isSeen = false;
+		fixture.detectChanges();
+		let element = fixture.debugElement.query(By.css('button#read'));
+		expect(!!element).toBeTruthy();
+	});
+
+	it('should not have a Read button if the mail is seen', () => {
+		mail.isSeen = true;
+		fixture.detectChanges();
+		let element = fixture.debugElement.query(By.css('button#read'));
+		expect(!!element).toBeFalsy();
+	});
+
+	it('should have an Unread button if the mail is seen', () => {
+		mail.isSeen = true;
+		fixture.detectChanges();
+		let element = fixture.debugElement.query(By.css('button#unread'));
+		expect(!!element).toBeTruthy();
+	});
+
+	it('should not have an Unread button if the mail is unseen', () => {
+		mail.isSeen = false;
+		fixture.detectChanges();
+		let element = fixture.debugElement.query(By.css('button#unread'));
+		expect(!!element).toBeFalsy();
+	});
+
+	it('should call mailService.markSeen when Read button clicked', () => {
+		mail.isSeen = false;
+		fixture.detectChanges();
+		let element = fixture.debugElement.query(By.css('button#read'));
+		element.nativeElement.click();
+		fixture.detectChanges();
+		expect(mailService.markSeen).toHaveBeenCalledWith(mail);
+	});
+
+	it('should call mailService.unmarkSeen when Unread button clicked', () => {
+		mail.isSeen = true;
+		fixture.detectChanges();
+		let element = fixture.debugElement.query(By.css('button#unread'));
+		element.nativeElement.click();
+		fixture.detectChanges();
+		expect(mailService.unmarkSeen).toHaveBeenCalledWith(mail);
 	});
 });

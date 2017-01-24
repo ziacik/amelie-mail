@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { MailService } from '../shared/mail.service';
 
 @Component({
 	selector: 'app-mail-header',
@@ -8,10 +9,18 @@ import { Component, OnInit, Input } from '@angular/core';
 export class MailHeaderComponent implements OnInit {
 	@Input() mail: any;
 
-	constructor() {
+	constructor(private mailService: MailService) {
 	}
 
 	ngOnInit() {
+	}
+
+	private read() {
+		this.mailService.markSeen(this.mail);
+	}
+
+	private unread() {
+		this.mailService.unmarkSeen(this.mail);
 	}
 
 	// TODO should refactor to make this dry (move to Mail)

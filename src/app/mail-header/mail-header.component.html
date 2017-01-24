@@ -6,6 +6,8 @@
 		<div class="to">To {{ getToDisplayNames() }}</div>
 	</div>
 	<div class="right aligned four wide column">
-		<button class="ui basic circular reply button">Reply</button>
+		<button id="reply" class="ui basic circular button">Reply</button>
+		<button *ngIf="!mail.isSeen" id="read" class="ui basic circular button" (click)="read()">Read</button>
+		<button *ngIf="mail.isSeen" id="unread" class="ui basic circular button" (click)="unread()">Unread</button>
 	</div>
 </div>
