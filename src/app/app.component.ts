@@ -8,9 +8,17 @@ import { MailService } from './shared/mail.service';
 	styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+	private editorVisible: boolean;
+
 	constructor(private appStateService: AppStateService, private mailService: MailService) {
+		this.editorVisible = false;
 	}
 
 	ngOnInit() {
+	}
+
+	private compose() {
+		this.editorVisible = !this.editorVisible;
+		// jQuery('#xeditor').modal('show');
 	}
 }

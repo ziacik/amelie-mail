@@ -1,12 +1,18 @@
 <div id="container">
 	<div class="ui inverted segment" id="nav">
-		<div class="ui basic inverted circular button">Compose</div>
+		<div class="ui basic inverted circular button" (click)="compose()">Compose</div>
 	</div>
 	<div class="ui segment" id="list">
 		<app-mail-list [mails]="mailService.getMails()"></app-mail-list>
 	</div>
 	<div id="main">
 		<app-mail-header id="header" *ngIf="appStateService.getActiveMail()" [mail]="appStateService.getActiveMail()"></app-mail-header>
-		<app-mail-view id="view" *ngIf="appStateService.getActiveMail()" [mail]="appStateService.getActiveMail()"></app-mail-view>
+		<app-mail-view id="view" *ngIf="!editorVisible &amp;&amp; appStateService.getActiveMail()" [mail]="appStateService.getActiveMail()"></app-mail-view>
+		<app-mail-editor *ngIf="editorVisible" style="position:fixed;top:150px"></app-mail-editor>
 	</div>
+	<!-- <div *ngIf="true" id="xeditor" class="ui modal">
+		<div class="header">Compose</div>
+		<div class="content">
+		</div>
+	</div> -->
 </div>
