@@ -1,0 +1,33 @@
+import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+
+@Component({
+	selector: 'app-mail-editor',
+	templateUrl: './mail-editor.component.html',
+	styleUrls: ['./mail-editor.component.css']
+})
+export class MailEditorComponent implements AfterViewInit, OnDestroy {
+	private editor: any;
+	private content: string;
+
+	ngAfterViewInit() {
+		tinymce.init({
+			selector: '#editor',
+			plugins: ['link', 'paste', 'table'],
+			skin_url: 'assets/skins/lightgray',
+			setup: this.setup.bind(this)
+		});
+	}
+
+	ngOnDestroy() {
+		tinymce.remove(this.editor);
+	}
+
+	private setup(editor) {
+		this.editor = editor;
+		editor.on('change', this.change.bind(this));
+	}
+
+	private change(e) {
+		this.content = this.editor.getContent();
+	}
+}

@@ -10,6 +10,7 @@ import { MailItemComponent } from './mail-item/mail-item.component';
 import { MailHeaderComponent } from './mail-header/mail-header.component';
 import { AppStateService } from './shared/app-state.service';
 import { MailService } from './shared/mail.service';
+import { MailEditorComponent } from './mail-editor/mail-editor.component';
 
 @NgModule({
 	declarations: [
@@ -18,7 +19,8 @@ import { MailService } from './shared/mail.service';
 		MailViewComponent,
 		MailContentViewComponent,
 		MailItemComponent,
-		MailHeaderComponent
+		MailHeaderComponent,
+		MailEditorComponent
 	],
 	imports: [
 		BrowserModule,
