@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { AppStateService } from './shared/app-state.service';
 import { MailService } from './shared/mail.service';
 
@@ -7,18 +7,25 @@ import { MailService } from './shared/mail.service';
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
-	private editorVisible: boolean;
+export class AppComponent implements AfterViewInit {
+	private writer: any;
 
 	constructor(private appStateService: AppStateService, private mailService: MailService) {
-		this.editorVisible = false;
 	}
 
-	ngOnInit() {
+	ngAfterViewInit() {
+		this.writer = jQuery('#writer');
+		this.writer.modal('setting', {
+			duration: 100,
+			onVisible: () => {
+				tinymce.execCommand('mceAddControl', false)
+				setTimeout(() => tinymce.activeEditor.focus(), 1);
+			},
+			onHidden: () => tinymce.execCommand('mceRemoveControl', false)
+		});
 	}
 
 	private compose() {
-		this.editorVisible = !this.editorVisible;
-		// jQuery('#xeditor').modal('show');
+		this.writer.modal('show');
 	}
 }
