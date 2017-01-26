@@ -11,9 +11,12 @@ export class MailEditorComponent implements AfterViewInit, OnDestroy {
 
 	ngAfterViewInit() {
 		tinymce.init({
-			selector: '#editor',
-			plugins: ['link', 'paste', 'table'],
+			selector: '#mail-editor',
+			theme: 'inlite',
+			inline: true,
+			theme_url: 'assets/themes/inlite/theme.js',
 			skin_url: 'assets/skins/lightgray',
+			plugins: ['link', 'paste', 'table'],
 			setup: this.setup.bind(this)
 		});
 	}
