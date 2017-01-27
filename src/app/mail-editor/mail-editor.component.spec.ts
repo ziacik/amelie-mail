@@ -21,7 +21,13 @@ describe('MailEditorComponent', () => {
 		fixture.detectChanges();
 	});
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
+	it('should initialize tinymce', () => {
+		expect(tinymce.init).toHaveBeenCalled();
 	});
+
+	it('should remove tinymce in OnDestroy', () => {
+		component.ngOnDestroy();
+		expect(tinymce.remove).toHaveBeenCalled();
+	});
+
 });

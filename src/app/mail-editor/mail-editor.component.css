@@ -1,6 +1,6 @@
 #mail-editor {
-	height: calc(100vh - 200px);
-	max-height: calc(100vh - 200px);
+	height: 50vh;
+	max-height: 50vh;
 	overflow: scroll;
 	outline: none;
 }

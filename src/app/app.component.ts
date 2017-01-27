@@ -16,7 +16,7 @@ export class AppComponent implements AfterViewInit {
 	ngAfterViewInit() {
 		this.writer = jQuery('#writer');
 		this.writer.modal('setting', {
-			duration: 100,
+			duration: 0,
 			onVisible: () => {
 				tinymce.execCommand('mceAddControl', false)
 				setTimeout(() => tinymce.activeEditor.focus(), 1);

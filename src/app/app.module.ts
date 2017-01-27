@@ -11,6 +11,7 @@ import { MailHeaderComponent } from './mail-header/mail-header.component';
 import { AppStateService } from './shared/app-state.service';
 import { MailService } from './shared/mail.service';
 import { MailEditorComponent } from './mail-editor/mail-editor.component';
+import { MailWriterComponent } from './mail-writer/mail-writer.component';
 
 @NgModule({
 	declarations: [
@@ -20,7 +21,8 @@ import { MailEditorComponent } from './mail-editor/mail-editor.component';
 		MailContentViewComponent,
 		MailItemComponent,
 		MailHeaderComponent,
-		MailEditorComponent
+		MailEditorComponent,
+		MailWriterComponent
 	],
 	imports: [
 		BrowserModule,

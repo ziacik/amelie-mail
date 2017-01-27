@@ -9,10 +9,5 @@
 		<app-mail-header id="header" *ngIf="appStateService.getActiveMail()" [mail]="appStateService.getActiveMail()"></app-mail-header>
 		<app-mail-view id="view" *ngIf="appStateService.getActiveMail()" [mail]="appStateService.getActiveMail()"></app-mail-view>
 	</div>
-	<div id="writer" class="ui fullscreen modal">
-		<div class="header">Compose</div>
-		<div class="content">
-			<app-mail-editor></app-mail-editor>
-		</div>
-	</div>
 </div>
+<app-mail-writer id="writer" class="ui modal"></app-mail-writer>

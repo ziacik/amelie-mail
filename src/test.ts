@@ -12,6 +12,13 @@ import {
 	platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
 
+// Global stubs here
+
+global.tinymce = {
+	init: jasmine.createSpy('init'),
+	remove: jasmine.createSpy('remove')
+};
+
 // Unfortunately there's no typing for the `__karma__` variable. Just declare it as any.
 declare var __karma__: any;
 declare var require: any;
