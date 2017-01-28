@@ -19,6 +19,11 @@ global.tinymce = {
 	remove: jasmine.createSpy('remove')
 };
 
+global.jQuery = jasmine.createSpy('jQuery').and.returnValue({
+	modal: jasmine.createSpy('modal'),
+	dropdown: jasmine.createSpy('dropdown')
+});
+
 // Unfortunately there's no typing for the `__karma__` variable. Just declare it as any.
 declare var __karma__: any;
 declare var require: any;

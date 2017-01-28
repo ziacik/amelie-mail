@@ -30,6 +30,11 @@ fdescribe('MailWriterComponent', () => {
 		expect(!!field).toBeTruthy();
 	});
 
+	it('should have a cc field', () => {
+		let field = fixture.debugElement.query(By.css("#cc"));
+		expect(!!field).toBeTruthy();
+	});
+
 	it('should have a subject field', () => {
 		let field = fixture.debugElement.query(By.css("#subject"));
 		expect(!!field).toBeTruthy();

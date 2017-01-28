@@ -1,5 +1,5 @@
 input {
-	padding: 7px 0 !important;
+	padding: 3px 0 !important;
 	border: none !important;
 }
 
@@ -17,6 +17,11 @@ input {
 }
 
 .to.field {
+	border-bottom: 1px solid lightgray;
+	font-weight: normal;
+}
+
+.cc.field {
 	border-bottom: 1px solid lightgray;
 	font-weight: normal;
 }
