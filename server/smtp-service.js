@@ -45,13 +45,13 @@ class SmtpService {
 	_watchForErrors(client) {
 		let errorObservable = Rx.Observable.fromEventPattern(
 				handler => client.onerror = handler,
-				() => client.onerror = null
+				() => delete client.onerror
 			)
 			.first();
 
 		let closeObservable = Rx.Observable.fromEventPattern(
 				handler => client.onclose = handler,
-				() => client.onclose = null
+				() => delete client.onclose
 			)
 			.map(() => new Error('Unexpected close'))
 			.first();
@@ -62,7 +62,7 @@ class SmtpService {
 	_onIdleSendEnvelope(client, mail) {
 		return Rx.Observable.fromEventPattern(
 			handler => client.onidle = handler,
-			() => client.onidle = null
+			() => delete client.onidle
 		).first().map(() => {
 			client.useEnvelope({
 				from: client.from,
@@ -74,7 +74,7 @@ class SmtpService {
 	_onReadySendMail(client, mail) {
 		return Rx.Observable.fromEventPattern(
 			handler => client.onready = handler,
-			() => client.onready = null
+			() => delete client.onready
 		).first().map(() => {
 			client.send(mail.content);
 			client.end();
@@ -84,7 +84,7 @@ class SmtpService {
 	_onDoneFinish(client) {
 		return Rx.Observable.fromEventPattern(
 			handler => client.ondone = handler,
-			() => client.ondone = null
+			() => delete client.ondone
 		).first().flatMap(result => {
 			if (result) {
 				return Rx.Observable.of(null);
