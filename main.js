@@ -45,11 +45,17 @@ let mainWindow;
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
+		width: 1024,
+		height: 768,
+		show: false,
 		webPreferences: {
 			defaultFontFamily: {
 				standard: 'Helvetica Neue'
 			}
 		}
+	});
+	mainWindow.once('ready-to-show', () => {
+		mainWindow.show()
 	});
 	mainWindow.loadURL(`file://${__dirname}/dist/index.html`);
 	mainWindow.on('closed', function() {
