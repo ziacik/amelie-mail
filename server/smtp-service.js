@@ -20,42 +20,39 @@ class SmtpService {
 			throw new Error(this.errors.mailArgumentMissing);
 		}
 
-		return this.accountSettingsService.getAll()
-			.flatMap(accountSettings => {
-				this.accountSettings = accountSettings;
-				this.client = new this.Client(accountSettings.host, accountSettings.port, accountSettings.options);
-				return this._watchForErrors().zip(
-					this._connect()
-					.flatMap(() => this._waitForIdle())
-					.flatMap(() => {
-						this.client.useEnvelope({
-							from: this.accountSettings.mailAddress,
-							to: (mail.to || []).concat(mail.cc || []).concat(mail.bcc || [])
-						});
-						return this._waitForReady();
-					})
-					.flatMap(() => {
-						this.client.send(mail.content);
-						this.client.end();
-						return this._waitForDone();
-					}));
-			});
+		return this._createClient().flatMap(client => {
+			return Rx.Observable.merge(
+				this._watchForErrors(client),
+				this._connect(client),
+				this._onIdleSendEnvelope(client),
+				this._onReadySendMail(client),
+				this._onDoneFinish(client)
+			);
+		});
 	}
 
-	_connect() {
-		return Rx.Observable.defer(() => Rx.Observable.of(this.client.connect()));
+	_createClient() {
+		return this.accountSettingsService.getAll().map(accountSettings => {
+			let client = new this.Client(accountSettings.host, accountSettings.port, accountSettings.options);
+			client.from = accountSettings.mailAddress;
+			return client;
+		});
 	}
 
-	_watchForErrors() {
+	_connect(client) {
+		return Rx.Observable.defer(() => Rx.Observable.of(client.connect()));
+	}
+
+	_watchForErrors(client) {
 		let errorObservable = Rx.Observable.fromEventPattern(
-				handler => this.client.onerror = handler,
-				() => this.client.onerror = null
+				handler => client.onerror = handler,
+				() => client.onerror = null
 			)
 			.first();
 
 		let closeObservable = Rx.Observable.fromEventPattern(
-				handler => this.client.onclose = handler,
-				() => this.client.onclose = null
+				handler => client.onclose = handler,
+				() => client.onclose = null
 			)
 			.map(() => new Error('Unexpected close'))
 			.first();
@@ -63,24 +60,32 @@ class SmtpService {
 		return Rx.Observable.merge(errorObservable, closeObservable).flatMap(err => Rx.Observable.throw(err));
 	}
 
-	_waitForIdle() {
+	_onIdleSendEnvelope(client, mail) {
 		return Rx.Observable.fromEventPattern(
-			handler => this.client.onidle = handler,
-			() => this.client.onidle = null
-		).first();
+			handler => client.onidle = handler,
+			() => client.onidle = null
+		).first().map(() => {
+			client.useEnvelope({
+				from: client.from,
+				to: (mail.to || []).concat(mail.cc || []).concat(mail.bcc || [])
+			});
+		})
 	}
 
-	_waitForReady() {
+	_onReadySendMail(client) {
 		return Rx.Observable.fromEventPattern(
-			handler => this.client.onready = handler,
-			() => this.client.onready = null
-		).first();
+			handler => client.onready = handler,
+			() => client.onready = null
+		).first().map(() => {
+			this.client.send(mail.content);
+			this.client.end();
+		});
 	}
 
-	_waitForDone() {
+	_onDoneFinish(client) {
 		return Rx.Observable.fromEventPattern(
-			handler => this.client.ondone = handler,
-			() => this.client.ondone = null
+			handler => client.ondone = handler,
+			() => client.ondone = null
 		).first().flatMap(result => {
 			if (result) {
 				return Rx.Observable.empty();
