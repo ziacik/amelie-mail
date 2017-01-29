@@ -3,7 +3,7 @@
 import { TestBed, async, inject } from '@angular/core/testing';
 import { MailService } from './mail.service';
 
-describe('MailService', () => {
+fdescribe('MailService', () => {
 	let service: MailService;
 	let channels: any;
 	let mails: any[];
@@ -39,6 +39,14 @@ describe('MailService', () => {
 		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:listen');
 	});
 
+	it('throws when markSeen called without a mail', () => {
+		expect(() => service.markSeen()).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
+	});
+
+	it('throws when unmarkSeen called without a mail', () => {
+		expect(() => service.unmarkSeen()).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
+	});
+
 	it('can send a mail:mark:seen signal', () => {
 		service.markSeen(mails[1]);
 		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:mark:seen', 2);
@@ -49,7 +57,16 @@ describe('MailService', () => {
 		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:unmark:seen', 1);
 	});
 
-	describe('when mails are sent via mail:fetch channel', () => {
+	it('throws when send called without a mail', () => {
+		expect(() => service.send()).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
+	});
+
+	it('can send a mail:send signal', () => {
+		service.send(mails[0]);
+		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:send', mails[0]);
+	});
+
+	describe('when mails are received via mail:fetch channel', () => {
 		beforeEach(() => {
 			channels['mail:fetch'](null, mails);
 		});

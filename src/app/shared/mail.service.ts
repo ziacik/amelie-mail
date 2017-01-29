@@ -5,9 +5,13 @@ declare var electron: any;
 @Injectable()
 export class MailService {
 	private mails: any[];
+	private errors: any;
 
 	constructor(private zone: NgZone) {
 		this.mails = [];
+		this.errors = {
+			mailArgumentMissing: 'Mail argument missing.'
+		};
 
 		if (typeof electron !== 'undefined') {
 			this.registerFetch();
@@ -20,11 +24,24 @@ export class MailService {
 	}
 
 	public markSeen(mail: any) {
+		if (!mail) {
+			throw new Error(this.errors.mailArgumentMissing);
+		}
 		electron.ipcRenderer.send('mail:mark:seen', mail.uid);
 	}
 
 	public unmarkSeen(mail: any) {
+		if (!mail) {
+			throw new Error(this.errors.mailArgumentMissing);
+		}
 		electron.ipcRenderer.send('mail:unmark:seen', mail.uid);
+	}
+
+	public send(mail: any) {
+		if (!mail) {
+			throw new Error(this.errors.mailArgumentMissing);
+		}
+		electron.ipcRenderer.send('mail:send', mail);
 	}
 
 	private startListening() {
