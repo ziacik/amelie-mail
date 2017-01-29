@@ -1,30 +1,33 @@
-<div class="ui small form header">
+<div class="ui small form header" [formGroup]="form">
 	<div class="to field">
-		<div id="to" class="ui fluid multiple search selection dropdown">
-			<input type="hidden" name="to">
+		<input type="text" formControlName="to">
+		<!-- <div id="to" class="ui fluid multiple search selection dropdown">
+			<input type="hidden" formControlName="to">
 			<i class="dropdown icon"></i>
 			<div class="default text">To</div>
 			<div class="menu">
 			</div>
-		</div>
+		</div>-->
 	</div>
 	<div class="cc field">
-		<div id="cc" class="ui fluid multiple search selection dropdown">
-			<input type="hidden" name="cc">
+		<input type="text" formControlName="cc">
+		<!-- <div id="cc" class="ui fluid multiple search selection dropdown">
+			<input type="hidden" formControlName="cc">
 			<i class="dropdown icon"></i>
 			<div class="default text">Cc</div>
 			<div class="menu">
 			</div>
-		</div>
+		</div> -->
 	</div>
 	<div class="subject field">
-		<input type="text" id="subject" name="subject" placeholder="Subject" />
+		<input type="text" id="subject" formControlName="subject" placeholder="Subject" />
 	</div>
 </div>
-<div class="content">
-	<app-mail-editor></app-mail-editor>
+<div class="content" [formGroup]="form">
+	<input type="text" formControlName="content" placeholder="Subject" />
+	<!-- <app-mail-editor></app-mail-editor> -->
 </div>
 <div class="actions">
 	<button id="cancel" class="ui cancel button">Cancel</button>
-	<button id="send" class="ui primary button">Send</button>
+	<button id="send" class="ui primary button" [disabled]="!form.valid">Send</button>
 </div>

@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { MailListComponent } from './mail-list/mail-list.component';
 import { MailViewComponent } from './mail-view/mail-view.component';
@@ -27,7 +27,7 @@ import { MailWriterComponent } from './mail-writer/mail-writer.component';
 	imports: [
 		BrowserModule,
 		CommonModule,
-		FormsModule
+		ReactiveFormsModule
 	],
 	providers: [
 		AppStateService,
