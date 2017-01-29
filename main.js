@@ -9,10 +9,15 @@ electrolyte.use(electrolyte.dir('server'));
 electrolyte.use(electrolyte.node_modules());
 
 let imapService;
+let smtpService;
 
 electrolyte.create('imap-service').then(service => {
 	imapService = service;
-});
+}).catch(console.error);
+
+electrolyte.create('smtp-service').then(service => {
+	smtpService = service;
+}).catch(console.error);
 
 electron.ipcMain.on('mail:listen', event => {
 	imapService.listen().catch(e => {
@@ -20,6 +25,15 @@ electron.ipcMain.on('mail:listen', event => {
 		return [];
 	}).subscribe(a => {
 		event.sender.send('mail:fetch', a);
+	});
+});
+
+electron.ipcMain.on('mail:send', (event, mail) => {
+	smtpService.send(mail).catch(e => {
+		console.error(e);
+		return [];
+	}).subscribe(() => {
+		event.sender.send('mail:sent', mail);
 	});
 });
 
