@@ -36,6 +36,7 @@ describe('Smtp Service', () => {
 		};
 
 		client = {
+			connect: sinon.stub(),
 			useEnvelope: sinon.stub(),
 			send: sinon.stub(),
 			end: sinon.stub()
@@ -68,10 +69,35 @@ describe('Smtp Service', () => {
 			}, 20);
 		});
 
+		it('connects', done => {
+			smtpService.send(mail).subscribe();
+			setTimeout(() => {
+				expect(client.connect).to.have.been.called;
+				done();
+			}, 20);
+		});
+
+		it('must already be subscribed to onerror and onclose on connect', done => {
+			client.connect = () => {
+				expect(client.onerror).to.exist;
+				expect(client.onclose).to.exist;
+				done();
+			};
+			smtpService.send(mail).subscribe();
+		});
+
 		it('subscribes to an onerror event', done => {
 			smtpService.send(mail).subscribe();
 			setTimeout(() => {
 				expect(client.onerror).to.exist;
+				done();
+			}, 20);
+		});
+
+		it('subscribes to an onclose event', done => {
+			smtpService.send(mail).subscribe();
+			setTimeout(() => {
+				expect(client.onclose).to.exist;
 				done();
 			}, 20);
 		});
@@ -94,12 +120,25 @@ describe('Smtp Service', () => {
 
 		it('completes with error if onerror event occurs', done => {
 			let error;
-			setTimeout(() => client.onerror && client.onerror(new Error('Some error')));
+			setTimeout(() => client.onerror && client.onerror(new Error('Some error')), 1);
+			setTimeout(() => client.onclose && client.onclose(true), 2);
 			smtpService.send(mail).subscribe(null, e => error = e);
 			setTimeout(() => {
 				expect(error).to.exist;
 				expect(error).to.be.an('error');
 				expect(error.message).to.equal('Some error');
+				done();
+			}, 20);
+		});
+
+		it('completes with error if unexpected onclose event occurs', done => {
+			let error;
+			setTimeout(() => client.onclose && client.onclose(false), 1);
+			smtpService.send(mail).subscribe(null, e => error = e);
+			setTimeout(() => {
+				expect(error).to.exist;
+				expect(error).to.be.an('error');
+				expect(error.message).to.equal('Unexpected close');
 				done();
 			}, 20);
 		});
@@ -158,7 +197,8 @@ describe('Smtp Service', () => {
 
 			it('completes with error if onerror event occurs', done => {
 				let error;
-				setTimeout(() => client.onerror && client.onerror(new Error('Some error')));
+				setTimeout(() => client.onerror && client.onerror(new Error('Some error')), 1);
+				setTimeout(() => client.onclose && client.onclose(true), 2);
 				smtpService.send(mail).subscribe(null, e => error = e);
 				setTimeout(() => {
 					expect(error).to.exist;
@@ -203,7 +243,8 @@ describe('Smtp Service', () => {
 
 				it('completes with error if onerror event occurs', done => {
 					let error;
-					setTimeout(() => client.onerror && client.onerror(new Error('Some error')));
+					setTimeout(() => client.onerror && client.onerror(new Error('Some error')), 1);
+					setTimeout(() => client.onclose && client.onclose(true), 2);
 					smtpService.send(mail).subscribe(null, e => error = e);
 					setTimeout(() => {
 						expect(error).to.exist;
@@ -220,6 +261,7 @@ describe('Smtp Service', () => {
 						onDoneResult = true;
 						client.end = () => {
 							setTimeout(() => client.ondone && client.ondone(onDoneResult), 1);
+							setTimeout(() => client.onclose && client.onclose(false), 2);
 						};
 					});
 

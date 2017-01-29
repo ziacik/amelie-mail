@@ -3,7 +3,7 @@
 require('./rxjs-operators');
 
 const Mail = require('./mail');
-const rx = require('rxjs/Observable');
+const Rx = require('rxjs');
 
 class SmtpService {
 	constructor(accountSettingsService, Client) {
@@ -25,7 +25,9 @@ class SmtpService {
 				this.accountSettings = accountSettings;
 				this.client = new this.Client(accountSettings.host, accountSettings.port, accountSettings.options);
 				return this._watchForErrors().zip(
-					this._waitForIdle().flatMap(() => {
+					this._connect()
+					.flatMap(() => this._waitForIdle())
+					.flatMap(() => {
 						this.client.useEnvelope({
 							from: this.accountSettings.mailAddress,
 							to: (mail.to || []).concat(mail.cc || []).concat(mail.bcc || [])
@@ -40,36 +42,50 @@ class SmtpService {
 			});
 	}
 
+	_connect() {
+		return Rx.Observable.defer(() => Rx.Observable.of(this.client.connect()));
+	}
+
 	_watchForErrors() {
-		return rx.Observable.fromEventPattern(
-			handler => this.client.onerror = handler,
-			() => this.client.onerror = null
-		).first().flatMap(err => rx.Observable.throw(err));
+		let errorObservable = Rx.Observable.fromEventPattern(
+				handler => this.client.onerror = handler,
+				() => this.client.onerror = null
+			)
+			.first();
+
+		let closeObservable = Rx.Observable.fromEventPattern(
+				handler => this.client.onclose = handler,
+				() => this.client.onclose = null
+			)
+			.map(() => new Error('Unexpected close'))
+			.first();
+
+		return Rx.Observable.merge(errorObservable, closeObservable).flatMap(err => Rx.Observable.throw(err));
 	}
 
 	_waitForIdle() {
-		return rx.Observable.fromEventPattern(
+		return Rx.Observable.fromEventPattern(
 			handler => this.client.onidle = handler,
 			() => this.client.onidle = null
 		).first();
 	}
 
 	_waitForReady() {
-		return rx.Observable.fromEventPattern(
+		return Rx.Observable.fromEventPattern(
 			handler => this.client.onready = handler,
 			() => this.client.onready = null
 		).first();
 	}
 
 	_waitForDone() {
-		return rx.Observable.fromEventPattern(
+		return Rx.Observable.fromEventPattern(
 			handler => this.client.ondone = handler,
 			() => this.client.ondone = null
 		).first().flatMap(result => {
 			if (result) {
-				return rx.Observable.empty();
+				return Rx.Observable.empty();
 			} else {
-				return rx.Observable.throw(new Error(this.errors.errorSendingMail));
+				return Rx.Observable.throw(new Error(this.errors.errorSendingMail));
 			}
 		})
 	}
