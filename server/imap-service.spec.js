@@ -12,7 +12,7 @@ require('sinon-as-promised');
 
 const ImapService = require('./imap-service');
 
-describe.only('Imap Service', () => {
+describe('Imap Service', () => {
 	let imapService;
 	let ClientClass;
 	let client;
