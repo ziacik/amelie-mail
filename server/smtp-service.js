@@ -24,10 +24,9 @@ class SmtpService {
 			return Rx.Observable.merge(
 				this._watchForErrors(client),
 				this._connect(client),
-				this._onIdleSendEnvelope(client),
-				this._onReadySendMail(client),
-				this._onDoneFinish(client)
-			);
+				this._onIdleSendEnvelope(client, mail),
+				this._onReadySendMail(client, mail)
+			).takeUntil(this._onDoneFinish(client));
 		});
 	}
 
@@ -72,13 +71,13 @@ class SmtpService {
 		})
 	}
 
-	_onReadySendMail(client) {
+	_onReadySendMail(client, mail) {
 		return Rx.Observable.fromEventPattern(
 			handler => client.onready = handler,
 			() => client.onready = null
 		).first().map(() => {
-			this.client.send(mail.content);
-			this.client.end();
+			client.send(mail.content);
+			client.end();
 		});
 	}
 
@@ -88,7 +87,7 @@ class SmtpService {
 			() => client.ondone = null
 		).first().flatMap(result => {
 			if (result) {
-				return Rx.Observable.empty();
+				return Rx.Observable.of(null);
 			} else {
 				return Rx.Observable.throw(new Error(this.errors.errorSendingMail));
 			}
