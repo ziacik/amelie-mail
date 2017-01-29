@@ -5,18 +5,24 @@ import { DebugElement } from '@angular/core';
 
 import { ReactiveFormsModule } from '@angular/forms';
 
+import { MailService } from '../shared/mail.service';
 import { MailEditorComponent } from '../mail-editor/mail-editor.component';
 import { MailWriterComponent } from './mail-writer.component';
 
 fdescribe('MailWriterComponent', () => {
 	let component: MailWriterComponent;
 	let fixture: ComponentFixture<MailWriterComponent>;
+	let mailService: MailService;
+	let mailToSend: any;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			declarations: [
 				MailWriterComponent,
 				MailEditorComponent
+			],
+			providers: [
+				MailService
 			],
 			imports: [
 				ReactiveFormsModule
@@ -28,13 +34,21 @@ fdescribe('MailWriterComponent', () => {
 		fixture = TestBed.createComponent(MailWriterComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
+		mailService = TestBed.get(MailService);
+		spyOn(mailService, 'send');
 	});
 
 	function fillValidForm() {
-		component.form.controls['to'].setValue(['somebody@localhost']);
-		component.form.controls['cc'].setValue(['someone@localhost']);
-		component.form.controls['subject'].setValue('This is a mail');
-		component.form.controls['content'].setValue('This is a content of the mail');
+		mailToSend = {
+			to: ['somebody@localhost'],
+			cc: ['someone@localhost'],
+			subject: 'This is a mail',
+			content: 'This is a content of the mail'
+		};
+		component.form.controls['to'].setValue(mailToSend.to);
+		component.form.controls['cc'].setValue(mailToSend.cc);
+		component.form.controls['subject'].setValue(mailToSend.subject);
+		component.form.controls['content'].setValue(mailToSend.content);
 	}
 
 	it('should have a to field', () => {
@@ -123,6 +137,14 @@ fdescribe('MailWriterComponent', () => {
 			fillValidForm();
 			fixture.detectChanges();
 			expect(sendButton.nativeElement.disabled).toBeFalsy();
+		});
+
+		it('should call mailService.send when send button clicked', () => {
+			fillValidForm();
+			fixture.detectChanges();
+			sendButton.nativeElement.click();
+			fixture.detectChanges();
+			expect(mailService.send).toHaveBeenCalledWith(mailToSend);
 		});
 	});
 });

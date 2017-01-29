@@ -29,5 +29,5 @@
 </div>
 <div class="actions">
 	<button id="cancel" class="ui cancel button">Cancel</button>
-	<button id="send" class="ui primary button" [disabled]="!form.valid">Send</button>
+	<button id="send" class="ui primary ok button" [disabled]="!form.valid" (click)="send()">Send</button>
 </div>

@@ -1,6 +1,8 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
+import { MailService } from '../shared/mail.service';
+
 @Component({
 	selector: 'app-mail-writer',
 	templateUrl: './mail-writer.component.html',
@@ -9,7 +11,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class MailWriterComponent implements AfterViewInit {
 	form: FormGroup;
 
-	constructor(private builder: FormBuilder) {
+	constructor(private builder: FormBuilder, private mailService: MailService) {
 		this.form = builder.group({
 			to: '',
 			cc: '',
@@ -25,6 +27,10 @@ export class MailWriterComponent implements AfterViewInit {
 		jQuery('#cc').dropdown({
 			allowAdditions: true
 		});
+	}
+
+	private send() {
+		this.mailService.send(this.form.value);
 	}
 
 	private recipientRequired(group: FormGroup) {
