@@ -1,8 +1,5 @@
 'use strict';
 
-const rx = require('rxjs/Observable');
-require('rxjs/add/observable/of');
-
 const chai = require('chai');
 const sinon = require('sinon');
 const expect = chai.expect;

@@ -15,7 +15,7 @@ class ImapService {
 	listen() {
 		return this.accountSettingsService.getAll()
 			.flatMap(accountSettings => {
-				this.client = new this.Client(accountSettings.host, accountSettings.port, accountSettings.options);
+				this.client = new this.Client(accountSettings.imap.host, accountSettings.imap.port, accountSettings.imap.options);
 				this.client.logLevel = this.client.LOG_LEVEL_INFO;
 				return this._connectAndStart();
 			})

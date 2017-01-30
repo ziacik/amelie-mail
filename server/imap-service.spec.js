@@ -21,9 +21,13 @@ describe('Imap Service', () => {
 
 	let accountSettingsService;
 	let accountSettings = {
-		host: 'some.host',
-		port: 993,
-		options: {}
+		imap: {
+			host: 'some.host',
+			port: 993,
+			options: {
+				some: 'option'
+			}
+		}
 	};
 
 	beforeEach(() => {
@@ -72,7 +76,9 @@ describe('Imap Service', () => {
 
 		it('sets up the client with account settings', done => {
 			imapService.listen().subscribe(() => {
-				expect(ClientClass).to.have.been.calledWith(accountSettings.host, accountSettings.port, accountSettings.options);
+				expect(ClientClass).to.have.been.calledWith('some.host', 993, {
+					some: 'option'
+				});
 				done();
 			}, done);
 		});

@@ -22,9 +22,13 @@ describe('Smtp Service', () => {
 	let accountSettingsObservable;
 	let accountSettings = {
 		mailAddress: 'my@mail',
-		host: 'some.host',
-		port: 25,
-		options: {}
+		smtp: {
+			host: 'some.host',
+			port: 25,
+			options: {
+				some: 'thing'
+			}
+		}
 	};
 
 	beforeEach(() => {
@@ -64,7 +68,9 @@ describe('Smtp Service', () => {
 		it('sets up the client with account settings', done => {
 			smtpService.send(mail).subscribe();
 			setTimeout(() => {
-				expect(ClientClass).to.have.been.calledWith(accountSettings.host, accountSettings.port, accountSettings.options);
+				expect(ClientClass).to.have.been.calledWith('some.host', 25, {
+					some: 'thing'
+				});
 				done();
 			}, 20);
 		});
@@ -155,8 +161,8 @@ describe('Smtp Service', () => {
 				smtpService.send(mail).subscribe();
 				setTimeout(() => {
 					expect(client.useEnvelope).to.have.been.calledWith({
-						from: accountSettings.mailAddress,
-						to: mail.to.concat(mail.cc).concat(mail.bcc)
+						from: 'my@mail',
+						to: ['some@body', 'cc@body', 'bcc@body']
 					});
 					done();
 				}, 20);
@@ -172,8 +178,8 @@ describe('Smtp Service', () => {
 				smtpService.send(mail).subscribe();
 				setTimeout(() => {
 					expect(client.useEnvelope).to.have.been.calledWith({
-						from: accountSettings.mailAddress,
-						to: mail.to.concat(mail.cc).concat(mail.bcc)
+						from: 'my@mail',
+						to: ['some@body', 'cc@body', 'bcc@body']
 					});
 					done();
 				}, 20);
@@ -218,7 +224,7 @@ describe('Smtp Service', () => {
 				it('sends a mail and calls end', done => {
 					smtpService.send(mail).subscribe();
 					setTimeout(() => {
-						expect(client.send).to.have.been.calledWith(mail.content);
+						expect(client.send).to.have.been.calledWith('mail body');
 						expect(client.end).to.have.been.called;
 						done();
 					}, 20);

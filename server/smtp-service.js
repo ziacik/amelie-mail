@@ -2,7 +2,6 @@
 
 require('./rxjs-operators');
 
-const Mail = require('./mail');
 const Rx = require('rxjs');
 
 class SmtpService {
@@ -32,7 +31,7 @@ class SmtpService {
 
 	_createClient() {
 		return this.accountSettingsService.getAll().map(accountSettings => {
-			let client = new this.Client(accountSettings.host, accountSettings.port, accountSettings.options);
+			let client = new this.Client(accountSettings.smtp.host, accountSettings.smtp.port, accountSettings.smtp.options);
 			client.from = accountSettings.mailAddress;
 			return client;
 		});
