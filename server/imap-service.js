@@ -10,6 +10,13 @@ class ImapService {
 		this.Client = Client;
 		this.codec = codec;
 		this.accountSettingsService = accountSettingsService;
+
+		this.errors = {
+			uidArgumentMissing: 'Missing uid argument.',
+			flagArgumentMissing: 'Missing flag argument.',
+			extendedCidArgumentMissing: 'Missing extendedCid argument.',
+			extendedCidUnparsable: 'Unable to parse extended cid.'
+		};
 	}
 
 	listen() {
@@ -41,6 +48,14 @@ class ImapService {
 	}
 
 	addFlag(uid, flag) {
+		if (!uid) {
+			throw new Error(this.errors.uidArgumentMissing);
+		}
+
+		if (!flag) {
+			throw new Error(this.errors.flagArgumentMissing);
+		}
+
 		return rx.Observable.fromPromise(this.client.setFlags('INBOX', '' + uid, {
 			add: [flag]
 		}, {
@@ -49,11 +64,46 @@ class ImapService {
 	}
 
 	removeFlag(uid, flag) {
+		if (!uid) {
+			throw new Error(this.errors.uidArgumentMissing);
+		}
+
+		if (!flag) {
+			throw new Error(this.errors.flagArgumentMissing);
+		}
+
 		return rx.Observable.fromPromise(this.client.setFlags('INBOX', '' + uid, {
 			remove: [flag]
 		}, {
 			byUid: true
 		}));
+	}
+
+	getAttachment(extendedCid) {
+		if (!extendedCid) {
+			throw new Error(this.errors.extendedCidArgumentMissing);
+		}
+
+		let delimiterIdx = extendedCid.indexOf(';');
+
+		if (delimiterIdx <= 0) {
+			throw new Error(this.errors.extendedCidUnparsable);
+		}
+
+		let uid = extendedCid.substr(0, delimiterIdx);
+		let partId = extendedCid.substr(delimiterIdx + 1);
+
+		return rx.Observable.fromPromise(
+			this.client.listMessages('INBOX', uid, ['uid', 'bodystructure', `body.peek[${partId}]`], {
+				byUid: true
+			}).then(messages => {
+				let message = messages[0];
+				let part = this._getPartById(message.bodystructure, partId);
+				let bodyEncoded = message[`body[${partId}]`];
+				let bodyDecoded = this._binaryDecode(bodyEncoded, part.encoding);
+				return bodyDecoded;
+			})
+		);
 	}
 
 	_listen() {
@@ -93,7 +143,7 @@ class ImapService {
 				return rx.Observable.empty();
 			}
 
-			let last1oo = inboxInfo.exists - 100;
+			let last1oo = inboxInfo.exists - 0;
 
 			if (last1oo <= 0) {
 				return this._load('*');
@@ -126,6 +176,10 @@ class ImapService {
 						let part = this._getPart(message.bodystructure, partType);
 						let bodyEncoded = bodyMessage[`body[${partInfo.part}]`];
 						let bodyDecoded = this._decode(bodyEncoded, part.encoding, (part.parameters || {}).charset);
+						if (partType === 'text/html') {
+							bodyDecoded = this._convertCids(message.uid, '2', bodyDecoded);
+							console.log(bodyDecoded.substr(bodyDecoded.indexOf('cid:') - 10, 40));
+						}
 						message.body = bodyDecoded;
 						message.bodyType = partType;
 					}
@@ -137,11 +191,23 @@ class ImapService {
 		});
 	}
 
+	_convertCids(uid, partId, html) {
+		return html.replace(/src="cid:(.*?)"/, `src="cid:${uid};${partId}"`);
+	}
+
 	_decode(bodyEncoded, encoding, charset) {
 		if (encoding === 'base64') {
 			return this.codec.base64Decode(bodyEncoded, charset);
 		} else {
 			return this.codec.quotedPrintableDecode(bodyEncoded, charset);
+		}
+	}
+
+	_binaryDecode(bodyEncoded, encoding) {
+		if (encoding === 'base64') {
+			return this.codec.base64.decode(bodyEncoded);
+		} else {
+			return this.codec.base64.decode(bodyEncoded);
 		}
 	}
 
@@ -172,6 +238,21 @@ class ImapService {
 		if (structure.childNodes) {
 			for (let i = 0; i < structure.childNodes.length; i++) {
 				let childPart = this._getPart(structure.childNodes[i], partType);
+				if (childPart !== undefined) {
+					return childPart;
+				}
+			}
+		}
+	}
+
+	_getPartById(structure, partId) {
+		if (structure.part === partId) {
+			return structure;
+		}
+
+		if (structure.childNodes) {
+			for (let i = 0; i < structure.childNodes.length; i++) {
+				let childPart = this._getPartById(structure.childNodes[i], partId);
 				if (childPart !== undefined) {
 					return childPart;
 				}

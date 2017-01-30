@@ -79,9 +79,14 @@ function createWindow() {
 app.on('ready', () => {
 	createWindow();
 	electron.protocol.registerBufferProtocol('cid', (request, callback) => {
-		callback({
-			mimeType: 'text/html',
-			data: new Buffer('<h5>Response</h5>')
+		const cid = request.url.substr(4);
+		console.error('******************************' + cid);
+		imapService.getAttachment(cid).catch(console.error).subscribe(attachment => {
+			console.log('GIT IT');
+			callback({
+				mimeType: 'text/html',
+				data: new Buffer(attachment)
+			});
 		});
 	}, error => {
 		if (error) {

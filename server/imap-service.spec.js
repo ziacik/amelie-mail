@@ -19,6 +19,10 @@ describe('Imap Service', () => {
 	let codec;
 	let inboxInfo;
 
+	let byUid = {
+		byUid: true
+	};
+
 	let accountSettingsService;
 	let accountSettings = {
 		imap: {
@@ -90,7 +94,7 @@ describe('Imap Service', () => {
 			}, done);
 		});
 
-		it('receives an error when connect fails', done => {
+		it('emits an error when connect fails', done => {
 			let thrownError = new Error('Some Error.');
 			client.connect.rejects(thrownError);
 			return imapService.listen().catch(e => {
@@ -138,6 +142,14 @@ describe('Imap Service', () => {
 				}, done);
 			});
 
+			it('throws when addFlag called without an uid', () => {
+				expect(() => imapService.addFlag()).to.throw(imapService.errors.uidArgumentMissing || '(error not defined)');
+			});
+
+			it('throws when addFlag called without a flag', () => {
+				expect(() => imapService.addFlag(123)).to.throw(imapService.errors.flagArgumentMissing || '(error not defined)');
+			});
+
 			it('allows adding a flag on a mail', done => {
 				imapService.addFlag(123, '\\Seen').subscribe(() => {
 					expect(client.setFlags).to.have.been.calledWith('INBOX', '123', {
@@ -147,6 +159,14 @@ describe('Imap Service', () => {
 					});
 					done();
 				});
+			});
+
+			it('throws when removeFlag called without an uid', () => {
+				expect(() => imapService.removeFlag()).to.throw(imapService.errors.uidArgumentMissing || '(error not defined)');
+			});
+
+			it('throws when removeFlag called without a flag', () => {
+				expect(() => imapService.removeFlag(123)).to.throw(imapService.errors.flagArgumentMissing || '(error not defined)');
 			});
 
 			it('allows removing a flag from a mail', done => {
@@ -162,9 +182,6 @@ describe('Imap Service', () => {
 
 			describe('after listing messages', () => {
 				let messages;
-				let byUid = {
-					byUid: true
-				};
 
 				beforeEach(() => {
 					messages = [{
@@ -341,6 +358,42 @@ describe('Imap Service', () => {
 						}, done);
 					});
 
+					// TODO For now, let's not embed the images at start. We'll fetch them on request. This could be changed if the mails were persisted locally.
+					it.skip('should replace cid image references for embedded data', done => {
+						messages = [{
+							uid: 3,
+							bodystructure: {
+								type: 'multipart',
+								childNodes: [{
+									part: '1.1',
+									type: 'text/html'
+								}, {
+									part: '1.2',
+									type: 'some/type',
+									id: 'imgid',
+									encoding: 'someencoding',
+									size: 1234
+								}]
+							},
+							envelope: {}
+						}];
+						client.listMessages.onCall(0).resolves(messages);
+						client.listMessages.onCall(1).resolves([{
+							uid: 3,
+							'body[1.1]': '<p>Some<img src="cid:imgid" /> html</p>'
+						}]);
+						client.listMessages.onCall(2).resolves([{
+							uid: 3,
+							'body[1.2]': '###imgdata###'
+						}]);
+						imapService.listen().subscribe(mails => {
+							let mail = mails[0];
+							expect(mail.body).to.equal('<p>Some<img src="data:some/type;someencoding,###imgdata###" /> html</p>');
+							expect(mail.bodyType).to.equal('text/html');
+							done();
+						}, done);
+					});
+
 					it('should not flag the mail as isSeen if there is not a Seen flag', done => {
 						imapService.listen().subscribe(mails => {
 							expect(mails[0].isSeen).to.be.false;
@@ -391,6 +444,55 @@ describe('Imap Service', () => {
 					});
 				});
 			});
+		});
+	});
+
+	describe.only('getAttachment', () => {
+		beforeEach(() => {
+			imapService.client = client;
+		});
+
+		it('throws if extendedCid argument not provided', () => {
+			expect(() => imapService.getAttachment()).to.throw(imapService.errors.extendedCidArgumentMissing || '(error not defined)');
+		});
+
+		it('throws if extendedCid cannot be split into uid and part number', () => {
+			expect(() => imapService.getAttachment('somebad')).to.throw(imapService.errors.extendedCidUnparsable || '(error not defined)');
+		});
+
+		it('emits an error when listMessages fails', done => {
+			let thrownError = new Error('Some Error.');
+			client.listMessages.rejects(thrownError);
+			return imapService.getAttachment('123;1').catch(e => {
+				expect(e).to.equal(thrownError);
+				done();
+				return [];
+			}).subscribe(() => {
+				done(new Error('Expected an error.'));
+			});
+		});
+
+		it('fetches a part, decodes to a buffer and provides as observable', done => {
+			codec.base64 = {
+				decode: sinon.stub().resolves('###decodedData###')
+			};
+			client.listMessages.resolves([{
+				uid: 123,
+				'body[1.2]': '###base64data###',
+				bodystructure: {
+					part: '1.2',
+					type: 'some/type',
+					id: 'imgid',
+					encoding: 'base64',
+					size: 1234
+				},
+				envelope: {}
+			}]);
+			imapService.getAttachment('123;1.2').subscribe(attachment => {
+				expect(attachment).to.equal('###decodedData###');
+				expect(client.listMessages).to.have.been.calledWith('INBOX', '123', ['uid', 'bodystructure', 'body.peek[1.2]'], byUid);
+				done();
+			}, done);
 		});
 	});
 });
