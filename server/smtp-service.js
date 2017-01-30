@@ -75,6 +75,8 @@ class SmtpService {
 			handler => client.onready = handler,
 			() => delete client.onready
 		).first().map(() => {
+			client.send(`Subject: ${mail.subject}\n`);
+			client.send('\n');
 			client.send(mail.content);
 			client.end();
 		});

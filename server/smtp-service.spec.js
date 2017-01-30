@@ -36,6 +36,7 @@ describe('Smtp Service', () => {
 			to: ['some@body'],
 			cc: ['cc@body'],
 			bcc: ['bcc@body'],
+			subject: 'A subject',
 			content: 'mail body'
 		};
 
@@ -224,6 +225,8 @@ describe('Smtp Service', () => {
 				it('sends a mail and calls end', done => {
 					smtpService.send(mail).subscribe();
 					setTimeout(() => {
+						expect(client.send).to.have.been.calledWith('Subject: A subject\n');
+						expect(client.send).to.have.been.calledWith('\n');
 						expect(client.send).to.have.been.calledWith('mail body');
 						expect(client.end).to.have.been.called;
 						done();
