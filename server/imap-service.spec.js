@@ -138,10 +138,10 @@ describe('Imap Service', () => {
 				}, done);
 			});
 
-			it('allows setting a flag on a mail', done => {
-				imapService.setFlag(123, '\\Seen').subscribe(() => {
+			it('allows adding a flag on a mail', done => {
+				imapService.addFlag(123, '\\Seen').subscribe(() => {
 					expect(client.setFlags).to.have.been.calledWith('INBOX', '123', {
-						set: ['\\Seen']
+						add: ['\\Seen']
 					}, {
 						byUid: true
 					});

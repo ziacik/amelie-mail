@@ -40,9 +40,9 @@ class ImapService {
 			});
 	}
 
-	setFlag(uid, flag) {
+	addFlag(uid, flag) {
 		return rx.Observable.fromPromise(this.client.setFlags('INBOX', '' + uid, {
-			set: [flag]
+			add: [flag]
 		}, {
 			byUid: true
 		}));

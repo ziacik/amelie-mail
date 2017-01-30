@@ -38,7 +38,7 @@ electron.ipcMain.on('mail:send', (event, mail) => {
 });
 
 electron.ipcMain.on('mail:mark:seen', (event, uid) => {
-	imapService.setFlag(uid, '\\Seen').catch(e => {
+	imapService.addFlag(uid, '\\Seen').catch(e => {
 		console.error(e);
 		return [];
 	}).subscribe(() => {
