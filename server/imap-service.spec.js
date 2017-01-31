@@ -359,7 +359,7 @@ describe('Imap Service', () => {
 					});
 
 					// TODO For now, let's not embed the images at start. We'll fetch them on request. This could be changed if the mails were persisted locally.
-					it.skip('should replace cid image references for embedded data', done => {
+					it.skip('should replace cid image references with embedded data', done => {
 						messages = [{
 							uid: 3,
 							bodystructure: {
@@ -370,7 +370,38 @@ describe('Imap Service', () => {
 								}, {
 									part: '1.2',
 									type: 'some/type',
-									id: 'imgid',
+									id: '<imgid>',
+									encoding: 'someencoding',
+									size: 1234
+								}]
+							},
+							envelope: {}
+						}];
+						client.listMessages.onCall(0).resolves(messages);
+						client.listMessages.onCall(1).resolves([{
+							uid: 3,
+							'body[1.1]': '<p>Some<img src="cid:imgid" /> html</p>'
+						}]);
+						imapService.listen().subscribe(mails => {
+							let mail = mails[0];
+							expect(mail.body).to.equal('<p>Some<img src="data:some/type;someencoding,###imgdata###" /> html</p>');
+							expect(mail.bodyType).to.equal('text/html');
+							done();
+						}, done);
+					});
+
+					it('should convert cid references to extended cid references', done => {
+						messages = [{
+							uid: 3,
+							bodystructure: {
+								type: 'multipart',
+								childNodes: [{
+									part: '1.1',
+									type: 'text/html'
+								}, {
+									part: '1.2',
+									type: 'some/type',
+									id: '<imgid>',
 									encoding: 'someencoding',
 									size: 1234
 								}]
@@ -388,7 +419,7 @@ describe('Imap Service', () => {
 						}]);
 						imapService.listen().subscribe(mails => {
 							let mail = mails[0];
-							expect(mail.body).to.equal('<p>Some<img src="data:some/type;someencoding,###imgdata###" /> html</p>');
+							expect(mail.body).to.equal('<p>Some<img src="cid:3;1.2;someencoding" /> html</p>');
 							expect(mail.bodyType).to.equal('text/html');
 							done();
 						}, done);
@@ -447,7 +478,7 @@ describe('Imap Service', () => {
 		});
 	});
 
-	describe.only('getAttachment', () => {
+	describe('getAttachment', () => {
 		beforeEach(() => {
 			imapService.client = client;
 		});
@@ -456,14 +487,18 @@ describe('Imap Service', () => {
 			expect(() => imapService.getAttachment()).to.throw(imapService.errors.extendedCidArgumentMissing || '(error not defined)');
 		});
 
-		it('throws if extendedCid cannot be split into uid and part number', () => {
+		it('throws if extendedCid cannot be split into uid, part number and encoding', () => {
 			expect(() => imapService.getAttachment('somebad')).to.throw(imapService.errors.extendedCidUnparsable || '(error not defined)');
+		});
+
+		it('throws when extendedCid contains an unknown encoding', () => {
+			expect(() => imapService.getAttachment('123;1.3;somethingunknown')).to.throw(imapService.errors.unsupportedEncoding('somethingunknown'));
 		});
 
 		it('emits an error when listMessages fails', done => {
 			let thrownError = new Error('Some Error.');
 			client.listMessages.rejects(thrownError);
-			return imapService.getAttachment('123;1').catch(e => {
+			return imapService.getAttachment('123;1;base64').catch(e => {
 				expect(e).to.equal(thrownError);
 				done();
 				return [];
@@ -478,19 +513,14 @@ describe('Imap Service', () => {
 			};
 			client.listMessages.resolves([{
 				uid: 123,
-				'body[1.2]': '###base64data###',
-				bodystructure: {
-					part: '1.2',
-					type: 'some/type',
-					id: 'imgid',
-					encoding: 'base64',
-					size: 1234
-				},
+				'body[1.3]': '###encodedData###',
 				envelope: {}
 			}]);
-			imapService.getAttachment('123;1.2').subscribe(attachment => {
+			imapService.getAttachment('123;1.3;base64').subscribe(attachment => {
+				expect(client.listMessages).to.have.been.calledOnce;
+				expect(client.listMessages).to.have.been.calledWith('INBOX', '123', ['uid', 'body.peek[1.3]'], byUid);
+				expect(codec.base64.decode).to.have.been.calledWith('###encodedData###');
 				expect(attachment).to.equal('###decodedData###');
-				expect(client.listMessages).to.have.been.calledWith('INBOX', '123', ['uid', 'bodystructure', 'body.peek[1.2]'], byUid);
 				done();
 			}, done);
 		});
