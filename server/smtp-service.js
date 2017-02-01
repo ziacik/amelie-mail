@@ -76,6 +76,9 @@ class SmtpService {
 			() => delete client.onready
 		).first().map(() => {
 			client.send(`Subject: ${mail.subject}\n`);
+			client.send('Mime-Version: 1.0;\n');
+			client.send('Content-Type: text/html; charset="ISO-8859-1";\n');
+			client.send('Content-Transfer-Encoding: 7bit;\n');
 			client.send('\n');
 			client.send(mail.content);
 			client.end();
