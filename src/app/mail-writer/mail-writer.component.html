@@ -24,8 +24,7 @@
 	</div>
 </div>
 <div class="content" [formGroup]="form">
-	<input type="text" formControlName="content" placeholder="Subject" />
-	<!-- <app-mail-editor></app-mail-editor> -->
+	<app-mail-editor formControlName="content"></app-mail-editor>
 </div>
 <div class="actions">
 	<button id="cancel" class="ui cancel button">Cancel</button>

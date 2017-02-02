@@ -9,7 +9,7 @@ import { MailService } from '../shared/mail.service';
 import { MailEditorComponent } from '../mail-editor/mail-editor.component';
 import { MailWriterComponent } from './mail-writer.component';
 
-fdescribe('MailWriterComponent', () => {
+describe('MailWriterComponent', () => {
 	let component: MailWriterComponent;
 	let fixture: ComponentFixture<MailWriterComponent>;
 	let mailService: MailService;

@@ -3,7 +3,7 @@
 import { TestBed, async, inject } from '@angular/core/testing';
 import { MailService } from './mail.service';
 
-fdescribe('MailService', () => {
+describe('MailService', () => {
 	let service: MailService;
 	let channels: any;
 	let mails: any[];
