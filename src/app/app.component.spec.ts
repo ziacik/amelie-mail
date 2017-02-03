@@ -13,7 +13,7 @@ import { MailHeaderComponent } from './mail-header/mail-header.component';
 import { MailViewComponent } from './mail-view/mail-view.component';
 import { MailWriterComponent } from './mail-writer/mail-writer.component';
 
-fdescribe('App: AmelieMail', () => {
+describe('App: AmelieMail', () => {
 	let component: AppComponent;
 	let fixture: ComponentFixture<AppComponent>;
 	let appStateService: AppStateService;
