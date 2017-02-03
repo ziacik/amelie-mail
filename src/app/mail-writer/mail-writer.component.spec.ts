@@ -6,6 +6,7 @@ import { DebugElement } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { MailService } from '../shared/mail.service';
+import { RecipientSelectorComponent } from '../recipient-selector/recipient-selector.component';
 import { MailEditorComponent } from '../mail-editor/mail-editor.component';
 import { MailWriterComponent } from './mail-writer.component';
 
@@ -19,6 +20,7 @@ describe('MailWriterComponent', () => {
 		TestBed.configureTestingModule({
 			declarations: [
 				MailWriterComponent,
+				RecipientSelectorComponent,
 				MailEditorComponent
 			],
 			providers: [

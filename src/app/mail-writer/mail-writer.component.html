@@ -1,23 +1,9 @@
 <div class="ui small form header" [formGroup]="form">
 	<div class="to field">
-		<input type="text" formControlName="to">
-		<!-- <div id="to" class="ui fluid multiple search selection dropdown">
-			<input type="hidden" formControlName="to">
-			<i class="dropdown icon"></i>
-			<div class="default text">To</div>
-			<div class="menu">
-			</div>
-		</div>-->
+		<app-recipient-selector formControlName="to"></app-recipient-selector>
 	</div>
 	<div class="cc field">
-		<input type="text" formControlName="cc">
-		<!-- <div id="cc" class="ui fluid multiple search selection dropdown">
-			<input type="hidden" formControlName="cc">
-			<i class="dropdown icon"></i>
-			<div class="default text">Cc</div>
-			<div class="menu">
-			</div>
-		</div> -->
+		<app-recipient-selector formControlName="cc"></app-recipient-selector>
 	</div>
 	<div class="subject field">
 		<input type="text" id="subject" formControlName="subject" placeholder="Subject" />

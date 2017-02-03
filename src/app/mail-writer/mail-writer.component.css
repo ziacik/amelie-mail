@@ -3,19 +3,6 @@ input {
 	border: none !important;
 }
 
-.dropdown {
-	padding: 0 !important;
-	border: none !important;
-}
-
-.dropdown .icon {
-	display: none;
-}
-
-.dropdown .default.text {
-	margin-left: 0 !important;
-}
-
 .to.field {
 	border-bottom: 1px solid lightgray;
 	font-weight: normal;

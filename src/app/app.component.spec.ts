@@ -3,14 +3,17 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
+import { ReactiveFormsModule } from '@angular/forms';
+
 import { AppComponent } from './app.component';
 import { AppStateService } from './shared/app-state.service';
 import { MailService } from './shared/mail.service';
 import { MailListComponent } from './mail-list/mail-list.component';
 import { MailHeaderComponent } from './mail-header/mail-header.component';
 import { MailViewComponent } from './mail-view/mail-view.component';
+import { MailWriterComponent } from './mail-writer/mail-writer.component';
 
-describe('App: AmelieMail', () => {
+fdescribe('App: AmelieMail', () => {
 	let component: AppComponent;
 	let fixture: ComponentFixture<AppComponent>;
 	let appStateService: AppStateService;
@@ -22,11 +25,15 @@ describe('App: AmelieMail', () => {
 				AppComponent,
 				MailListComponent,
 				MailHeaderComponent,
-				MailViewComponent
+				MailViewComponent,
+				MailWriterComponent
 			],
 			providers: [
 				AppStateService,
 				MailService
+			],
+			imports: [
+				ReactiveFormsModule
 			]
 		});
 

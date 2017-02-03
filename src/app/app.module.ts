@@ -12,6 +12,7 @@ import { AppStateService } from './shared/app-state.service';
 import { MailService } from './shared/mail.service';
 import { MailEditorComponent } from './mail-editor/mail-editor.component';
 import { MailWriterComponent } from './mail-writer/mail-writer.component';
+import { RecipientSelectorComponent } from './recipient-selector/recipient-selector.component';
 
 @NgModule({
 	declarations: [
@@ -22,7 +23,8 @@ import { MailWriterComponent } from './mail-writer/mail-writer.component';
 		MailItemComponent,
 		MailHeaderComponent,
 		MailEditorComponent,
-		MailWriterComponent
+		MailWriterComponent,
+		RecipientSelectorComponent
 	],
 	imports: [
 		BrowserModule,
