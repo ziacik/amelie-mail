@@ -10,6 +10,7 @@ import { MailItemComponent } from './mail-item/mail-item.component';
 import { MailHeaderComponent } from './mail-header/mail-header.component';
 import { AppStateService } from './shared/app-state.service';
 import { MailService } from './shared/mail.service';
+import { ContactService } from './shared/contact.service';
 import { MailEditorComponent } from './mail-editor/mail-editor.component';
 import { MailWriterComponent } from './mail-writer/mail-writer.component';
 import { RecipientSelectorComponent } from './recipient-selector/recipient-selector.component';
@@ -33,7 +34,8 @@ import { RecipientSelectorComponent } from './recipient-selector/recipient-selec
 	],
 	providers: [
 		AppStateService,
-		MailService
+		MailService,
+		ContactService
 	],
 	bootstrap: [AppComponent]
 })
