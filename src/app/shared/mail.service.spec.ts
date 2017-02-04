@@ -2,17 +2,42 @@
 
 import { TestBed, async, inject } from '@angular/core/testing';
 import { MailService } from './mail.service';
+import { ContactService } from './contact.service';
 
-describe('MailService', () => {
+fdescribe('MailService', () => {
 	let service: MailService;
+	let contactService: ContactService;
 	let channels: any;
 	let mails: any[];
 
 	beforeEach(() => {
 		mails = [
 			{
-				uid: 1
-			}, {
+				uid: 1,
+				from: [
+					{
+						name: 'One',
+						address: 'one@localhost'
+					},
+					{
+						name: 'Two',
+						address: 'two@localhost'
+					}
+				],
+				to: [
+					{
+						name: 'Three',
+						address: 'three@localhost'
+					}
+				]
+			},
+			{
+				cc: [
+					{
+						name: 'Four',
+						address: 'four@localhost'
+					}
+				],
 				uid: 2
 			}
 		];
@@ -26,9 +51,11 @@ describe('MailService', () => {
 			}
 		};
 		TestBed.configureTestingModule({
-			providers: [MailService]
+			providers: [MailService, ContactService]
 		});
 		service = TestBed.get(MailService);
+		contactService = TestBed.get(ContactService);
+		spyOn(contactService, 'register');
 	});
 
 	it('registers for mail:fetch ipc channel', () => {
@@ -85,6 +112,25 @@ describe('MailService', () => {
 			let mails = service.getMails();
 			expect(!!mails).toBeTruthy();
 			expect(mails.map(it => it.uid)).toEqual([4, 3, 2, 1]);
+		});
+
+		it('all contacts from them are registered using the contact service', () => {
+			expect(contactService.register).toHaveBeenCalledWith({
+				name: 'One',
+				address: 'one@localhost'
+			});
+			expect(contactService.register).toHaveBeenCalledWith({
+				name: 'Two',
+				address: 'two@localhost'
+			});
+			expect(contactService.register).toHaveBeenCalledWith({
+				name: 'Three',
+				address: 'three@localhost'
+			});
+			expect(contactService.register).toHaveBeenCalledWith({
+				name: 'Four',
+				address: 'four@localhost'
+			});
 		});
 	});
 });
