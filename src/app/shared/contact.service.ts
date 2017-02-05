@@ -19,6 +19,10 @@ export class ContactService {
 			throw new Error(this.errors.contactArgumentMissing());
 		}
 
+		if (!contact.name && this.contacts[contact.address]) {
+			return;
+		}
+
 		this.contacts[contact.address] = contact;
 	}
 

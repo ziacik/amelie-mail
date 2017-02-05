@@ -3,7 +3,7 @@
 import { TestBed, async, inject } from '@angular/core/testing';
 import { ContactService } from './contact.service';
 
-fdescribe('ContactService', () => {
+describe('ContactService', () => {
 	let service: ContactService;
 	let contact;
 
@@ -50,5 +50,14 @@ fdescribe('ContactService', () => {
 		service.register(contact);
 		service.register(another);
 		expect(service.getAll()).toEqual([another]);
+	});
+
+	it('after registering another contact with the same address but empty name, leaves the first one and discards the latter', () => {
+		let another = {
+			address: 'amelie.p@mail.fr'
+		};
+		service.register(contact);
+		service.register(another);
+		expect(service.getAll()).toEqual([contact]);
 	});
 });
