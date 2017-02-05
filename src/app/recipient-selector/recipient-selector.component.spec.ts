@@ -3,19 +3,31 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
+import { ContactService } from '../shared/contact.service';
 import { RecipientSelectorComponent } from './recipient-selector.component';
 
 describe('RecipientSelectorComponent', () => {
 	let component: RecipientSelectorComponent;
+	let contactService: ContactService;
 	let fixture: ComponentFixture<RecipientSelectorComponent>;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [RecipientSelectorComponent]
+			declarations: [RecipientSelectorComponent],
+			providers: [ContactService]
 		}).compileComponents();
 	}));
 
 	beforeEach(() => {
+		contactService = TestBed.get(ContactService);
+		spyOn(contactService, 'getAll').and.returnValue([
+			{
+				name: 'Amelie P',
+				address: 'amelie.p@mail.fr'
+			}, {
+				address: 'olivia.r@mail.fr'
+			}
+		]);
 		jQueryInstance.dropdown = jasmine.createSpy('dropdown');
 		fixture = TestBed.createComponent(RecipientSelectorComponent);
 		component = fixture.componentInstance;
@@ -33,8 +45,19 @@ describe('RecipientSelectorComponent', () => {
 		expect(jQuery).toHaveBeenCalledWith(jasmine.any(Object));
 		expect(jQueryInstance.dropdown).toHaveBeenCalledWith({
 			allowAdditions: true,
+			fullTextSearch: true,
+			forceSelection: false,
+			showOnFocus: false,
 			onChange: jasmine.any(Function)
 		});
+	});
+
+	it('contains a menu with all the contacts', () => {
+		expect(contactService.getAll).toHaveBeenCalled();
+		let items = fixture.debugElement.queryAll(By.css('.item'));
+		expect(items.length).toEqual(2);
+		expect(items[0].nativeElement.getAttribute('data-value')).toEqual('amelie.p@mail.fr');
+		expect(items[1].nativeElement.getAttribute('data-value')).toEqual('olivia.r@mail.fr');
 	});
 
 	it('setting a value sets the value to the dropdown', () => {
