@@ -6,6 +6,7 @@ import { DebugElement } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { MailService } from '../shared/mail.service';
+import { ContactService } from '../shared/contact.service';
 import { RecipientSelectorComponent } from '../recipient-selector/recipient-selector.component';
 import { MailEditorComponent } from '../mail-editor/mail-editor.component';
 import { MailWriterComponent } from './mail-writer.component';
@@ -24,7 +25,8 @@ describe('MailWriterComponent', () => {
 				MailEditorComponent
 			],
 			providers: [
-				MailService
+				MailService,
+				ContactService
 			],
 			imports: [
 				ReactiveFormsModule

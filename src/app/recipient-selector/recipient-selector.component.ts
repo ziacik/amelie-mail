@@ -1,5 +1,6 @@
 import { Component, ElementRef, AfterViewInit, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ContactService } from '../shared/contact.service';
 
 @Component({
 	selector: 'app-recipient-selector',
@@ -18,13 +19,16 @@ export class RecipientSelectorComponent implements AfterViewInit, ControlValueAc
 	private dropdown: any;
 	private internalValue: string[];
 
-	constructor(private elementRef: ElementRef) {
+	constructor(private elementRef: ElementRef, private contactService: ContactService) {
 	}
 
 	ngAfterViewInit() {
 		this.dropdown = jQuery(this.elementRef.nativeElement.firstChild);
 		this.dropdown.dropdown({
 			allowAdditions: true,
+			forceSelection: false,
+			fullTextSearch: true,
+			showOnFocus: false,
 			onChange: this.change.bind(this)
 		});
 	}

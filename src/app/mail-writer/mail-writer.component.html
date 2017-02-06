@@ -1,9 +1,9 @@
 <div class="ui small form header" [formGroup]="form">
 	<div class="to field">
-		<app-recipient-selector formControlName="to"></app-recipient-selector>
+		<app-recipient-selector id="to" formControlName="to"></app-recipient-selector>
 	</div>
 	<div class="cc field">
-		<app-recipient-selector formControlName="cc"></app-recipient-selector>
+		<app-recipient-selector id="cc" formControlName="cc"></app-recipient-selector>
 	</div>
 	<div class="subject field">
 		<input type="text" id="subject" formControlName="subject" placeholder="Subject" />
