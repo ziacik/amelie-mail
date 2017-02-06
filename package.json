@@ -28,7 +28,7 @@
     "electrolyte": "^0.4.0",
     "emailjs-imap-client": "^2.0.3",
     "emailjs-mime-codec": "^1.0.3",
-    "emailjs-smtp-client": "^1.0.0",
+    "nodemailer": "^3.0.2",
     "rxjs": "^5.0.1",
     "tinymce": "^4.5.2",
     "ts-helpers": "^1.1.1",
