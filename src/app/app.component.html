@@ -1,6 +1,7 @@
 <div id="container">
 	<div class="ui inverted segment" id="nav">
-		<div class="ui basic inverted circular button" (click)="compose()">Compose</div>
+		<div class="ui basic inverted circular button" (click)="compose(); writ.open()">Compose</div>
+		<div class="ui basic inverted circular button" (click)="compose(); writ.openReply(appStateService.getActiveMail())">Reply</div>
 	</div>
 	<div class="ui segment" id="list">
 		<app-mail-list [mails]="mailService.getMails()"></app-mail-list>
@@ -10,4 +11,4 @@
 		<app-mail-view id="view" *ngIf="appStateService.getActiveMail()" [mail]="appStateService.getActiveMail()"></app-mail-view>
 	</div>
 </div>
-<app-mail-writer id="writer" class="ui modal"></app-mail-writer>
+<app-mail-writer id="writer" #writ class="ui modal"></app-mail-writer>

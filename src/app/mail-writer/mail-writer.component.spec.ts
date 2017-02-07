@@ -151,4 +151,68 @@ describe('MailWriterComponent', () => {
 			expect(mailService.send).toHaveBeenCalledWith(mailToSend);
 		});
 	});
+
+	fdescribe('open', () => {
+		beforeEach(() => {
+			fillValidForm();
+			component.open();
+		});
+
+		it('clears the form', () => {
+			expect(component.form.controls['to'].value).toEqual([]);
+			expect(component.form.controls['cc'].value).toEqual([]);
+			expect(component.form.controls['subject'].value).toEqual('');
+			expect(component.form.controls['content'].value).toEqual('');
+		});
+	});
+
+	fdescribe('openReply', () => {
+		let replyMail;
+
+		beforeEach(() => {
+			replyMail = {
+				from: [{ name: 'some.from@mail.fr', address: 'some.from@mail.fr' }, { name: 'another.from@mail.fr', address: 'another.from@mail.fr' }],
+				to: [{ name: 'me@mail.fr', address: 'me@mail.fr' }, { name: 'somebody.else@mail.com', address: 'somebody.else@mail.com' }],
+				cc: [{ name: 'cced@mail.fr', address: 'cced@mail.fr' }, { name: 'anothercc@mail.is', address: 'anothercc@mail.is' }],
+				subject: 'Some subject',
+				body: '<html><body>Some <b>body</b></body></html>'
+			};
+			component.openReply(replyMail);
+		});
+
+		it('does not fail when the replyMail has no fields set', () => {
+			expect(() => component.openReply({})).not.toThrow();
+		});
+
+		it('sets sum of from and to minus myself to the "to" field', () => {
+			expect(component.form.controls['to'].value).toEqual(['some.from@mail.fr', 'another.from@mail.fr', 'somebody.else@mail.com']);
+		});
+
+		it('sets cc to the "cc" field', () => {
+			expect(component.form.controls['cc'].value).toEqual(['cced@mail.fr', 'anothercc@mail.is']);
+		});
+
+		it('sets subject to the "subject" field, adding a "Re: " prefix', () => {
+			expect(component.form.controls['subject'].value).toEqual('Re: Some subject');
+		});
+
+		it('sets just "Re:" to the "subject" field if replyMail subject is empty', () => {
+			replyMail.subject = '';
+			component.openReply(replyMail);
+			expect(component.form.controls['subject'].value).toEqual('Re:');
+		});
+
+		it('does not duplicate an already existing "Re:" prefix in the subject', () => {
+			let prefixes = ['Re:', 'RE:', 'Re: '];
+			prefixes.forEach(prefix => {
+				replyMail.subject = `${prefix}Something`;
+				component.openReply(replyMail);
+				expect(component.form.controls['subject'].value).toEqual(`${prefix}Something`);
+			});
+		});
+
+		it('quotes content in the "content" field', () => {
+			expect(component.form.controls['content'].value).toEqual('<p></p><blockquote>Some <b>body</b></blockquote>');
+		});
+	});
 });
