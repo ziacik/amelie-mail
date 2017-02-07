@@ -1,6 +1,5 @@
 require('rxjs/Observable');
 
-require('rxjs/add/observable/bindNodeCallback');
 require('rxjs/add/operator/map');
 require('rxjs/add/observable/of');
 require('rxjs/add/observable/fromPromise');
