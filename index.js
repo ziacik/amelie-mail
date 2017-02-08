@@ -29,7 +29,7 @@ electron.ipcMain.on('contacts:me', event => {
 		console.error(e);
 		return [];
 	}).subscribe(settings => {
-		event.sender.send('mail:fetch', {
+		event.sender.send('contacts:me', {
 			name: settings.name,
 			address: settings.mailAddress
 		});
