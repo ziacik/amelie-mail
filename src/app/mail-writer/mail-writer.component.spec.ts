@@ -38,8 +38,15 @@ describe('MailWriterComponent', () => {
 		fixture = TestBed.createComponent(MailWriterComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
+
 		mailService = TestBed.get(MailService);
 		spyOn(mailService, 'send');
+
+		let contactService = TestBed.get(ContactService);
+		spyOn(contactService, 'getMyself').and.returnValue({
+			name: 'me',
+			address: 'me@mail.fr'
+		});
 	});
 
 	function fillValidForm() {
@@ -152,7 +159,7 @@ describe('MailWriterComponent', () => {
 		});
 	});
 
-	fdescribe('open', () => {
+	describe('open', () => {
 		beforeEach(() => {
 			fillValidForm();
 			component.open();
@@ -166,15 +173,16 @@ describe('MailWriterComponent', () => {
 		});
 	});
 
-	fdescribe('openReply', () => {
+	describe('openReply', () => {
 		let replyMail;
 
 		beforeEach(() => {
 			replyMail = {
-				from: [{ name: 'some.from@mail.fr', address: 'some.from@mail.fr' }, { name: 'another.from@mail.fr', address: 'another.from@mail.fr' }],
-				to: [{ name: 'me@mail.fr', address: 'me@mail.fr' }, { name: 'somebody.else@mail.com', address: 'somebody.else@mail.com' }],
-				cc: [{ name: 'cced@mail.fr', address: 'cced@mail.fr' }, { name: 'anothercc@mail.is', address: 'anothercc@mail.is' }],
+				from: [{ name: 'some.from', address: 'some.from@mail.fr' }, { name: 'another.from', address: 'another.from@mail.fr' }],
+				to: [{ name: 'me', address: 'me@mail.fr' }, { name: 'somebody.else', address: 'somebody.else@mail.com' }],
+				cc: [{ name: 'cced', address: 'cced@mail.fr' }, { name: 'anothercc', address: 'anothercc@mail.is' }],
 				subject: 'Some subject',
+				date: new Date(2017, 4, 20, 12, 30, 50, 123),
 				body: '<html><body>Some <b>body</b></body></html>'
 			};
 			component.openReply(replyMail);
@@ -184,12 +192,24 @@ describe('MailWriterComponent', () => {
 			expect(() => component.openReply({})).not.toThrow();
 		});
 
-		it('sets sum of from and to minus myself to the "to" field', () => {
+		it('sets from to the "to" field if i am not in the replyMail.from', () => {
+			expect(component.form.controls['to'].value).toEqual(['some.from@mail.fr', 'another.from@mail.fr']);
+		});
+
+		it('sets sum of to and cc minus myself to the "cc" field if i am not in the replyMail.from', () => {
+			expect(component.form.controls['cc'].value).toEqual(['somebody.else@mail.com', 'cced@mail.fr', 'anothercc@mail.is']);
+		});
+
+		it('sets sum of from and to minus myself to the "to" field if i am in the replyMail.from', () => {
+			replyMail.from.push({ name: 'me', address: 'me@mail.fr' });
+			component.openReply(replyMail);
 			expect(component.form.controls['to'].value).toEqual(['some.from@mail.fr', 'another.from@mail.fr', 'somebody.else@mail.com']);
 		});
 
-		it('sets cc to the "cc" field', () => {
-			expect(component.form.controls['cc'].value).toEqual(['cced@mail.fr', 'anothercc@mail.is']);
+		it('sets cc minus myself to the "cc" field if i am in the replyMail.from', () => {
+			replyMail.from.push({ name: 'me', address: 'me@mail.fr' });
+			component.openReply(replyMail);
+			expect(component.form.controls['to'].value).toEqual(['some.from@mail.fr', 'another.from@mail.fr', 'somebody.else@mail.com']);
 		});
 
 		it('sets subject to the "subject" field, adding a "Re: " prefix', () => {
@@ -212,7 +232,8 @@ describe('MailWriterComponent', () => {
 		});
 
 		it('quotes content in the "content" field', () => {
-			expect(component.form.controls['content'].value).toEqual('<p></p><blockquote>Some <b>body</b></blockquote>');
+			// TODO Review. Tinymce strips the <html> part from the blockquote, but still maybe we should do it first.
+			expect(component.form.controls['content'].value).toEqual('<p></p><p>On Sat May 20 2017 12:30:50 GMT+0200 (CEST), some.from wrote:</p><blockquote><html><body>Some <b>body</b></body></html></blockquote>');
 		});
 	});
 });

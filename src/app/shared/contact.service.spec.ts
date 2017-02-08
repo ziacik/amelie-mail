@@ -6,8 +6,18 @@ import { ContactService } from './contact.service';
 describe('ContactService', () => {
 	let service: ContactService;
 	let contact;
+	let channels;
 
 	beforeEach(() => {
+		channels = {};
+		global.electron = {
+			ipcRenderer: {
+				on: jasmine.createSpy('ipcRenderer.on').and.callFake((channel, callback) => {
+					channels[channel] = callback;
+				}),
+				send: jasmine.createSpy('ipcRenderer.send')
+			}
+		};
 		contact = {
 			name: 'Amelie P',
 			address: 'amelie.p@mail.fr'
@@ -59,5 +69,22 @@ describe('ContactService', () => {
 		service.register(contact);
 		service.register(another);
 		expect(service.getAll()).toEqual([contact]);
+	});
+
+	it('registers for a contacts:me channel', () => {
+		expect(electron.ipcRenderer.on).toHaveBeenCalledWith('contacts:me', jasmine.any(Function));
+	});
+
+	it('requests a contacts:me channel response', () => {
+		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('contacts:me');
+	});
+
+	it('returns myself from getMyself() after receiving info from the contacts:me channel', () => {
+		let myself = {
+			name: 'My Name',
+			address: 'my@address.fr'
+		};
+		channels['contacts:me'](null, myself);
+		expect(service.getMyself()).toEqual(myself);
 	});
 });

@@ -31,11 +31,12 @@ describe('Account Setings Service', () => {
 			expect(subscription).to.exist;
 		});
 
-		it('loads a settings file and parses it into an object', () => {
+		it('loads a settings file and parses it into an object', done => {
 			return accountSetingsService.getAll().subscribe(result => {
 				expect(fs.readFile).to.have.been.calledWith(path.join(os.homedir(), '.amelie-mail.accounts.json'), 'utf8');
 				expect(result).to.deep.equal(accountSettings);
-			});
+				done();
+			}, done);
 		});
 	});
 });

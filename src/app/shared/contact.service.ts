@@ -5,13 +5,18 @@ export class ContactService {
 	public errors;
 
 	private contacts: any;
+	private myself: any;
 
 	constructor() {
 		this.errors = {
 			contactArgumentMissing: () => 'Contact argument is missing.'
 		};
 
-		this.contacts = {}
+		this.contacts = {};
+
+		if (typeof electron !== 'undefined') {
+			this.registerContactsMeChannel();
+		}
 	}
 
 	public register(contact: any) {
@@ -28,5 +33,16 @@ export class ContactService {
 
 	public getAll(): any[] {
 		return Object.keys(this.contacts).map(c => this.contacts[c]);
+	}
+
+	public getMyself(): any {
+		return this.myself;
+	}
+
+	private registerContactsMeChannel() {
+		electron.ipcRenderer.on('contacts:me', (event, myself) => {
+			this.myself = myself;
+		});
+		electron.ipcRenderer.send('contacts:me');
 	}
 }

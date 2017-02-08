@@ -10,6 +10,7 @@ electrolyte.use(electrolyte.node_modules());
 
 let imapService;
 let smtpService;
+let accountSettingsService;
 
 electrolyte.create('imap-service').then(service => {
 	imapService = service;
@@ -18,6 +19,22 @@ electrolyte.create('imap-service').then(service => {
 electrolyte.create('smtp-service').then(service => {
 	smtpService = service;
 }).catch(console.error);
+
+electrolyte.create('account-settings-service').then(service => {
+	accountSettingsService = service;
+}).catch(console.error);
+
+electron.ipcMain.on('contacts:me', event => {
+	accountSettingsService.getAll().catch(e => {
+		console.error(e);
+		return [];
+	}).subscribe(settings => {
+		event.sender.send('mail:fetch', {
+			name: settings.name,
+			address: settings.mailAddress
+		});
+	});
+});
 
 electron.ipcMain.on('mail:listen', event => {
 	imapService.listen().catch(e => {

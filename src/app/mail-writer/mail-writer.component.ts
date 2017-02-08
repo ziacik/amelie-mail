@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { MailService } from '../shared/mail.service';
+import { ContactService } from '../shared/contact.service';
 
 @Component({
 	selector: 'app-mail-writer',
@@ -13,7 +14,7 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 
 	form: FormGroup;
 
-	constructor(private builder: FormBuilder, private mailService: MailService) {
+	constructor(private builder: FormBuilder, private mailService: MailService, private contactService: ContactService) {
 	}
 
 	ngOnInit() {
@@ -47,8 +48,15 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 		let cc = replyMail.cc || [];
 		let oneFrom = from[0] || {};
 
-		let toAddresses = from.concat(to).map(it => it.address);
-		let ccAddresses = cc.map(it => it.address);
+		let myAddress = this.contactService.getMyself().address;
+		let iamInFrom = from.some(it => it.address === myAddress);
+
+		let toContacts = iamInFrom ? from.concat(to) : from;
+		let ccContacts = iamInFrom ? cc : to.concat(cc);
+
+		let toAddresses = toContacts.filter(it => it.address !== myAddress).map(it => it.address);
+		let ccAddresses = ccContacts.filter(it => it.address !== myAddress).map(it => it.address);
+
 		let subject = replyMail.subject;
 
 		if (!subject) {
@@ -58,12 +66,7 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 		}
 
 		let body = replyMail.bodyType === 'text/plain' ? (replyMail.body || '').replace(/\n/g, '<br />') : replyMail.body;
-
-		let replyText = `<p></p>
-			<p>On ${replyMail.date}, ${oneFrom.name || oneFrom.address} wrote:</p>
-			<blockquote>
-				${body}
-			</blockquote>`
+		let replyText = `<p></p><p>On ${replyMail.date}, ${oneFrom.name || oneFrom.address} wrote:</p><blockquote>${body}</blockquote>`
 
 		this.form.controls['to'].setValue(toAddresses);
 		this.form.controls['cc'].setValue(ccAddresses);
