@@ -192,7 +192,7 @@ class ImapService {
 	_convertCids(message, html) {
 		return html.replace(/src="cid:(.*?)"/g, (match, cid) => {
 			let part = this._findPartByCid(message.bodystructure, cid);
-			return `src="cid:${message.uid};${part.part};${part.encoding}"`;
+			return part ? `src="cid:${message.uid};${part.part};${part.encoding}"` : 'src=""';
 		});
 	}
 

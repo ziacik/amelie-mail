@@ -419,13 +419,34 @@ describe('Imap Service', () => {
 							uid: 3,
 							'body[1.1]': '<p>Some<img src="cid:imgid" /> <img src="cid:something@more.complicated" /> html</p>'
 						}]);
-						client.listMessages.onCall(2).resolves([{
-							uid: 3,
-							'body[1.2]': '###imgdata###'
-						}]);
 						imapService.listen().subscribe(mails => {
 							let mail = mails[0];
 							expect(mail.body).to.equal('<p>Some<img src="cid:3;1.2;someencoding" /> <img src="cid:3;1.5;base64" /> html</p>');
+							expect(mail.bodyType).to.equal('text/html');
+							done();
+						}, done);
+					});
+
+					it('should remove cid references to non-existing body parts', done => {
+						messages = [{
+							uid: 3,
+							bodystructure: {
+								type: 'multipart',
+								childNodes: [{
+									part: '1.1',
+									type: 'text/html'
+								}]
+							},
+							envelope: {}
+						}];
+						client.listMessages.onCall(0).resolves(messages);
+						client.listMessages.onCall(1).resolves([{
+							uid: 3,
+							'body[1.1]': '<p>Some<img src="cid:imgid" />html</p>'
+						}]);
+						imapService.listen().subscribe(mails => {
+							let mail = mails[0];
+							expect(mail.body).to.equal('<p>Some<img src="" />html</p>');
 							expect(mail.bodyType).to.equal('text/html');
 							done();
 						}, done);
