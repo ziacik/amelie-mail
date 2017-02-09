@@ -35,6 +35,10 @@ export class ContactService {
 		return Object.keys(this.contacts).map(c => this.contacts[c]);
 	}
 
+	public getByAddress(address: string): any {
+		return this.contacts[address];
+	}
+
 	public getMyself(): any {
 		return this.myself;
 	}

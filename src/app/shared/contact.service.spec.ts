@@ -32,7 +32,6 @@ describe('ContactService', () => {
 		expect(service.getAll()).toEqual([]);
 	});
 
-
 	it('register fails when called without a contact', () => {
 		expect(() => service.register()).toThrowError(service.errors.contactArgumentMissing());
 	});
@@ -40,6 +39,15 @@ describe('ContactService', () => {
 	it('getAll returns an array with a contact registered by register', () => {
 		service.register(contact);
 		expect(service.getAll()).toEqual([contact]);
+	});
+
+	it('getByAddress returns a contact by mail address', () => {
+		service.register(contact);
+		expect(service.getByAddress('amelie.p@mail.fr')).toEqual(contact);
+	});
+
+	it('getByAddress returns undefined when the requested address is not registered', () => {
+		expect(service.getByAddress('some.body@mail.fr')).toBeUndefined();
 	});
 
 	it('can register more than one contact', () => {

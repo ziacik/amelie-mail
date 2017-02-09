@@ -47,6 +47,14 @@ describe('MailWriterComponent', () => {
 			name: 'me',
 			address: 'me@mail.fr'
 		});
+		spyOn(contactService, 'getByAddress').and.callFake(address => {
+			if (address === 'somebody@localhost') {
+				return {
+					name: 'Some Body',
+					address: 'somebody@localhost'
+				};
+			}
+		});
 	});
 
 	function fillValidForm() {
@@ -150,12 +158,21 @@ describe('MailWriterComponent', () => {
 			expect(sendButton.nativeElement.disabled).toBeFalsy();
 		});
 
-		it('should call mailService.send when send button clicked', () => {
+		it('should call mailService.send when send button clicked with form data, with addresses converted to contacts where possible', () => {
 			fillValidForm();
 			fixture.detectChanges();
 			sendButton.nativeElement.click();
 			fixture.detectChanges();
-			expect(mailService.send).toHaveBeenCalledWith(mailToSend);
+			let augmentedMailToSend = {
+				to: [{
+					name: 'Some Body',
+					address: 'somebody@localhost'
+				}],
+				cc: ['someone@localhost'],
+				subject: 'This is a mail',
+				content: 'This is a content of the mail'
+			};
+			expect(mailService.send).toHaveBeenCalledWith(augmentedMailToSend);
 		});
 	});
 

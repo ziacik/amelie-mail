@@ -75,7 +75,25 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 	}
 
 	private send() {
-		this.mailService.send(this.form.value);
+		let mail = this.form.value;
+		if (mail.to) {
+			mail.to = this.toContacts(mail.to);
+		}
+		if (mail.cc) {
+			mail.cc = this.toContacts(mail.cc);
+		}
+		if (mail.bcc) {
+			mail.bcc = this.toContacts(mail.bcc);
+		}
+		this.mailService.send(mail);
+	}
+
+	private toContacts(addresses) {
+		if (!addresses) {
+			return addresses;
+		}
+
+		return addresses.map(address => (this.contactService.getByAddress(address) || address));
 	}
 
 	private recipientRequired(group: FormGroup) {
