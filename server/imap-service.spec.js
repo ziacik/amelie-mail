@@ -427,6 +427,37 @@ describe('Imap Service', () => {
 						}, done);
 					});
 
+					it('should also convert cid references that are somewhere else, not just in src attribute', done => {
+						messages = [{
+							uid: 3,
+							bodystructure: {
+								type: 'multipart',
+								childNodes: [{
+									part: '1.1',
+									type: 'text/html'
+								}, {
+									part: '1.2',
+									type: 'some/type',
+									id: '<imgid>',
+									encoding: 'someencoding',
+									size: 1234
+								}]
+							},
+							envelope: {}
+						}];
+						client.listMessages.onCall(0).resolves(messages);
+						client.listMessages.onCall(1).resolves([{
+							uid: 3,
+							'body[1.1]': '<body background="cid:imgid">html</body>'
+						}]);
+						imapService.listen().subscribe(mails => {
+							let mail = mails[0];
+							expect(mail.body).to.equal('<body background="cid:3;1.2;someencoding">html</body>');
+							expect(mail.bodyType).to.equal('text/html');
+							done();
+						}, done);
+					});
+
 					it('should remove cid references to non-existing body parts', done => {
 						messages = [{
 							uid: 3,
