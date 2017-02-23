@@ -82,13 +82,16 @@ describe('Smtp Service', () => {
 			}, 20);
 		});
 
-		it('sends the mail', done => {
+		it('sends the mail and adds me to the bcc list', done => {
 			smtpService.send(mail).subscribe();
 			setTimeout(() => {
 				expect(transport.sendMail).to.have.been.calledWith(sinon.match({
 					to: ['some@body'],
 					cc: ['cc@body'],
-					bcc: ['bcc@body'],
+					bcc: [{
+						name: 'This Me',
+						address: 'my@mail'
+					}, 'bcc@body'],
 					subject: 'A subject',
 					html: 'mail body'
 				}), sinon.match.any);
