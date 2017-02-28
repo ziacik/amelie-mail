@@ -10,3 +10,9 @@
 .dropdown .default.text {
 	margin-left: 0 !important;
 }
+
+:host /deep/ .label {
+	background-color: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+}
