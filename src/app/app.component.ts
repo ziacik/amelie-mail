@@ -17,6 +17,8 @@ export class AppComponent implements AfterViewInit {
 		this.writer = jQuery('#writer');
 		this.writer.modal('setting', {
 			duration: 0,
+			autofocus: false,
+			closable: false,
 			onVisible: () => {
 				tinymce.execCommand('mceAddControl', false)
 				setTimeout(() => tinymce.activeEditor.focus(), 1);
