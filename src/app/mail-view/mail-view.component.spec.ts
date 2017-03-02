@@ -20,7 +20,6 @@ describe('MailViewComponent', () => {
 		fixture = TestBed.createComponent(MailViewComponent);
 		component = fixture.componentInstance;
 		mail = {};
-		component.mail = mail;
 		fixture.detectChanges();
 	});
 
@@ -28,6 +27,7 @@ describe('MailViewComponent', () => {
 		beforeEach(() => {
 			mail.bodyType = 'text/plain';
 			mail.body = 'some body';
+			component.mail = mail;
 			fixture.detectChanges();
 		});
 
@@ -47,6 +47,7 @@ describe('MailViewComponent', () => {
 		beforeEach(() => {
 			mail.bodyType = 'text/html';
 			mail.body = '<h1>some body</h1>';
+			component.mail = mail;
 			fixture.detectChanges();
 		});
 
@@ -63,6 +64,7 @@ describe('MailViewComponent', () => {
 
 		it('should not remove html tags', () => {
 			mail.body = '<html>whatever</html>';
+			component.mail = mail;
 			fixture.detectChanges();
 			let iframe = fixture.debugElement.query(By.css('iframe'));
 			expect(iframe.nativeElement.srcdoc).toEqual('<html>whatever</html>');

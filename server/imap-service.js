@@ -1,32 +1,33 @@
 'use strict';
 
-const Mail = require('./mail');
+require('./rxjs-operators');
 
 const rx = require('rxjs/Observable');
-require('rxjs/add/observable/of');
-require('rxjs/add/observable/fromPromise');
-require('rxjs/add/observable/fromEvent');
-require('rxjs/add/observable/fromEventPattern');
-require('rxjs/add/observable/merge');
-require('rxjs/add/observable/throw');
-require('rxjs/add/operator/concat');
-require('rxjs/add/operator/catch');
-require('rxjs/add/operator/merge');
-require('rxjs/add/operator/mergeMap');
-require('rxjs/add/observable/bindNodeCallback');
-require('rxjs/add/observable/empty');
+const Mail = require('./mail');
 
 class ImapService {
 	constructor(accountSettingsService, Client, codec) {
 		this.Client = Client;
 		this.codec = codec;
 		this.accountSettingsService = accountSettingsService;
+
+		this.errors = {
+			uidArgumentMissing: 'Missing uid argument.',
+			flagArgumentMissing: 'Missing flag argument.',
+			extendedCidArgumentMissing: 'Missing extendedCid argument.',
+			extendedCidUnparsable: 'Unable to parse extended cid.',
+			unsupportedEncoding: which => `Unsupported encoding "${which}".`
+		};
+
+		this.byUid = {
+			byUid: true
+		};
 	}
 
 	listen() {
 		return this.accountSettingsService.getAll()
 			.flatMap(accountSettings => {
-				this.client = new this.Client(accountSettings.host, accountSettings.port, accountSettings.options);
+				this.client = new this.Client(accountSettings.imap.host, accountSettings.imap.port, accountSettings.imap.options);
 				this.client.logLevel = this.client.LOG_LEVEL_INFO;
 				return this._connectAndStart();
 			})
@@ -51,20 +52,59 @@ class ImapService {
 			});
 	}
 
-	setFlag(uid, flag) {
+	addFlag(uid, flag) {
+		if (!uid) {
+			throw new Error(this.errors.uidArgumentMissing);
+		}
+
+		if (!flag) {
+			throw new Error(this.errors.flagArgumentMissing);
+		}
+
 		return rx.Observable.fromPromise(this.client.setFlags('INBOX', '' + uid, {
-			set: [flag]
-		}, {
-			byUid: true
-		}));
+			add: [flag]
+		}, this.byUid));
 	}
 
 	removeFlag(uid, flag) {
+		if (!uid) {
+			throw new Error(this.errors.uidArgumentMissing);
+		}
+
+		if (!flag) {
+			throw new Error(this.errors.flagArgumentMissing);
+		}
+
 		return rx.Observable.fromPromise(this.client.setFlags('INBOX', '' + uid, {
 			remove: [flag]
-		}, {
-			byUid: true
-		}));
+		}, this.byUid));
+	}
+
+	getAttachment(extendedCid) {
+		if (!extendedCid) {
+			throw new Error(this.errors.extendedCidArgumentMissing);
+		}
+
+		let split = extendedCid.split(';');
+
+		if (split.length != 3) {
+			throw new Error(this.errors.extendedCidUnparsable);
+		}
+
+		let uid = split[0];
+		let partId = split[1];
+		let encoding = split[2];
+
+		this._checkBinaryDecodable(encoding);
+
+		let messagesPromise = this.client.listMessages('INBOX', uid, ['uid', `body.peek[${partId}]`], this.byUid).then(messages => {
+			let message = messages[0];
+			let bodyEncoded = message[`body[${partId}]`];
+			let bodyDecoded = this._binaryDecode(bodyEncoded, encoding);
+			return bodyDecoded;
+		});
+
+		return rx.Observable.fromPromise(messagesPromise);
 	}
 
 	_listen() {
@@ -127,9 +167,7 @@ class ImapService {
 	_addBodies(messages, partType) {
 		let plainTextPartMap = this._getPartCodeMap(messages, partType);
 		let promises = plainTextPartMap.map(partInfo => {
-			return this.client.listMessages('INBOX', partInfo.uidList, ['uid', `body.peek[${partInfo.part}]`], {
-				byUid: true
-			}).then(bodyMessages => {
+			return this.client.listMessages('INBOX', partInfo.uidList, ['uid', `body.peek[${partInfo.part}]`], this.byUid).then(bodyMessages => {
 				bodyMessages.forEach(bodyMessage => {
 					let message = messages.filter(it => it.uid === bodyMessage.uid)[0];
 
@@ -137,6 +175,9 @@ class ImapService {
 						let part = this._getPart(message.bodystructure, partType);
 						let bodyEncoded = bodyMessage[`body[${partInfo.part}]`];
 						let bodyDecoded = this._decode(bodyEncoded, part.encoding, (part.parameters || {}).charset);
+						if (partType === 'text/html') {
+							bodyDecoded = this._convertCids(message, bodyDecoded);
+						}
 						message.body = bodyDecoded;
 						message.bodyType = partType;
 					}
@@ -148,11 +189,32 @@ class ImapService {
 		});
 	}
 
+	_convertCids(message, html) {
+		return html.replace(/="cid:(.*?)"/g, (match, cid) => {
+			let part = this._findPartByCid(message.bodystructure, cid);
+			return part ? `="cid:${message.uid};${part.part};${part.encoding}"` : '=""';
+		});
+	}
+
 	_decode(bodyEncoded, encoding, charset) {
 		if (encoding === 'base64') {
 			return this.codec.base64Decode(bodyEncoded, charset);
 		} else {
 			return this.codec.quotedPrintableDecode(bodyEncoded, charset);
+		}
+	}
+
+	_checkBinaryDecodable(encoding) {
+		if (encoding !== 'base64') {
+			throw new Error(this.errors.unsupportedEncoding(encoding));
+		}
+	}
+
+	_binaryDecode(bodyEncoded, encoding) {
+		if (encoding === 'base64') {
+			return this.codec.base64.decode(bodyEncoded);
+		} else {
+			return this.codec.base64.decode(bodyEncoded);
 		}
 	}
 
@@ -183,6 +245,21 @@ class ImapService {
 		if (structure.childNodes) {
 			for (let i = 0; i < structure.childNodes.length; i++) {
 				let childPart = this._getPart(structure.childNodes[i], partType);
+				if (childPart !== undefined) {
+					return childPart;
+				}
+			}
+		}
+	}
+
+	_findPartByCid(structure, cid) {
+		if (structure.id === cid || structure.id === `<${cid}>`) {
+			return structure;
+		}
+
+		if (structure.childNodes) {
+			for (let i = 0; i < structure.childNodes.length; i++) {
+				let childPart = this._findPartByCid(structure.childNodes[i], cid);
 				if (childPart !== undefined) {
 					return childPart;
 				}

@@ -3,6 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
+import { ContactService } from '../shared/contact.service';
 import { MailService } from '../shared/mail.service';
 import { MailHeaderComponent } from './mail-header.component';
 
@@ -15,7 +16,7 @@ describe('MailHeaderComponent', () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			declarations: [MailHeaderComponent],
-			providers: [MailService]
+			providers: [MailService, ContactService]
 		}).compileComponents();
 	}));
 

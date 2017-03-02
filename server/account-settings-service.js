@@ -1,11 +1,12 @@
 'use strict';
 
+require('./rxjs-operators');
+
 const os = require('os');
 const path = require('path');
 
 const rx = require('rxjs/Observable');
-require('rxjs/add/observable/bindNodeCallback');
-require('rxjs/add/operator/map');
+
 
 class AccountSettingsService {
 	constructor(fs) {

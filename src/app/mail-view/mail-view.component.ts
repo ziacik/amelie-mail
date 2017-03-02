@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-
 import { AppStateService } from '../shared/app-state.service';
 
 @Component({
@@ -9,7 +8,26 @@ import { AppStateService } from '../shared/app-state.service';
 	styleUrls: ['./mail-view.component.css']
 })
 export class MailViewComponent {
-	@Input() mail: any;
+	private _mail: any = {};
+	private html: SafeHtml;
+	private text: string;
+
+	@Input()
+	set mail(mail: any) {
+		this._mail = mail;
+
+		if (this.isHtml()) {
+			this.html = this.getHtml();
+			this.text = null;
+		} else {
+			this.text = this.getText();
+			this.html = null;
+		}
+	}
+
+	get mail(): any {
+		return this._mail;
+	}
 
 	constructor(private domSanitizer: DomSanitizer) {
 	}

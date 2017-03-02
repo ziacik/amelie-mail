@@ -9,9 +9,31 @@ electrolyte.use(electrolyte.dir('server'));
 electrolyte.use(electrolyte.node_modules());
 
 let imapService;
+let smtpService;
+let accountSettingsService;
 
 electrolyte.create('imap-service').then(service => {
 	imapService = service;
+}).catch(console.error);
+
+electrolyte.create('smtp-service').then(service => {
+	smtpService = service;
+}).catch(console.error);
+
+electrolyte.create('account-settings-service').then(service => {
+	accountSettingsService = service;
+}).catch(console.error);
+
+electron.ipcMain.on('contacts:me', event => {
+	accountSettingsService.getAll().catch(e => {
+		console.error(e);
+		return [];
+	}).subscribe(settings => {
+		event.sender.send('contacts:me', {
+			name: settings.name,
+			address: settings.mailAddress
+		});
+	});
 });
 
 electron.ipcMain.on('mail:listen', event => {
@@ -23,8 +45,17 @@ electron.ipcMain.on('mail:listen', event => {
 	});
 });
 
+electron.ipcMain.on('mail:send', (event, mail) => {
+	smtpService.send(mail).catch(e => {
+		console.error(e);
+		return [];
+	}).subscribe(() => {
+		event.sender.send('mail:sent', mail);
+	});
+});
+
 electron.ipcMain.on('mail:mark:seen', (event, uid) => {
-	imapService.setFlag(uid, '\\Seen').catch(e => {
+	imapService.addFlag(uid, '\\Seen').catch(e => {
 		console.error(e);
 		return [];
 	}).subscribe(() => {
@@ -45,11 +76,17 @@ let mainWindow;
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
+		width: 1024,
+		height: 768,
+		show: false,
 		webPreferences: {
 			defaultFontFamily: {
 				standard: 'Helvetica Neue'
 			}
 		}
+	});
+	mainWindow.once('ready-to-show', () => {
+		mainWindow.show()
 	});
 	mainWindow.loadURL(`file://${__dirname}/dist/index.html`);
 	mainWindow.on('closed', function() {
@@ -59,9 +96,12 @@ function createWindow() {
 app.on('ready', () => {
 	createWindow();
 	electron.protocol.registerBufferProtocol('cid', (request, callback) => {
-		callback({
-			mimeType: 'text/html',
-			data: new Buffer('<h5>Response</h5>')
+		const cid = request.url.substr(4);
+		imapService.getAttachment(cid).catch(console.error).subscribe(attachment => {
+			callback({
+				mimeType: 'text/html',
+				data: new Buffer(attachment)
+			});
 		});
 	}, error => {
 		if (error) {

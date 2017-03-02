@@ -6,6 +6,12 @@
 
 # dependencies
 /node_modules
+/semantic/dist
+/semantic/tasks
+/semantic/gulpfile.js
+/semantic/src/*
+!/semantic/src/site
+!/semantic/src/theme.config
 
 # IDEs and editors
 /.idea

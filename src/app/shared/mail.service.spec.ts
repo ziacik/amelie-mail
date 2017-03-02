@@ -2,17 +2,42 @@
 
 import { TestBed, async, inject } from '@angular/core/testing';
 import { MailService } from './mail.service';
+import { ContactService } from './contact.service';
 
 describe('MailService', () => {
 	let service: MailService;
+	let contactService: ContactService;
 	let channels: any;
 	let mails: any[];
 
 	beforeEach(() => {
 		mails = [
 			{
-				uid: 1
-			}, {
+				uid: 1,
+				from: [
+					{
+						name: 'One',
+						address: 'one@localhost'
+					},
+					{
+						name: 'Two',
+						address: 'two@localhost'
+					}
+				],
+				to: [
+					{
+						name: 'Three',
+						address: 'three@localhost'
+					}
+				]
+			},
+			{
+				cc: [
+					{
+						name: 'Four',
+						address: 'four@localhost'
+					}
+				],
 				uid: 2
 			}
 		];
@@ -26,9 +51,11 @@ describe('MailService', () => {
 			}
 		};
 		TestBed.configureTestingModule({
-			providers: [MailService]
+			providers: [MailService, ContactService]
 		});
 		service = TestBed.get(MailService);
+		contactService = TestBed.get(ContactService);
+		spyOn(contactService, 'register');
 	});
 
 	it('registers for mail:fetch ipc channel', () => {
@@ -37,6 +64,14 @@ describe('MailService', () => {
 
 	it('sends a mail:listen signal', () => {
 		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:listen');
+	});
+
+	it('throws when markSeen called without a mail', () => {
+		expect(() => service.markSeen()).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
+	});
+
+	it('throws when unmarkSeen called without a mail', () => {
+		expect(() => service.unmarkSeen()).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
 	});
 
 	it('can send a mail:mark:seen signal', () => {
@@ -49,7 +84,16 @@ describe('MailService', () => {
 		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:unmark:seen', 1);
 	});
 
-	describe('when mails are sent via mail:fetch channel', () => {
+	it('throws when send called without a mail', () => {
+		expect(() => service.send()).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
+	});
+
+	it('can send a mail:send signal', () => {
+		service.send(mails[0]);
+		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:send', mails[0]);
+	});
+
+	describe('when mails are received via mail:fetch channel', () => {
 		beforeEach(() => {
 			channels['mail:fetch'](null, mails);
 		});
@@ -68,6 +112,25 @@ describe('MailService', () => {
 			let mails = service.getMails();
 			expect(!!mails).toBeTruthy();
 			expect(mails.map(it => it.uid)).toEqual([4, 3, 2, 1]);
+		});
+
+		it('all contacts from them are registered using the contact service', () => {
+			expect(contactService.register).toHaveBeenCalledWith({
+				name: 'One',
+				address: 'one@localhost'
+			});
+			expect(contactService.register).toHaveBeenCalledWith({
+				name: 'Two',
+				address: 'two@localhost'
+			});
+			expect(contactService.register).toHaveBeenCalledWith({
+				name: 'Three',
+				address: 'three@localhost'
+			});
+			expect(contactService.register).toHaveBeenCalledWith({
+				name: 'Four',
+				address: 'four@localhost'
+			});
 		});
 	});
 });

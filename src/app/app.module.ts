@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { MailListComponent } from './mail-list/mail-list.component';
 import { MailViewComponent } from './mail-view/mail-view.component';
@@ -10,6 +10,10 @@ import { MailItemComponent } from './mail-item/mail-item.component';
 import { MailHeaderComponent } from './mail-header/mail-header.component';
 import { AppStateService } from './shared/app-state.service';
 import { MailService } from './shared/mail.service';
+import { ContactService } from './shared/contact.service';
+import { MailEditorComponent } from './mail-editor/mail-editor.component';
+import { MailWriterComponent } from './mail-writer/mail-writer.component';
+import { RecipientSelectorComponent } from './recipient-selector/recipient-selector.component';
 
 @NgModule({
 	declarations: [
@@ -18,16 +22,20 @@ import { MailService } from './shared/mail.service';
 		MailViewComponent,
 		MailContentViewComponent,
 		MailItemComponent,
-		MailHeaderComponent
+		MailHeaderComponent,
+		MailEditorComponent,
+		MailWriterComponent,
+		RecipientSelectorComponent
 	],
 	imports: [
 		BrowserModule,
 		CommonModule,
-		FormsModule
+		ReactiveFormsModule
 	],
 	providers: [
 		AppStateService,
-		MailService
+		MailService,
+		ContactService
 	],
 	bootstrap: [AppComponent]
 })

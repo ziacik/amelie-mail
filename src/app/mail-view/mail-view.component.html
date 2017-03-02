@@ -1,4 +1,3 @@
-<iframe *ngIf="isHtml()" [srcdoc]="getHtml()">
- ...Loading?
+<iframe *ngIf="isHtml()" [srcdoc]="html">
 </iframe>
-<div *ngIf="isText()">{{ getText() }}</div>
+<div *ngIf="isText()">{{ text }}</div>
