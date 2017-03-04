@@ -52,6 +52,7 @@
     "karma-cli": "^1.0.1",
     "karma-jasmine": "^1.0.2",
     "karma-remap-istanbul": "^0.2.1",
+    "mocha": "^3.2.0",
     "protractor": "~4.0.13",
     "sinon": "^1.17.7",
     "sinon-as-promised": "^4.0.2",
