@@ -9,15 +9,15 @@ electrolyte.use(electrolyte.dir('server'));
 electrolyte.use(electrolyte.node_modules());
 
 let imapService;
-let smtpService;
+let senderService;
 let accountSettingsService;
 
 electrolyte.create('imap-service').then(service => {
 	imapService = service;
 }).catch(console.error);
 
-electrolyte.create('smtp-service').then(service => {
-	smtpService = service;
+electrolyte.create('sender-service').then(service => {
+	senderService = service;
 }).catch(console.error);
 
 electrolyte.create('account-settings-service').then(service => {
@@ -46,7 +46,7 @@ electron.ipcMain.on('mail:listen', event => {
 });
 
 electron.ipcMain.on('mail:send', (event, mail) => {
-	smtpService.send(mail).catch(e => {
+	senderService.send(mail).catch(e => {
 		console.error(e);
 		return [];
 	}).subscribe(() => {
@@ -95,9 +95,9 @@ function createWindow() {
 }
 app.on('ready', () => {
 	createWindow();
-	electron.protocol.registerBufferProtocol('cid', (request, callback) => {
-		const cid = request.url.substr(4);
-		imapService.getAttachment(cid).catch(console.error).subscribe(attachment => {
+	electron.protocol.registerBufferProtocol('excid', (request, callback) => {
+		const excid = request.url.substr(6);
+		imapService.getAttachment(excid).catch(console.error).subscribe(attachment => {
 			callback({
 				mimeType: 'text/html',
 				data: new Buffer(attachment)

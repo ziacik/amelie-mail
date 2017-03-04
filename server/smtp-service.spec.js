@@ -42,7 +42,10 @@ describe('Smtp Service', () => {
 			cc: ['cc@body'],
 			bcc: ['bcc@body'],
 			subject: 'A subject',
-			content: 'mail body'
+			content: 'mail body',
+			attachments: [{
+				some: 'thing'
+			}]
 		};
 
 		client = {
@@ -93,7 +96,10 @@ describe('Smtp Service', () => {
 						address: 'my@mail'
 					}, 'bcc@body'],
 					subject: 'A subject',
-					html: 'mail body'
+					html: 'mail body',
+					attachments: [{
+						some: 'thing'
+					}]
 				}), sinon.match.any);
 				done();
 			}, 20);

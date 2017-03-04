@@ -87,13 +87,13 @@ class ImapService {
 
 		let split = extendedCid.split(';');
 
-		if (split.length != 3) {
+		if (split.length != 4) {
 			throw new Error(this.errors.extendedCidUnparsable);
 		}
 
-		let uid = split[0];
-		let partId = split[1];
-		let encoding = split[2];
+		let uid = split[1];
+		let partId = split[2];
+		let encoding = split[3];
 
 		this._checkBinaryDecodable(encoding);
 
@@ -192,7 +192,7 @@ class ImapService {
 	_convertCids(message, html) {
 		return html.replace(/="cid:(.*?)"/g, (match, cid) => {
 			let part = this._findPartByCid(message.bodystructure, cid);
-			return part ? `="cid:${message.uid};${part.part};${part.encoding}"` : '=""';
+			return part ? `="excid:${cid};${message.uid};${part.part};${part.encoding}"` : '=""';
 		});
 	}
 

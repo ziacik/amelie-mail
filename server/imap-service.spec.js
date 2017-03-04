@@ -358,38 +358,6 @@ describe('Imap Service', () => {
 						}, done);
 					});
 
-					// TODO For now, let's not embed the images at start. We'll fetch them on request. This could be changed if the mails were persisted locally.
-					it.skip('should replace cid image references with embedded data', done => {
-						messages = [{
-							uid: 3,
-							bodystructure: {
-								type: 'multipart',
-								childNodes: [{
-									part: '1.1',
-									type: 'text/html'
-								}, {
-									part: '1.2',
-									type: 'some/type',
-									id: '<imgid>',
-									encoding: 'someencoding',
-									size: 1234
-								}]
-							},
-							envelope: {}
-						}];
-						client.listMessages.onCall(0).resolves(messages);
-						client.listMessages.onCall(1).resolves([{
-							uid: 3,
-							'body[1.1]': '<p>Some<img src="cid:imgid" /> html</p>'
-						}]);
-						imapService.listen().subscribe(mails => {
-							let mail = mails[0];
-							expect(mail.body).to.equal('<p>Some<img src="data:some/type;someencoding,###imgdata###" /> html</p>');
-							expect(mail.bodyType).to.equal('text/html');
-							done();
-						}, done);
-					});
-
 					it('should convert cid references to extended cid references', done => {
 						messages = [{
 							uid: 3,
@@ -421,7 +389,7 @@ describe('Imap Service', () => {
 						}]);
 						imapService.listen().subscribe(mails => {
 							let mail = mails[0];
-							expect(mail.body).to.equal('<p>Some<img src="cid:3;1.2;someencoding" /> <img src="cid:3;1.5;base64" /> html</p>');
+							expect(mail.body).to.equal('<p>Some<img src="excid:imgid;3;1.2;someencoding" /> <img src="excid:something@more.complicated;3;1.5;base64" /> html</p>');
 							expect(mail.bodyType).to.equal('text/html');
 							done();
 						}, done);
@@ -452,7 +420,7 @@ describe('Imap Service', () => {
 						}]);
 						imapService.listen().subscribe(mails => {
 							let mail = mails[0];
-							expect(mail.body).to.equal('<body background="cid:3;1.2;someencoding">html</body>');
+							expect(mail.body).to.equal('<body background="excid:imgid;3;1.2;someencoding">html</body>');
 							expect(mail.bodyType).to.equal('text/html');
 							done();
 						}, done);
@@ -550,13 +518,13 @@ describe('Imap Service', () => {
 		});
 
 		it('throws when extendedCid contains an unknown encoding', () => {
-			expect(() => imapService.getAttachment('123;1.3;somethingunknown')).to.throw(imapService.errors.unsupportedEncoding('somethingunknown'));
+			expect(() => imapService.getAttachment('cid;123;1.3;somethingunknown')).to.throw(imapService.errors.unsupportedEncoding('somethingunknown'));
 		});
 
 		it('emits an error when listMessages fails', done => {
 			let thrownError = new Error('Some Error.');
 			client.listMessages.rejects(thrownError);
-			return imapService.getAttachment('123;1;base64').catch(e => {
+			return imapService.getAttachment('cid;123;1;base64').catch(e => {
 				expect(e).to.equal(thrownError);
 				done();
 				return [];
@@ -574,7 +542,7 @@ describe('Imap Service', () => {
 				'body[1.3]': '###encodedData###',
 				envelope: {}
 			}]);
-			imapService.getAttachment('123;1.3;base64').subscribe(attachment => {
+			imapService.getAttachment('cid;123;1.3;base64').subscribe(attachment => {
 				expect(client.listMessages).to.have.been.calledOnce;
 				expect(client.listMessages).to.have.been.calledWith('INBOX', '123', ['uid', 'body.peek[1.3]'], byUid);
 				expect(codec.base64.decode).to.have.been.calledWith('###encodedData###');

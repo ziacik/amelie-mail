@@ -41,6 +41,7 @@ class SmtpService {
 			address: accountSettings.mailAddress
 		};
 		return sendMail({
+			attachments: mail.attachments,
 			to: mail.to,
 			cc: mail.cc,
 			bcc: [myself].concat(mail.bcc || []),
