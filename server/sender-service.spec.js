@@ -37,20 +37,29 @@ describe('Sender Service', () => {
 			expect(() => service.send()).to.throw(service.errors.mailArgumentMissing());
 		});
 
-		it('retrieves all cid attachments from imap and adds them as new attachments, ignoring errors', done => {
-			imapService.getAttachment.withArgs('123;xyz').returns(Rx.Observable.of([1, 2]));
-			imapService.getAttachment.withArgs('abc@xyz').returns(Rx.Observable.of([3, 4]));
+		it('converts excid references back to cid references', done => {
+			imapService.getAttachment.returns(Rx.Observable.of([]));
+			mail.content = 'Some <img src="excid:somecid;123;xyz"> <img src="excid:anothercid;abc@xyz"> thing';
+			service.send(mail).subscribe(() => {
+				expect(mail.content).to.equal('Some <img src="cid:somecid"> <img src="cid:anothercid"> thing');
+				done();
+			}, done);
+		});
+
+		it('retrieves all excid attachments from imap and adds them as new cid attachments, ignoring errors', done => {
+			imapService.getAttachment.withArgs('somecid;123;xyz').returns(Rx.Observable.of([1, 2]));
+			imapService.getAttachment.withArgs('anothercid;abc@xyz').returns(Rx.Observable.of([3, 4]));
 			imapService.getAttachment.withArgs('unknown').returns(Rx.Observable.throw(new Error('Something')));
-			mail.content = 'Some <img src="cid:123;xyz"> <img src="cid:abc@xyz"> <img src="cid:unknown"> thing';
+			mail.content = 'Some <img src="excid:somecid;123;xyz"> <img src="excid:anothercid;abc@xyz"> <img src="excid:unknown"> thing';
 			service.send(mail).subscribe(() => {
 				expect(mail.attachments).to.exist;
 				expect(mail.attachments.length).to.equal(2);
 				expect(mail.attachments[0]).to.deep.equal({
-					cid: '123;xyz',
+					cid: 'somecid',
 					content: Buffer.from([1, 2])
 				});
 				expect(mail.attachments[1]).to.deep.equal({
-					cid: 'abc@xyz',
+					cid: 'anothercid',
 					content: Buffer.from([3, 4])
 				});
 				done();
@@ -58,8 +67,8 @@ describe('Sender Service', () => {
 		});
 
 		it('does not replace existing attachments with cid attachments, concats them instead', done => {
-			imapService.getAttachment.withArgs('123;xyz').returns(Rx.Observable.of([1, 2]));
-			mail.content = 'Some <img src="cid:123;xyz"> thing';
+			imapService.getAttachment.withArgs('somecid;123;xyz').returns(Rx.Observable.of([1, 2]));
+			mail.content = 'Some <img src="excid:somecid;123;xyz"> thing';
 			mail.attachments = [{
 				some: 'thing'
 			}, {
@@ -72,7 +81,7 @@ describe('Sender Service', () => {
 				}, {
 					cid: '2'
 				}, {
-					cid: '123;xyz',
+					cid: 'somecid',
 					content: Buffer.from([1, 2])
 				}]);
 				done();

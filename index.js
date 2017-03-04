@@ -95,9 +95,9 @@ function createWindow() {
 }
 app.on('ready', () => {
 	createWindow();
-	electron.protocol.registerBufferProtocol('cid', (request, callback) => {
-		const cid = request.url.substr(4);
-		imapService.getAttachment(cid).catch(console.error).subscribe(attachment => {
+	electron.protocol.registerBufferProtocol('excid', (request, callback) => {
+		const excid = request.url.substr(6);
+		imapService.getAttachment(excid).catch(console.error).subscribe(attachment => {
 			callback({
 				mimeType: 'text/html',
 				data: new Buffer(attachment)
