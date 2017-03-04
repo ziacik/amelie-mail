@@ -6,9 +6,10 @@ const expect = chai.expect;
 chai.use(require('sinon-chai'));
 require('sinon-as-promised');
 
+const Rx = require('rxjs');
 const SenderService = require('./sender-service');
 
-describe.only('Sender Service', () => {
+describe('Sender Service', () => {
 	let service;
 	let smtpService;
 	let imapService;
@@ -23,9 +24,11 @@ describe.only('Sender Service', () => {
 			content: 'mail body'
 		};
 		smtpService = {
-			send: sinon.stub()
+			send: sinon.stub().returns(Rx.Observable.of(1))
 		};
-		imapService = {};
+		imapService = {
+			getAttachment: sinon.stub()
+		};
 		service = new SenderService(smtpService, imapService);
 	});
 
@@ -34,27 +37,56 @@ describe.only('Sender Service', () => {
 			expect(() => service.send()).to.throw(service.errors.mailArgumentMissing());
 		});
 
-		it('adds all cid references as attachments', () => {
-			mail.content = 'Some <img src="cid:123;xyz"> <img src="cid:abc@xyz"> thing';
-			service.send(mail);
-			expect(mail.attachments).to.exist;
-			expect(mail.attachments.length).to.equal(2);
-			expect(mail.attachments[0]).to.deep.equal({
-				path: 'cid:123;xyz',
-				cid: '123;xyz'
-			});
-			expect(mail.attachments[1]).to.deep.equal({
-				path: 'cid:abc@xyz',
-				cid: 'abc@xyz'
-			});
+		it('retrieves all cid attachments from imap and adds them as new attachments, ignoring errors', done => {
+			imapService.getAttachment.withArgs('123;xyz').returns(Rx.Observable.of([1, 2]));
+			imapService.getAttachment.withArgs('abc@xyz').returns(Rx.Observable.of([3, 4]));
+			imapService.getAttachment.withArgs('unknown').returns(Rx.Observable.throw(new Error('Something')));
+			mail.content = 'Some <img src="cid:123;xyz"> <img src="cid:abc@xyz"> <img src="cid:unknown"> thing';
+			service.send(mail).subscribe(() => {
+				expect(mail.attachments).to.exist;
+				expect(mail.attachments.length).to.equal(2);
+				expect(mail.attachments[0]).to.deep.equal({
+					cid: '123;xyz',
+					content: Buffer.from([1, 2])
+				});
+				expect(mail.attachments[1]).to.deep.equal({
+					cid: 'abc@xyz',
+					content: Buffer.from([3, 4])
+				});
+				done();
+			}, done);
 		});
 
-		it('calls smtpService.send and passes the result through', () => {
+		it('does not replace existing attachments with cid attachments, concats them instead', done => {
+			imapService.getAttachment.withArgs('123;xyz').returns(Rx.Observable.of([1, 2]));
+			mail.content = 'Some <img src="cid:123;xyz"> thing';
+			mail.attachments = [{
+				some: 'thing'
+			}, {
+				cid: '2'
+			}];
+			service.send(mail).subscribe(() => {
+				expect(mail.attachments).to.exist;
+				expect(mail.attachments).to.deep.equal([{
+					some: 'thing'
+				}, {
+					cid: '2'
+				}, {
+					cid: '123;xyz',
+					content: Buffer.from([1, 2])
+				}]);
+				done();
+			}, done);
+		});
+
+		it('calls smtpService.send and passes the result through', done => {
 			let expectedResult = {};
-			smtpService.send.returns(expectedResult);
-			let result = service.send(mail);
-			expect(result).to.equal(expectedResult);
-			expect(smtpService.send).to.have.been.calledWith(mail);
+			smtpService.send.returns(Rx.Observable.of(expectedResult));
+			service.send(mail).subscribe(result => {
+				expect(result).to.equal(expectedResult);
+				expect(smtpService.send).to.have.been.calledWith(mail);
+				done();
+			}, done);
 		});
 	});
 });

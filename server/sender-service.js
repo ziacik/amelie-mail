@@ -1,5 +1,8 @@
 'use strict';
 
+require('./rxjs-operators');
+const Rx = require('rxjs');
+
 class SenderService {
 	constructor(smtpService, imapService) {
 		this.errors = {
@@ -14,29 +17,42 @@ class SenderService {
 			throw new Error(this.errors.mailArgumentMissing);
 		}
 
-		let cidAttachments = this._getCidAttachments(mail.content);
+		let cids = this._getCids(mail.content);
 
-		if (cidAttachments.length) {
-			mail.attachments = cidAttachments;
-		}
+		return this._loadCidAttachments(cids).flatMap(attachments => {
+			if (attachments.length) {
+				mail.attachments = (mail.attachments || []).concat(attachments);
+			}
 
-		return this.smtpService.send(mail);
+			return this.smtpService.send(mail);
+		});
 	}
 
-	_getCidAttachments(html) {
+	_getCids(html) {
 		let result = [];
 		let cidRegex = /="cid:(.*?)"/g;
 		let match = cidRegex.exec(html);
 		while (match) {
 			let cid = match[1];
-			let attachment = {
-				path: `cid:${cid}`,
-				cid: cid
-			};
-			result.push(attachment);
+			result.push(cid);
 			match = cidRegex.exec(html)
 		}
 		return result;
+	}
+
+	_loadCidAttachments(cids) {
+		if (!cids.length) {
+			return Rx.Observable.of([]);
+		}
+
+		let attachmentRequests = cids.map(cid => this.imapService.getAttachment(cid).catch(() => Rx.Observable.of(null)).map(content => {
+			return content == null ? null : {
+				cid: cid,
+				content: Buffer.from(content)
+			};
+		}));
+
+		return Rx.Observable.forkJoin(attachmentRequests).map(attachments => attachments.filter(it => it));
 	}
 }
 
