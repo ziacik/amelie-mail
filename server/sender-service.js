@@ -18,26 +18,30 @@ class SenderService {
 		}
 
 		let cids = this._getCids(mail.content);
+		return this._loadCidAttachments(cids)
+			.flatMap(attachments => this._sendWithAttachments(mail, attachments));
+	}
 
-		return this._loadCidAttachments(cids).flatMap(attachments => {
-			if (attachments.length) {
-				mail.attachments = (mail.attachments || []).concat(attachments);
-			}
+	_sendWithAttachments(mail, attachments) {
+		if (attachments.length) {
+			mail.attachments = (mail.attachments || []).concat(attachments);
+		}
 
-			return this.smtpService.send(mail);
-		});
+		return this.smtpService.send(mail);
 	}
 
 	_getCids(html) {
-		let result = [];
+		let cids = [];
 		let cidRegex = /="cid:(.*?)"/g;
 		let match = cidRegex.exec(html);
+
 		while (match) {
 			let cid = match[1];
-			result.push(cid);
+			cids.push(cid);
 			match = cidRegex.exec(html)
 		}
-		return result;
+
+		return cids;
 	}
 
 	_loadCidAttachments(cids) {
@@ -45,14 +49,28 @@ class SenderService {
 			return Rx.Observable.of([]);
 		}
 
-		let attachmentRequests = cids.map(cid => this.imapService.getAttachment(cid).catch(() => Rx.Observable.of(null)).map(content => {
-			return content == null ? null : {
-				cid: cid,
-				content: Buffer.from(content)
-			};
-		}));
+		let attachmentRequests = cids.map(cid => this._getAttachmentContentOrNull(cid));
 
-		return Rx.Observable.forkJoin(attachmentRequests).map(attachments => attachments.filter(it => it));
+		return Rx.Observable.forkJoin(attachmentRequests)
+			.map(attachments => attachments.filter(it => it));
+	}
+
+	_getAttachmentContentOrNull(cid) {
+		return this.imapService
+			.getAttachment(cid)
+			.catch(() => Rx.Observable.of(null))
+			.map(content => this._createAttachmentOrNull(cid, content));
+	}
+
+	_createAttachmentOrNull(cid, content) {
+		if (!content) {
+			return null;
+		}
+
+		return {
+			cid: cid,
+			content: Buffer.from(content)
+		};
 	}
 }
 
