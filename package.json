@@ -8,7 +8,7 @@
     "start": "electron index.js",
     "lint": "tslint \"src/**/*.ts\"",
     "test": "mocha server && ng test --single-run --lint",
-    "coverage": "istanbul cover _mocha -x \"**/*.spec.js\" --dir ./coverage/server -- server -R spec && ng test --single-run --code-coverage",
+    "coverage": "istanbul cover _mocha -x \"**/*.spec.js\" --dir ./coverage/server -- server -R spec && ng test --single-run --code-coverage && istanbul-combine -d coverage/combined -r lcov -r html coverage/*/coverage*.json",
     "pree2e": "webdriver-manager update --standalone false --gecko false",
     "e2e": "protractor"
   },
@@ -45,6 +45,7 @@
     "coveralls": "^2.12.0",
     "electron": "^1.4.15",
     "istanbul": "^0.4.5",
+    "istanbul-combine": "^0.3.0",
     "jasmine-core": "~2.5.2",
     "jasmine-spec-reporter": "~3.2.0",
     "karma": "~1.4.1",
