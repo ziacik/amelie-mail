@@ -1,6 +1,7 @@
 # AmelieMail
 
 [![Build Status](https://travis-ci.org/ziacik/amelie-mail.svg?branch=master)](https://travis-ci.org/ziacik/amelie-mail)
+[![Coverage Status](https://coveralls.io/repos/github/ziacik/amelie-mail/badge.svg?branch=chore%2Fcoverage)](https://coveralls.io/github/ziacik/amelie-mail?branch=chore%2Fcoverage)
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.0.0-rc.1.
 
