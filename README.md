@@ -1,5 +1,7 @@
 # AmelieMail
 
+[![Build Status](https://travis-ci.org/ziacik/amelie-mail.svg?branch=master)](https://travis-ci.org/ziacik/amelie-mail)
+
 This project was generated with [angular-cli](https://github.com/angular/angular-cli) version 1.0.0-beta.24.
 
 ## Development server
