@@ -18,4 +18,4 @@ before_install:
 
 after_script:
   - npm run coverage
-  - cat ./coverage/*/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+  - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
