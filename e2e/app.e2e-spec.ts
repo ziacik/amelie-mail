@@ -1,6 +1,6 @@
 import { AmelieMailPage } from './app.po';
 
-describe('amelie-mail App', function() {
+describe('amelie-mail App', () => {
   let page: AmelieMailPage;
 
   beforeEach(() => {
