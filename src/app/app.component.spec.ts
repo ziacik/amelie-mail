@@ -2,7 +2,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
-
+import { DatePipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
@@ -36,7 +36,8 @@ describe('App: AmelieMail', () => {
 			providers: [
 				AppStateService,
 				MailService,
-				ContactService
+				ContactService,
+				DatePipe
 			],
 			imports: [
 				ReactiveFormsModule

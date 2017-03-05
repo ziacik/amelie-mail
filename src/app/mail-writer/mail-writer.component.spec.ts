@@ -2,6 +2,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
+import { DatePipe } from '@angular/common';
 
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -26,7 +27,8 @@ describe('MailWriterComponent', () => {
 			],
 			providers: [
 				MailService,
-				ContactService
+				ContactService,
+				DatePipe
 			],
 			imports: [
 				ReactiveFormsModule
@@ -249,8 +251,10 @@ describe('MailWriterComponent', () => {
 		});
 
 		it('quotes content in the "content" field', () => {
+			let datePipe = TestBed.get(DatePipe);
+			let formattedDate = datePipe.transform(replyMail.date, 'medium');
 			// TODO Review. Tinymce strips the <html> part from the blockquote, but still maybe we should do it first.
-			expect(component.form.controls['content'].value).toEqual('<p></p><p>On Sat May 20 2017 12:30:50 GMT+0200 (CEST), some.from wrote:</p><blockquote><html><body>Some <b>body</b></body></html></blockquote>');
+			expect(component.form.controls['content'].value).toEqual(`<p></p><p>On ${formattedDate}, some.from wrote:</p><blockquote><html><body>Some <b>body</b></body></html></blockquote>`);
 		});
 	});
 });

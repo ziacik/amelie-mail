@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 
 import { MailService } from '../shared/mail.service';
 import { ContactService } from '../shared/contact.service';
@@ -14,7 +15,7 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 
 	form: FormGroup;
 
-	constructor(private builder: FormBuilder, private mailService: MailService, private contactService: ContactService) {
+	constructor(private builder: FormBuilder, private mailService: MailService, private contactService: ContactService, private datePipe: DatePipe) {
 	}
 
 	ngOnInit() {
@@ -65,8 +66,9 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 			subject = 'Re: ' + subject;
 		}
 
+		let quotedMailDate = this.datePipe.transform(replyMail.date, 'medium');
 		let body = replyMail.bodyType === 'text/plain' ? (replyMail.body || '').replace(/\n/g, '<br />') : replyMail.body;
-		let replyText = `<p></p><p>On ${replyMail.date}, ${oneFrom.name || oneFrom.address} wrote:</p><blockquote>${body}</blockquote>`
+		let replyText = `<p></p><p>On ${quotedMailDate}, ${oneFrom.name || oneFrom.address} wrote:</p><blockquote>${body}</blockquote>`
 
 		this.form.controls['to'].setValue(toAddresses);
 		this.form.controls['cc'].setValue(ccAddresses);
