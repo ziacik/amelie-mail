@@ -11,6 +11,8 @@ class ImapService {
 		this.codec = codec;
 		this.accountSettingsService = accountSettingsService;
 
+Client.prototype.TIMEOUT_SOCKET_LOWER_BOUND = 90000;
+
 		this.errors = {
 			uidArgumentMissing: 'Missing uid argument.',
 			flagArgumentMissing: 'Missing flag argument.',
@@ -29,6 +31,8 @@ class ImapService {
 			.flatMap(accountSettings => {
 				this.client = new this.Client(accountSettings.imap.host, accountSettings.imap.port, accountSettings.imap.options);
 				this.client.logLevel = this.client.LOG_LEVEL_INFO;
+console.log(this.client.TIMEOUT_SOCKET_LOWER_BOUND);
+				this.client.TIMEOUT_SOCKET_LOWER_BOUND = 90000;
 				return this._connectAndStart();
 			})
 			.concat(this._listen())

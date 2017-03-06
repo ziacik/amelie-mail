@@ -1,4 +1,8 @@
-<div class="ui mini image"><img src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ getFromDisplayNames() }}&amp;w=35&amp;h=35" /></div>
+<div class="ui mini image">
+	<img src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ getFromDisplayNames() }}&amp;w=35&amp;h=35" />
+	<button *ngIf="!mail.isSeen" id="read" class="ui basic circular button" (click)="read()">R</button>
+	<button *ngIf="mail.isSeen" id="unread" class="ui basic circular button" (click)="unread()">U</button>
+</div>
 <div class="content">
 	<div class="header">
 		<h5>{{ getFromDisplayNames() }}</h5>

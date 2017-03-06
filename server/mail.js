@@ -80,9 +80,9 @@ class Mail {
 
 	_getPlainText(body, bodyType) {
 		if (bodyType === 'text/plain') {
-			return body;
+			return body.trim(200);
 		} else if (bodyType === 'text/html') {
-			return this._htmlToText(body);
+			return ''; //this._htmlToText(body);
 		}
 	}
 
