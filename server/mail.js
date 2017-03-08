@@ -58,6 +58,15 @@ class Mail {
 		return this;
 	}
 
+	withAttachments(attachments) {
+		if (!Array.isArray(attachments)) {
+			throw new Error(this.errors.mustBeArray('attachments'));
+		}
+
+		this.attachments = attachments;
+		return this;
+	}
+
 	withBody(body, bodyType) {
 		if (!bodyType) {
 			throw new Error(this.errors.missingBodyType);
