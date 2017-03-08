@@ -238,7 +238,7 @@ class ImapService {
 	}
 
 	_getPart(structure, partType) {
-		if (structure.type === partType) {
+		if (structure.type === partType && structure.disposition !== 'attachment') {
 			return structure;
 		}
 

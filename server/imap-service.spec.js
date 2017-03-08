@@ -240,6 +240,22 @@ describe('Imap Service', () => {
 					}, done);
 				});
 
+				it('should not fetch a plain text which is an attachment', done => {
+					client.listMessages.onCall(0).resolves([{
+						uid: 1,
+						bodystructure: {
+							type: 'text/plain',
+							disposition: 'attachment'
+						},
+						envelope: {}
+					}]);
+					imapService.listen().subscribe(() => {
+						expect(client.listMessages).to.have.been.calledOnce;
+						done();
+					}, done);
+				});
+
+
 				it('should fetch plain text and html bodies of them', done => {
 					imapService.listen().subscribe(() => {
 						expect(client.listMessages).to.have.been.callCount(5);
