@@ -34,6 +34,7 @@ class ImapService {
 			.concat(this._listen())
 			.map(messages => {
 				return messages.map(message => {
+					let attachments = this._getAttachmentRefs(message);
 					let mail = new Mail(message.uid)
 						.withMessageId(message.envelope['message-id'])
 						.withSubject(message.envelope.subject)
@@ -41,6 +42,7 @@ class ImapService {
 						.withTo(message.envelope.to || [])
 						.withCc(message.envelope.cc || [])
 						.withDate(new Date(message.envelope.date))
+						.withAttachments(attachments)
 						.withIsSeen(!!message.flags && message.flags.indexOf('\\Seen') >= 0);
 
 					if (message.body && message.bodyType) {
@@ -265,6 +267,31 @@ class ImapService {
 				}
 			}
 		}
+	}
+
+	_getAttachmentRefs(message) {
+		let parts = this._getAttachmentParts(message.bodystructure);
+		return parts.map(part => ({
+			name: part.dispositionParameters && part.dispositionParameters.filename || '(unknown)',
+			excid: `${part.id};${message.uid};${part.part};${part.encoding}`
+		}));
+	}
+
+	_getAttachmentParts(structure) {
+		let parts = [];
+
+		if (structure.disposition === 'attachment') {
+			parts.push(structure);
+		}
+
+		if (structure.childNodes) {
+			for (let i = 0; i < structure.childNodes.length; i++) {
+				let childParts = this._getAttachmentParts(structure.childNodes[i]);
+				parts = parts.concat(childParts);
+			}
+		}
+
+		return parts;
 	}
 }
 

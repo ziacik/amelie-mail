@@ -323,6 +323,35 @@ describe('Imap Service', () => {
 						}, done);
 					});
 
+					it('should add attachments if there are any', done => {
+						messages[0].bodystructure.childNodes.push({
+							part: '1.3',
+							type: 'text/whatever',
+							parameters: {
+								charset: 'US-ASCII',
+								name: 'Malina.Install.txt'
+							},
+							id: '<attid>',
+							encoding: 'base64',
+							size: 3036,
+							lineCount: 0,
+							disposition: 'attachment',
+							dispositionParameters: {
+								filename: 'Malina.Install.txt'
+							}
+						})
+						imapService.listen().subscribe(mails => {
+							expect(mails).to.exist;
+							expect(mails.length).to.equal(1);
+							let mail = mails[0];
+							expect(mail.attachments).to.deep.equal([{
+								name: 'Malina.Install.txt',
+								excid: '<attid>;3;1.3;base64'
+							}]);
+							done();
+						}, done);
+					});
+
 					it('should decode the body from base64 and specified charset if base64 encoding set', done => {
 						messages[0].bodystructure.childNodes[0].encoding = 'base64';
 						messages[0].bodystructure.childNodes[0].parameters = {
