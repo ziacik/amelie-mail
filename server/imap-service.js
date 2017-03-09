@@ -103,7 +103,7 @@ class ImapService {
 		let messagesPromise = this.client.listMessages('INBOX', uid, ['uid', `body.peek[${partId}]`], this.byUid).then(messages => {
 			let message = messages[0];
 			let bodyEncoded = message[`body[${partId}]`];
-			let bodyDecoded = this._binaryDecode(bodyEncoded, encoding);
+			let bodyDecoded = this._binaryDecode(bodyEncoded);
 			return bodyDecoded;
 		});
 
@@ -213,12 +213,8 @@ class ImapService {
 		}
 	}
 
-	_binaryDecode(bodyEncoded, encoding) {
-		if (encoding === 'base64') {
-			return this.codec.base64.decode(bodyEncoded);
-		} else {
-			return this.codec.base64.decode(bodyEncoded);
-		}
+	_binaryDecode(bodyEncoded) {
+		return this.codec.base64.decode(bodyEncoded);
 	}
 
 	_getPartCodeMap(messages, partType) {

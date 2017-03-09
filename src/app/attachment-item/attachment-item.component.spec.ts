@@ -3,7 +3,7 @@ import { By } from '@angular/platform-browser';
 
 import { AttachmentItemComponent } from './attachment-item.component';
 
-fdescribe('AttachmentItemComponent', () => {
+describe('AttachmentItemComponent', () => {
 	let component: AttachmentItemComponent;
 	let fixture: ComponentFixture<AttachmentItemComponent>;
 	let attachment: any;

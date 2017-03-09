@@ -6,6 +6,7 @@ import { DebugElement } from '@angular/core';
 import { ContactService } from '../shared/contact.service';
 import { MailService } from '../shared/mail.service';
 import { MailHeaderComponent } from './mail-header.component';
+import { AttachmentItemComponent } from '../attachment-item/attachment-item.component';
 
 describe('MailHeaderComponent', () => {
 	let component: MailHeaderComponent;
@@ -15,7 +16,7 @@ describe('MailHeaderComponent', () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [MailHeaderComponent],
+			declarations: [AttachmentItemComponent, MailHeaderComponent],
 			providers: [MailService, ContactService]
 		}).compileComponents();
 	}));
@@ -24,6 +25,7 @@ describe('MailHeaderComponent', () => {
 		mail = {
 			subject: 'Some subject',
 			receivedAt: new Date(2017, 2, 3, 15, 50, 20, 153),
+			attachments: [{ one: 1 }, { two: 2 }],
 			from: [
 				{
 					name: 'Some One',
@@ -87,6 +89,14 @@ describe('MailHeaderComponent', () => {
 		expect(!!element).toBeTruthy();
 		expect(element.nativeElement.innerText).toEqual('To First To, second.recipient@localhost, First Cc, second.cc@localhost');
 	});
+
+	it('should show an attachment item for each attachment', () => {
+		let items = fixture.debugElement.queryAll(By.directive(AttachmentItemComponent));
+		expect(items.length).toEqual(2);
+		expect(items[0].componentInstance.attachment).toBe(mail.attachments[0]);
+		expect(items[1].componentInstance.attachment).toBe(mail.attachments[1]);
+	});
+
 
 	it('should have a Reply button', () => {
 		let element = fixture.debugElement.query(By.css('button#reply'));
