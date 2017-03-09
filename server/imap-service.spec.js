@@ -240,6 +240,22 @@ describe('Imap Service', () => {
 					}, done);
 				});
 
+				it('should not fetch a plain text which is an attachment', done => {
+					client.listMessages.onCall(0).resolves([{
+						uid: 1,
+						bodystructure: {
+							type: 'text/plain',
+							disposition: 'attachment'
+						},
+						envelope: {}
+					}]);
+					imapService.listen().subscribe(() => {
+						expect(client.listMessages).to.have.been.calledOnce;
+						done();
+					}, done);
+				});
+
+
 				it('should fetch plain text and html bodies of them', done => {
 					imapService.listen().subscribe(() => {
 						expect(client.listMessages).to.have.been.callCount(5);
@@ -303,6 +319,35 @@ describe('Imap Service', () => {
 							expect(mail.to).to.equal(messages[0].envelope.to);
 							expect(mail.cc).to.equal(messages[0].envelope.cc);
 							expect(mail.date).to.deep.equal(new Date(messages[0].envelope.date));
+							done();
+						}, done);
+					});
+
+					it('should add attachments if there are any', done => {
+						messages[0].bodystructure.childNodes.push({
+							part: '1.3',
+							type: 'text/whatever',
+							parameters: {
+								charset: 'US-ASCII',
+								name: 'Malina.Install.txt'
+							},
+							id: '<attid>',
+							encoding: 'base64',
+							size: 3036,
+							lineCount: 0,
+							disposition: 'attachment',
+							dispositionParameters: {
+								filename: 'Malina.Install.txt'
+							}
+						});
+						imapService.listen().subscribe(mails => {
+							expect(mails).to.exist;
+							expect(mails.length).to.equal(1);
+							let mail = mails[0];
+							expect(mail.attachments).to.deep.equal([{
+								name: 'Malina.Install.txt',
+								excid: '<attid>;3;1.3;base64'
+							}]);
 							done();
 						}, done);
 					});

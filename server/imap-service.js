@@ -4,6 +4,7 @@ require('./rxjs-operators');
 
 const rx = require('rxjs/Observable');
 const Mail = require('./mail');
+const BodyStructure = require('./body-structure');
 
 class ImapService {
 	constructor(accountSettingsService, Client, codec) {
@@ -38,6 +39,7 @@ console.log(this.client.TIMEOUT_SOCKET_LOWER_BOUND);
 			.concat(this._listen())
 			.map(messages => {
 				return messages.map(message => {
+					let attachments = this._getAttachmentRefs(message);
 					let mail = new Mail(message.uid)
 						.withMessageId(message.envelope['message-id'])
 						.withSubject(message.envelope.subject)
@@ -45,6 +47,7 @@ console.log(this.client.TIMEOUT_SOCKET_LOWER_BOUND);
 						.withTo(message.envelope.to || [])
 						.withCc(message.envelope.cc || [])
 						.withDate(new Date(message.envelope.date))
+						.withAttachments(attachments)
 						.withIsSeen(!!message.flags && message.flags.indexOf('\\Seen') >= 0);
 
 					if (message.body && message.bodyType) {
@@ -242,33 +245,23 @@ console.log(this.client.TIMEOUT_SOCKET_LOWER_BOUND);
 	}
 
 	_getPart(structure, partType) {
-		if (structure.type === partType) {
-			return structure;
-		}
-
-		if (structure.childNodes) {
-			for (let i = 0; i < structure.childNodes.length; i++) {
-				let childPart = this._getPart(structure.childNodes[i], partType);
-				if (childPart !== undefined) {
-					return childPart;
-				}
-			}
-		}
+		return new BodyStructure(structure).findNonAttachmentByType(partType);
 	}
 
 	_findPartByCid(structure, cid) {
-		if (structure.id === cid || structure.id === `<${cid}>`) {
-			return structure;
-		}
+		return new BodyStructure(structure).findById(cid);
+	}
 
-		if (structure.childNodes) {
-			for (let i = 0; i < structure.childNodes.length; i++) {
-				let childPart = this._findPartByCid(structure.childNodes[i], cid);
-				if (childPart !== undefined) {
-					return childPart;
-				}
-			}
-		}
+	_getAttachmentRefs(message) {
+		let parts = this._getAttachmentParts(message.bodystructure);
+		return parts.map(part => ({
+			name: part.dispositionParameters && part.dispositionParameters.filename || '(unknown)',
+			excid: `${part.id};${message.uid};${part.part};${part.encoding}`
+		}));
+	}
+
+	_getAttachmentParts(structure) {
+		return new BodyStructure(structure).findAttachments();
 	}
 }
 
