@@ -339,7 +339,7 @@ describe('Imap Service', () => {
 							dispositionParameters: {
 								filename: 'Malina.Install.txt'
 							}
-						})
+						});
 						imapService.listen().subscribe(mails => {
 							expect(mails).to.exist;
 							expect(mails.length).to.equal(1);

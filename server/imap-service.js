@@ -4,6 +4,7 @@ require('./rxjs-operators');
 
 const rx = require('rxjs/Observable');
 const Mail = require('./mail');
+const BodyStructure = require('./body-structure');
 
 class ImapService {
 	constructor(accountSettingsService, Client, codec) {
@@ -240,33 +241,11 @@ class ImapService {
 	}
 
 	_getPart(structure, partType) {
-		if (structure.type === partType && structure.disposition !== 'attachment') {
-			return structure;
-		}
-
-		if (structure.childNodes) {
-			for (let i = 0; i < structure.childNodes.length; i++) {
-				let childPart = this._getPart(structure.childNodes[i], partType);
-				if (childPart !== undefined) {
-					return childPart;
-				}
-			}
-		}
+		return new BodyStructure(structure).findNonAttachmentByType(partType);
 	}
 
 	_findPartByCid(structure, cid) {
-		if (structure.id === cid || structure.id === `<${cid}>`) {
-			return structure;
-		}
-
-		if (structure.childNodes) {
-			for (let i = 0; i < structure.childNodes.length; i++) {
-				let childPart = this._findPartByCid(structure.childNodes[i], cid);
-				if (childPart !== undefined) {
-					return childPart;
-				}
-			}
-		}
+		return new BodyStructure(structure).findById(cid);
 	}
 
 	_getAttachmentRefs(message) {
@@ -278,20 +257,7 @@ class ImapService {
 	}
 
 	_getAttachmentParts(structure) {
-		let parts = [];
-
-		if (structure.disposition === 'attachment') {
-			parts.push(structure);
-		}
-
-		if (structure.childNodes) {
-			for (let i = 0; i < structure.childNodes.length; i++) {
-				let childParts = this._getAttachmentParts(structure.childNodes[i]);
-				parts = parts.concat(childParts);
-			}
-		}
-
-		return parts;
+		return new BodyStructure(structure).findAttachments();
 	}
 }
 
