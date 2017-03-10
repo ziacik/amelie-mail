@@ -137,7 +137,7 @@ describe('Imap Service', () => {
 			it('initially lists all of the messages if there are less than or equal 100 of them in the mailbox', done => {
 				inboxInfo.exists = 100;
 				imapService.listen().subscribe(() => {
-					expect(client.listMessages).to.have.been.calledWith('INBOX', '*', ['uid', 'flags', 'envelope', 'bodystructure']);
+					expect(client.listMessages).to.have.been.calledWith('INBOX', '1:*', ['uid', 'flags', 'envelope', 'bodystructure']);
 					done();
 				}, done);
 			});

@@ -147,10 +147,10 @@ class ImapService {
 			let last1oo = inboxInfo.exists - 100;
 
 			if (last1oo <= 0) {
-				return this._load('*');
-			} else {
-				return this._load(last1oo + ':*');
+				last1oo = 1;
 			}
+
+			return this._load(last1oo + ':*');
 		});
 	}
 
