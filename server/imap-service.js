@@ -7,10 +7,11 @@ const Mail = require('./mail');
 const BodyStructure = require('./body-structure');
 
 class ImapService {
-	constructor(accountSettingsService, Client, codec) {
-		this.Client = Client;
-		this.codec = codec;
+	constructor(accountSettingsService, Client, attachmentDecoder, mimeCodec) {
 		this.accountSettingsService = accountSettingsService;
+		this.Client = Client;
+		this.attachmentDecoder = attachmentDecoder;
+		this.mimeCodec = mimeCodec;
 
 		this.errors = {
 			uidArgumentMissing: 'Missing uid argument.',
@@ -98,13 +99,10 @@ class ImapService {
 		let partId = split[2];
 		let encoding = split[3];
 
-		this._checkBinaryDecodable(encoding);
-
 		let messagesPromise = this.client.listMessages('INBOX', uid, ['uid', `body.peek[${partId}]`], this.byUid).then(messages => {
 			let message = messages[0];
 			let bodyEncoded = message[`body[${partId}]`];
-			let bodyDecoded = this._binaryDecode(bodyEncoded);
-			return bodyDecoded;
+			return this._binaryDecode(bodyEncoded, encoding);
 		});
 
 		return rx.Observable.fromPromise(messagesPromise);
@@ -201,20 +199,14 @@ class ImapService {
 
 	_decode(bodyEncoded, encoding, charset) {
 		if (encoding === 'base64') {
-			return this.codec.base64Decode(bodyEncoded, charset);
+			return this.mimeCodec.decodeBase64(bodyEncoded, charset);
 		} else {
-			return this.codec.quotedPrintableDecode(bodyEncoded, charset);
+			return this.mimeCodec.decodeQuotedPrintable(bodyEncoded, null, charset);
 		}
 	}
 
-	_checkBinaryDecodable(encoding) {
-		if (encoding !== 'base64') {
-			throw new Error(this.errors.unsupportedEncoding(encoding));
-		}
-	}
-
-	_binaryDecode(bodyEncoded) {
-		return this.codec.base64.decode(bodyEncoded);
+	_binaryDecode(bodyEncoded, encoding) {
+		return this.attachmentDecoder.decode(bodyEncoded, encoding);
 	}
 
 	_getPartCodeMap(messages, partType) {
@@ -259,4 +251,4 @@ class ImapService {
 
 module.exports = ImapService;
 module.exports['@singleton'] = true;
-module.exports['@require'] = ['account-settings-service', 'emailjs-imap-client', 'emailjs-mime-codec'];
+module.exports['@require'] = ['account-settings-service', 'emailjs-imap-client', 'attachment-decoder', 'mimelib'];

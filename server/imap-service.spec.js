@@ -16,7 +16,8 @@ describe('Imap Service', () => {
 	let imapService;
 	let ClientClass;
 	let client;
-	let codec;
+	let mimeCodec;
+	let attachmentDecoder;
 	let inboxInfo;
 
 	let byUid = {
@@ -44,18 +45,22 @@ describe('Imap Service', () => {
 			listMessages: sinon.stub().resolves([]),
 			selectMailbox: sinon.stub().resolves(inboxInfo),
 			setFlags: sinon.stub().resolves()
-		}
+		};
 
-		codec = {
-			base64Decode: sinon.stub().returnsArg(0),
-			quotedPrintableDecode: sinon.stub().returnsArg(0)
-		}
+		mimeCodec = {
+			decodeBase64: sinon.stub().returnsArg(0),
+			decodeQuotedPrintable: sinon.stub().returnsArg(0)
+		};
+
+		attachmentDecoder = {
+			decode: sinon.stub()
+		};
 
 		ClientClass = sinon.stub().returns(client);
 
 		accountSettingsService = {};
 		accountSettingsService.getAll = sinon.stub().returns(rx.Observable.of(accountSettings).delay(1));
-		imapService = new ImapService(accountSettingsService, ClientClass, codec);
+		imapService = new ImapService(accountSettingsService, ClientClass, attachmentDecoder, mimeCodec);
 	});
 
 	it('allows us to listen for incoming mails', () => {
@@ -358,10 +363,10 @@ describe('Imap Service', () => {
 							charset: 'somecharset'
 						};
 
-						codec.base64Decode = sinon.stub().returns('something decoded');
+						mimeCodec.decodeBase64 = sinon.stub().returns('something decoded');
 
 						imapService.listen().subscribe(mails => {
-							expect(codec.base64Decode).to.have.been.calledWith('<p>Some html</p>', 'somecharset');
+							expect(mimeCodec.decodeBase64).to.have.been.calledWith('<p>Some html</p>', 'somecharset');
 							let mail = mails[0];
 							expect(mail.body).to.equal('something decoded');
 							done();
@@ -374,10 +379,10 @@ describe('Imap Service', () => {
 							charset: 'somecharset'
 						};
 
-						codec.quotedPrintableDecode = sinon.stub().returns('something decoded');
+						mimeCodec.decodeQuotedPrintable = sinon.stub().returns('something decoded');
 
 						imapService.listen().subscribe(mails => {
-							expect(codec.quotedPrintableDecode).to.have.been.calledWith('<p>Some html</p>', 'somecharset');
+							expect(mimeCodec.decodeQuotedPrintable).to.have.been.calledWith('<p>Some html</p>', null, 'somecharset');
 							let mail = mails[0];
 							expect(mail.body).to.equal('something decoded');
 							done();
@@ -562,10 +567,6 @@ describe('Imap Service', () => {
 			expect(() => imapService.getAttachment('somebad')).to.throw(imapService.errors.extendedCidUnparsable || '(error not defined)');
 		});
 
-		it('throws when extendedCid contains an unknown encoding', () => {
-			expect(() => imapService.getAttachment('cid;123;1.3;somethingunknown')).to.throw(imapService.errors.unsupportedEncoding('somethingunknown'));
-		});
-
 		it('emits an error when listMessages fails', done => {
 			let thrownError = new Error('Some Error.');
 			client.listMessages.rejects(thrownError);
@@ -579,18 +580,16 @@ describe('Imap Service', () => {
 		});
 
 		it('fetches a part, decodes to a buffer and provides as observable', done => {
-			codec.base64 = {
-				decode: sinon.stub().resolves('###decodedData###')
-			};
 			client.listMessages.resolves([{
 				uid: 123,
 				'body[1.3]': '###encodedData###',
 				envelope: {}
 			}]);
-			imapService.getAttachment('cid;123;1.3;base64').subscribe(attachment => {
+			attachmentDecoder.decode.resolves('###decodedData###');
+			imapService.getAttachment('cid;123;1.3;some-encoding').subscribe(attachment => {
 				expect(client.listMessages).to.have.been.calledOnce;
 				expect(client.listMessages).to.have.been.calledWith('INBOX', '123', ['uid', 'body.peek[1.3]'], byUid);
-				expect(codec.base64.decode).to.have.been.calledWith('###encodedData###');
+				expect(attachmentDecoder.decode).to.have.been.calledWith('###encodedData###', 'some-encoding');
 				expect(attachment).to.equal('###decodedData###');
 				done();
 			}, done);
