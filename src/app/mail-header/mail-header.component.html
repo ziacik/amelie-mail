@@ -4,6 +4,9 @@
 		<div class="from">From {{ getFromDisplayNames() }}</div>
 		<div class="date">At {{ mail.date | date }}</div>
 		<div class="to">To {{ getToDisplayNames() }}</div>
+		<div class="attachments">
+			<app-attachment-item *ngFor="let attachment of mail.attachments" [attachment]="attachment"></app-attachment-item>
+		</div>
 	</div>
 	<div class="right aligned four wide column">
 		<button id="reply" class="ui basic circular button">Reply</button>
