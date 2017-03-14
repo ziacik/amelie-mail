@@ -245,7 +245,26 @@ describe('Imap Service', () => {
 					}, done);
 				});
 
-				it('should not fetch a plain text which is an attachment', done => {
+				it('should not fetch a plain text as body when it is part of a message attachment', done => {
+					client.listMessages.onCall(0).resolves([{
+						uid: 1,
+						bodystructure: {
+							type: 'message/rfc822',
+							disposition: 'attachment',
+							childNodes: [{
+								part: '1.1',
+								type: 'text/plain'
+							}]
+						},
+						envelope: {}
+					}]);
+					imapService.listen().subscribe(() => {
+						expect(client.listMessages).to.have.been.calledOnce;
+						done();
+					}, done);
+				});
+
+				it('should not fetch a plain text as body which is an attachment', done => {
 					client.listMessages.onCall(0).resolves([{
 						uid: 1,
 						bodystructure: {
@@ -260,6 +279,20 @@ describe('Imap Service', () => {
 					}, done);
 				});
 
+				it('should not fetch a html as body which is an attachment', done => {
+					client.listMessages.onCall(0).resolves([{
+						uid: 1,
+						bodystructure: {
+							type: 'text/html',
+							disposition: 'attachment'
+						},
+						envelope: {}
+					}]);
+					imapService.listen().subscribe(() => {
+						expect(client.listMessages).to.have.been.calledOnce;
+						done();
+					}, done);
+				});
 
 				it('should fetch plain text and html bodies of them', done => {
 					imapService.listen().subscribe(() => {

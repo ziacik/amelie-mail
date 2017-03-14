@@ -38,6 +38,15 @@ describe('BodyStructure', () => {
 		expect(bodyStructure.childNodes[1]).to.be.an.instanceOf(BodyStructure);
 	});
 
+	it('isAttachment returns true if disposition is attachment', () => {
+		bodyStructure.disposition = 'attachment';
+		expect(bodyStructure.isAttachment()).to.equal(true);
+	});
+
+	it('isAttachment returns true if disposition is not attachment', () => {
+		expect(bodyStructure.isAttachment()).to.equal(false);
+	});
+
 	it('can accept a visitor', () => {
 		let visitor = sinon.stub();
 		delete bodyStructure.childNodes;
@@ -74,7 +83,7 @@ describe('BodyStructure', () => {
 	});
 
 	describe('findAttachments', () => {
-		function addAttachments() {
+		function addAttachment() {
 			bodyStructure.childNodes.push(new BodyStructure({
 				part: '1.3',
 				type: 'text/whatever',
@@ -88,7 +97,7 @@ describe('BodyStructure', () => {
 		});
 
 		it('can find attachments', () => {
-			addAttachments();
+			addAttachment();
 			let result = bodyStructure.findAttachments();
 			expect(result).to.exist;
 			expect(result.length).to.equal(1);
@@ -97,11 +106,23 @@ describe('BodyStructure', () => {
 	});
 
 	describe('findNonAttachmentByType', () => {
-		function addAttachments() {
+		function addAttachment() {
 			bodyStructure.childNodes.push(new BodyStructure({
 				part: '1.3',
 				type: 'text/whatever',
 				disposition: 'attachment'
+			}));
+		}
+
+		function addMessageAttachment() {
+			bodyStructure.childNodes.push(new BodyStructure({
+				part: '1.3',
+				type: 'text/whatever',
+				disposition: 'attachment',
+				childNodes: [{
+					part: '1.3.1',
+					type: 'inner/part'
+				}]
 			}));
 		}
 
@@ -111,16 +132,22 @@ describe('BodyStructure', () => {
 		});
 
 		it('returns undefined when the structure of requested type is an attachment', () => {
-			addAttachments();
+			addAttachment();
 			let result = bodyStructure.findNonAttachmentByType('text/whatever');
 			expect(result).not.to.exist;
 		});
 
 		it('can find structure by type if it is not an attachment', () => {
-			addAttachments();
+			addAttachment();
 			let result = bodyStructure.findNonAttachmentByType('text/plain');
 			expect(result).to.exist;
 			expect(result.part).to.equal('1.2');
+		});
+
+		it('won\'t search for part inside an attachment', () => {
+			addMessageAttachment();
+			let result = bodyStructure.findNonAttachmentByType('inner/part');
+			expect(result).not.to.exist;
 		});
 	});
 });

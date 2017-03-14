@@ -8,7 +8,8 @@ class BodyStructure {
 
 	accept(visitor) {
 		visitor(this);
-		if (this.childNodes) {
+
+		if (this.childNodes && !this.isAttachment()) {
 			this.childNodes.forEach(childNode => childNode.accept(visitor));
 		}
 	}
@@ -27,7 +28,7 @@ class BodyStructure {
 	findAttachments() {
 		let result = [];
 		let visitor = structure => {
-			if (structure.disposition === 'attachment') {
+			if (structure.isAttachment()) {
 				result.push(structure);
 			}
 		}
@@ -38,7 +39,7 @@ class BodyStructure {
 	findNonAttachmentByType(type) {
 		let result;
 		let visitor = structure => {
-			if (structure.type === type && structure.disposition !== 'attachment') {
+			if (structure.type === type && !structure.isAttachment()) {
 				result = structure;
 			}
 		};
@@ -50,6 +51,10 @@ class BodyStructure {
 		if (this.childNodes) {
 			this.childNodes = this.childNodes.map(it => new BodyStructure(it));
 		}
+	}
+
+	isAttachment() {
+		return this.disposition === 'attachment';
 	}
 }
 
