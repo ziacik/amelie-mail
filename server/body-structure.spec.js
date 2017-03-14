@@ -63,6 +63,38 @@ describe('BodyStructure', () => {
 		expect(bodyStructure.childNodes[1].accept).to.have.been.calledWith(visitor);
 	});
 
+	describe('name', () => {
+		it('returns a part name if available', () => {
+			bodyStructure.name = 'Some Name';
+			expect(bodyStructure.attachmentName()).to.equal('Some Name');
+		});
+
+		it('returns a name from parameters if available', () => {
+			bodyStructure.parameters = {
+				name: 'Some Name'
+			};
+			expect(bodyStructure.attachmentName()).to.equal('Some Name');
+		});
+
+		it('returns a filename from disposition parameters if available', () => {
+			bodyStructure.dispositionParameters = {
+				filename: 'Some Name'
+			};
+			expect(bodyStructure.attachmentName()).to.equal('Some Name');
+		});
+
+		it('returns a message envelope subject if available', () => {
+			bodyStructure.envelope = {
+				subject: 'Some Name'
+			};
+			expect(bodyStructure.attachmentName()).to.equal('Some Name');
+		});
+
+		it('returns "attachment" if none available', () => {
+			expect(bodyStructure.attachmentName()).to.equal('attachment');
+		});
+	});
+
 	describe('findById', () => {
 		it('returns undefined when a structure cannot be found', () => {
 			let result = bodyStructure.findById('unknown');

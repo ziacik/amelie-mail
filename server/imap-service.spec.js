@@ -364,15 +364,8 @@ describe('Imap Service', () => {
 					it('should add attachments if there are any', done => {
 						messages[0].bodystructure.childNodes.push({
 							part: '1.3',
-							type: 'text/whatever',
-							parameters: {
-								charset: 'US-ASCII',
-								name: 'Malina.Install.txt'
-							},
 							id: '<attid>',
 							encoding: 'base64',
-							size: 3036,
-							lineCount: 0,
 							disposition: 'attachment',
 							dispositionParameters: {
 								filename: 'Malina.Install.txt'
@@ -386,6 +379,20 @@ describe('Imap Service', () => {
 								name: 'Malina.Install.txt',
 								excid: '<attid>;3;1.3;base64'
 							}]);
+							done();
+						}, done);
+					});
+
+					it('should use bodyStructure.attachmentName() to set attachment name', done => {
+						let attachment = {
+							part: '1.3',
+							disposition: 'attachment',
+							attachmentName: sinon.stub().returns('Some Name')
+						};
+						messages[0].bodystructure.childNodes.push(attachment);
+						imapService.listen().subscribe(mails => {
+							expect(attachment.attachmentName).to.have.been.called;
+							expect(mails[0].attachments[0].name).to.equal('Some Name');
 							done();
 						}, done);
 					});

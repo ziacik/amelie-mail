@@ -239,7 +239,7 @@ class ImapService {
 	_getAttachmentRefs(message) {
 		let parts = this._getAttachmentParts(message.bodystructure);
 		return parts.map(part => ({
-			name: part.dispositionParameters && part.dispositionParameters.filename || '(unknown)',
+			name: part.attachmentName(),
 			excid: `${part.id};${message.uid};${part.part};${part.encoding}`
 		}));
 	}

@@ -6,6 +6,26 @@ class BodyStructure {
 		this._initChildNodes();
 	}
 
+	attachmentName() {
+		if (this.name) {
+			return this.name;
+		}
+
+		if (this.parameters && this.parameters.name) {
+			return this.parameters.name;
+		}
+
+		if (this.dispositionParameters && this.dispositionParameters.filename) {
+			return this.dispositionParameters.filename;
+		}
+
+		if (this.envelope && this.envelope.subject) {
+			return this.envelope.subject;
+		}
+
+		return 'attachment';
+	}
+
 	accept(visitor) {
 		visitor(this);
 
