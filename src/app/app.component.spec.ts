@@ -15,6 +15,7 @@ import { MailHeaderComponent } from './mail-header/mail-header.component';
 import { MailViewComponent } from './mail-view/mail-view.component';
 import { MailWriterComponent } from './mail-writer/mail-writer.component';
 import { RecipientSelectorComponent } from './recipient-selector/recipient-selector.component';
+import { AttachmentItemComponent } from './attachment-item/attachment-item.component';
 
 describe('App: AmelieMail', () => {
 	let component: AppComponent;
@@ -31,7 +32,8 @@ describe('App: AmelieMail', () => {
 				MailViewComponent,
 				MailWriterComponent,
 				MailEditorComponent,
-				RecipientSelectorComponent
+				RecipientSelectorComponent,
+				AttachmentItemComponent
 			],
 			providers: [
 				AppStateService,

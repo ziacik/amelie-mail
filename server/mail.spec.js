@@ -35,6 +35,10 @@ describe('Mail', () => {
 		expect(() => mail.withCc('cc')).to.throw(mail.errors.mustBeArray('cc'));
 	});
 
+	it('fails when setting attachments that is not an array', () => {
+		expect(() => mail.withAttachments('cc')).to.throw(mail.errors.mustBeArray('attachments'));
+	});
+
 	it('fails when setting date that is not a date', () => {
 		expect(() => mail.withDate('kva')).to.throw(mail.errors.mustBeDate('date'));
 	});
@@ -43,25 +47,31 @@ describe('Mail', () => {
 		let result = mail.withFrom(['one', 'two']);
 		expect(mail.from).to.deep.equal(['one', 'two']);
 		expect(result).to.equal(mail);
-	})
+	});
 
 	it('can have a to', () => {
 		let result = mail.withTo(['one', 'two']);
 		expect(mail.to).to.deep.equal(['one', 'two']);
 		expect(result).to.equal(mail);
-	})
+	});
 
 	it('can have a cc', () => {
 		let result = mail.withCc(['one', 'two']);
 		expect(mail.cc).to.deep.equal(['one', 'two']);
 		expect(result).to.equal(mail);
-	})
+	});
 
 	it('can have a subject', () => {
 		let result = mail.withSubject('Some subject');
 		expect(mail.subject).to.equal('Some subject');
 		expect(result).to.equal(mail);
-	})
+	});
+
+	it('can have attachments', () => {
+		let result = mail.withAttachments([{ some: 'attachment' }]);
+		expect(mail.attachments).to.deep.equal([{ some: 'attachment' }]);
+		expect(result).to.equal(mail);
+	});
 
 	it('fails when withBody called without a bodyType', () => {
 		expect(() => mail.withBody('Something')).to.throw(mail.errors.missingBodyType || '(error not defined)');

@@ -4,12 +4,14 @@ require('./rxjs-operators');
 
 const rx = require('rxjs/Observable');
 const Mail = require('./mail');
+const BodyStructure = require('./body-structure');
 
 class ImapService {
-	constructor(accountSettingsService, Client, codec) {
-		this.Client = Client;
-		this.codec = codec;
+	constructor(accountSettingsService, Client, attachmentDecoder, mimeCodec) {
 		this.accountSettingsService = accountSettingsService;
+		this.Client = Client;
+		this.attachmentDecoder = attachmentDecoder;
+		this.mimeCodec = mimeCodec;
 
 		this.errors = {
 			uidArgumentMissing: 'Missing uid argument.',
@@ -34,6 +36,7 @@ class ImapService {
 			.concat(this._listen())
 			.map(messages => {
 				return messages.map(message => {
+					let attachments = this._getAttachmentRefs(message);
 					let mail = new Mail(message.uid)
 						.withMessageId(message.envelope['message-id'])
 						.withSubject(message.envelope.subject)
@@ -41,6 +44,7 @@ class ImapService {
 						.withTo(message.envelope.to || [])
 						.withCc(message.envelope.cc || [])
 						.withDate(new Date(message.envelope.date))
+						.withAttachments(attachments)
 						.withIsSeen(!!message.flags && message.flags.indexOf('\\Seen') >= 0);
 
 					if (message.body && message.bodyType) {
@@ -95,13 +99,10 @@ class ImapService {
 		let partId = split[2];
 		let encoding = split[3];
 
-		this._checkBinaryDecodable(encoding);
-
 		let messagesPromise = this.client.listMessages('INBOX', uid, ['uid', `body.peek[${partId}]`], this.byUid).then(messages => {
 			let message = messages[0];
 			let bodyEncoded = message[`body[${partId}]`];
-			let bodyDecoded = this._binaryDecode(bodyEncoded, encoding);
-			return bodyDecoded;
+			return this._binaryDecode(bodyEncoded, encoding);
 		});
 
 		return rx.Observable.fromPromise(messagesPromise);
@@ -198,24 +199,14 @@ class ImapService {
 
 	_decode(bodyEncoded, encoding, charset) {
 		if (encoding === 'base64') {
-			return this.codec.base64Decode(bodyEncoded, charset);
+			return this.mimeCodec.decodeBase64(bodyEncoded, charset);
 		} else {
-			return this.codec.quotedPrintableDecode(bodyEncoded, charset);
-		}
-	}
-
-	_checkBinaryDecodable(encoding) {
-		if (encoding !== 'base64') {
-			throw new Error(this.errors.unsupportedEncoding(encoding));
+			return this.mimeCodec.decodeQuotedPrintable(bodyEncoded, null, charset);
 		}
 	}
 
 	_binaryDecode(bodyEncoded, encoding) {
-		if (encoding === 'base64') {
-			return this.codec.base64.decode(bodyEncoded);
-		} else {
-			return this.codec.base64.decode(bodyEncoded);
-		}
+		return this.attachmentDecoder.decode(bodyEncoded, encoding);
 	}
 
 	_getPartCodeMap(messages, partType) {
@@ -238,36 +229,26 @@ class ImapService {
 	}
 
 	_getPart(structure, partType) {
-		if (structure.type === partType) {
-			return structure;
-		}
-
-		if (structure.childNodes) {
-			for (let i = 0; i < structure.childNodes.length; i++) {
-				let childPart = this._getPart(structure.childNodes[i], partType);
-				if (childPart !== undefined) {
-					return childPart;
-				}
-			}
-		}
+		return new BodyStructure(structure).findNonAttachmentByType(partType);
 	}
 
 	_findPartByCid(structure, cid) {
-		if (structure.id === cid || structure.id === `<${cid}>`) {
-			return structure;
-		}
+		return new BodyStructure(structure).findById(cid);
+	}
 
-		if (structure.childNodes) {
-			for (let i = 0; i < structure.childNodes.length; i++) {
-				let childPart = this._findPartByCid(structure.childNodes[i], cid);
-				if (childPart !== undefined) {
-					return childPart;
-				}
-			}
-		}
+	_getAttachmentRefs(message) {
+		let parts = this._getAttachmentParts(message.bodystructure);
+		return parts.map(part => ({
+			name: part.attachmentName(),
+			excid: `${part.id};${message.uid};${part.part};${part.encoding}`
+		}));
+	}
+
+	_getAttachmentParts(structure) {
+		return new BodyStructure(structure).findAttachments();
 	}
 }
 
 module.exports = ImapService;
 module.exports['@singleton'] = true;
-module.exports['@require'] = ['account-settings-service', 'emailjs-imap-client', 'emailjs-mime-codec'];
+module.exports['@require'] = ['account-settings-service', 'emailjs-imap-client', 'attachment-decoder', 'mimelib'];

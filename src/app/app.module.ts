@@ -14,6 +14,7 @@ import { ContactService } from './shared/contact.service';
 import { MailEditorComponent } from './mail-editor/mail-editor.component';
 import { MailWriterComponent } from './mail-writer/mail-writer.component';
 import { RecipientSelectorComponent } from './recipient-selector/recipient-selector.component';
+import { AttachmentItemComponent } from './attachment-item/attachment-item.component';
 
 @NgModule({
 	declarations: [
@@ -25,7 +26,8 @@ import { RecipientSelectorComponent } from './recipient-selector/recipient-selec
 		MailHeaderComponent,
 		MailEditorComponent,
 		MailWriterComponent,
-		RecipientSelectorComponent
+		RecipientSelectorComponent,
+		AttachmentItemComponent
 	],
 	imports: [
 		BrowserModule,
