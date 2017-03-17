@@ -26,7 +26,7 @@ export class MailEditorComponent implements AfterViewInit, OnDestroy, ControlVal
 			inline: true,
 			menubar: false,
 			fixed_toolbar_container: '#editor-tools',
-			skin_url: 'assets/skins/lightgray',
+			skin_url: 'assets/skins/amelie',
 			setup: this.setup.bind(this)
 		});
 	}
