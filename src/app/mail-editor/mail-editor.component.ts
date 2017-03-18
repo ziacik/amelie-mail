@@ -34,7 +34,7 @@ export class MailEditorComponent implements AfterViewInit, OnDestroy, ControlVal
 				'emoticons template paste textcolor colorpicker textpattern imagetools codesample'],
 			toolbar: 'styleselect | bold italic | bullist numlist outdent indent | forecolor backcolor | codesample | code',
 			codesample_content_css: 'assets/plugins/codesample/css/prism.css',
-			setp: this.setup.bind(this)
+			setup: this.setup.bind(this)
 		});
 	}
 
