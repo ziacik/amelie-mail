@@ -27,7 +27,14 @@ export class MailEditorComponent implements AfterViewInit, OnDestroy, ControlVal
 			menubar: false,
 			fixed_toolbar_container: '#editor-tools',
 			skin_url: 'assets/skins/amelie',
-			setup: this.setup.bind(this)
+			plugins: [
+				'autolink lists link image',
+				'searchreplace visualchars code fullscreen',
+				'media table contextmenu',
+				'emoticons template paste textcolor colorpicker textpattern imagetools codesample'],
+			toolbar: 'styleselect | bold italic | bullist numlist outdent indent | forecolor backcolor | codesample | code',
+			codesample_content_css: 'assets/plugins/codesample/css/prism.css',
+			setp: this.setup.bind(this)
 		});
 	}
 
