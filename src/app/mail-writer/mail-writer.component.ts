@@ -1,21 +1,22 @@
-import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 
 import { MailService } from '../shared/mail.service';
 import { ContactService } from '../shared/contact.service';
+import { QuoteService } from '../shared/quote.service';
 
 @Component({
 	selector: 'app-mail-writer',
 	templateUrl: './mail-writer.component.html',
 	styleUrls: ['./mail-writer.component.css']
 })
-export class MailWriterComponent implements OnInit, AfterViewInit {
+export class MailWriterComponent implements OnInit {
 	@Input() replyMail: any;
 
 	form: FormGroup;
 
-	constructor(private builder: FormBuilder, private mailService: MailService, private contactService: ContactService, private datePipe: DatePipe) {
+	constructor(private builder: FormBuilder, private mailService: MailService, private contactService: ContactService, private quoteService: QuoteService, private datePipe: DatePipe) {
 	}
 
 	ngOnInit() {
@@ -25,15 +26,6 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 			subject: '',
 			content: ['', Validators.required]
 		}, { validator: this.recipientRequired });
-	}
-
-	ngAfterViewInit() {
-		jQuery('#to').dropdown({
-			allowAdditions: true
-		});
-		jQuery('#cc').dropdown({
-			allowAdditions: true
-		});
 	}
 
 	public open() {
@@ -67,8 +59,8 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 		}
 
 		let quotedMailDate = this.datePipe.transform(replyMail.date, 'medium');
-		let body = replyMail.bodyType === 'text/plain' ? (replyMail.body || '').replace(/\n/g, '<br />') : replyMail.body;
-		let replyText = `<p></p><p>On ${quotedMailDate}, ${oneFrom.name || oneFrom.address} wrote:</p><blockquote>${body}</blockquote>`
+		let quote = this.quoteService.quote(replyMail);
+		let replyText = `<p></p><p>On ${quotedMailDate}, ${oneFrom.name || oneFrom.address} wrote:</p>${quote}`;
 
 		this.form.controls['to'].setValue(toAddresses);
 		this.form.controls['cc'].setValue(ccAddresses);

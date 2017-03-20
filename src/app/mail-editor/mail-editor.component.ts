@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, forwardRef } from '@angular/core';
+import { ViewChild, ElementRef, ViewEncapsulation, Component, AfterViewInit, OnDestroy, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 export const MAIL_EDITOR_VALUE_ACCESSOR: any = {
@@ -11,22 +11,26 @@ const noop = () => {
 };
 
 @Component({
+	encapsulation: ViewEncapsulation.Native,
 	selector: 'app-mail-editor',
 	templateUrl: './mail-editor.component.html',
 	styleUrls: ['./mail-editor.component.css'],
 	providers: [MAIL_EDITOR_VALUE_ACCESSOR]
 })
 export class MailEditorComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+	@ViewChild('editor') editorRef: ElementRef;
+
 	private editor: any;
 	private content: string;
 
 	ngAfterViewInit() {
 		tinymce.init({
-			selector: '#mail-editor',
+			target: this.editorRef.nativeElement,
 			inline: true,
 			menubar: false,
 			fixed_toolbar_container: '#editor-tools',
 			skin_url: 'assets/skins/amelie',
+			valid_children : '+blockquote[style]',
 			plugins: [
 				'autolink lists link image',
 				'searchreplace visualchars code fullscreen',
@@ -49,18 +53,17 @@ export class MailEditorComponent implements AfterViewInit, OnDestroy, ControlVal
 	set value(v: any) {
 		if (v !== this.content) {
 			this.content = v;
+
 			if (this.editor) {
 				this.editor.setContent(this.content);
 			}
-			this.onChangeCallback(v);
+
+			this.onChangeCallback(this.content);
 		}
 	}
 
 	private setup(editor) {
 		this.editor = editor;
-		if (this.content) {
-			editor.setContent(this.content);
-		}
 		editor.on('change', this.change.bind(this));
 	}
 
