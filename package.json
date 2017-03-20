@@ -42,6 +42,7 @@
   "devDependencies": {
     "@angular/cli": "1.0.0-rc.1",
     "@angular/compiler-cli": "^2.4.0",
+    "@types/cheerio": "^0.22.0",
     "@types/jasmine": "2.5.38",
     "@types/node": "~6.0.60",
     "chai": "^3.5.0",
