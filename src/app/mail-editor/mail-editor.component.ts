@@ -11,7 +11,6 @@ const noop = () => {
 };
 
 @Component({
-	encapsulation: ViewEncapsulation.Native,
 	selector: 'app-mail-editor',
 	templateUrl: './mail-editor.component.html',
 	styleUrls: ['./mail-editor.component.css'],
