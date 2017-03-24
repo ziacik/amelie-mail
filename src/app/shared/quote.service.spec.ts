@@ -49,9 +49,9 @@ describe('QuoteService', () => {
 		expect(result).toEqual('<blockquote><p>Some markup</p></blockquote>');
 	});
 
-	it('should move styles from head inside the blockquote', () => {
-		setupMail('<html><head><style rel="whatever"></style><style type="text/css">a { whatever: 12px; }</style></head><body><p>Some markup</p></body></html>');
+	it('should prefix all styles with #mail-editor and move them from head inside the blockquote', () => {
+		setupMail('<html><head><style rel="whatever">@media whatever { .some complicated[@wer=e] #style, .another { what: ever; } }</style><style type="text/css">a { whatever: 12px; }</style></head><body><p>Some markup</p></body></html>');
 		let result = service.quote(mail);
-		expect(result).toEqual('<blockquote><style rel="whatever"></style><style type="text/css">a { whatever: 12px; }</style><p>Some markup</p></blockquote>');
+		expect(result.replace(/[\n\s]+/g, ' ')).toEqual('<blockquote><style rel="whatever">@media whatever { #mail-editor .some complicated[@wer=e] #style, #mail-editor .another { what: ever; } }</style><style type="text/css">#mail-editor a { whatever: 12px; }</style><p>Some markup</p></blockquote>');
 	});
 });
