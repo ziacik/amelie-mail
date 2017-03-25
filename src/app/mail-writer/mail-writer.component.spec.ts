@@ -78,6 +78,10 @@ describe('MailWriterComponent', () => {
 		component.form.controls['content'].setValue(mailToSend.content);
 	}
 
+	function setContentWithStyles() {
+		component.form.controls['content'].setValue('<style>#mail-editor whatever { x: y; }</style>' + mailToSend.content);
+	}
+
 	it('should have a to field', () => {
 		let field = fixture.debugElement.query(By.css("#to"));
 		expect(!!field).toBeTruthy();
@@ -164,6 +168,15 @@ describe('MailWriterComponent', () => {
 			fillValidForm();
 			fixture.detectChanges();
 			expect(sendButton.nativeElement.disabled).toBeFalsy();
+		});
+
+		it('should remove #mail-editor from content before sending', () => {
+			fillValidForm();
+			setContentWithStyles();
+			fixture.detectChanges();
+			sendButton.nativeElement.click();
+			fixture.detectChanges();
+			expect(mailService.send.argsFor(0).content).toEqual('<style>whatever { x: y; }</style>This is a content of the mail');
 		});
 
 		it('should call mailService.send when send button clicked with form data, with addresses converted to contacts where possible', () => {
