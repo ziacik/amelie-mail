@@ -16,9 +16,10 @@ import { MailWriterComponent } from './mail-writer.component';
 describe('MailWriterComponent', () => {
 	let component: MailWriterComponent;
 	let fixture: ComponentFixture<MailWriterComponent>;
-	let mailService: MailService;
+	let mailService: any;
 	let quoteService: QuoteService;
 	let mailToSend: any;
+	let sendSpy: any;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
@@ -176,7 +177,7 @@ describe('MailWriterComponent', () => {
 			fixture.detectChanges();
 			sendButton.nativeElement.click();
 			fixture.detectChanges();
-			expect(mailService.send.argsFor(0).content).toEqual('<style>whatever { x: y; }</style>This is a content of the mail');
+			expect(mailService.send.calls.argsFor(0)[0].content).toEqual('<style>whatever { x: y; }</style>This is a content of the mail');
 		});
 
 		it('should call mailService.send when send button clicked with form data, with addresses converted to contacts where possible', () => {

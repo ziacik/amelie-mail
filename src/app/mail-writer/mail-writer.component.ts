@@ -79,7 +79,17 @@ export class MailWriterComponent implements OnInit {
 		if (mail.bcc) {
 			mail.bcc = this.toContacts(mail.bcc);
 		}
+
+		this.removeStylePrefixesFrom(mail);
 		this.mailService.send(mail);
+	}
+
+	private removeStylePrefixesFrom(mail) {
+		if (!mail.content) {
+			return;
+		}
+
+		mail.content = mail.content.replace(/#mail-editor /g, '');
 	}
 
 	private toContacts(addresses) {
