@@ -8,6 +8,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { MailService } from '../shared/mail.service';
 import { ContactService } from '../shared/contact.service';
+import { QuoteService } from '../shared/quote.service';
 import { RecipientSelectorComponent } from '../recipient-selector/recipient-selector.component';
 import { MailEditorComponent } from '../mail-editor/mail-editor.component';
 import { MailWriterComponent } from './mail-writer.component';
@@ -15,8 +16,10 @@ import { MailWriterComponent } from './mail-writer.component';
 describe('MailWriterComponent', () => {
 	let component: MailWriterComponent;
 	let fixture: ComponentFixture<MailWriterComponent>;
-	let mailService: MailService;
+	let mailService: any;
+	let quoteService: QuoteService;
 	let mailToSend: any;
+	let sendSpy: any;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
@@ -28,6 +31,7 @@ describe('MailWriterComponent', () => {
 			providers: [
 				MailService,
 				ContactService,
+				QuoteService,
 				DatePipe
 			],
 			imports: [
@@ -57,6 +61,9 @@ describe('MailWriterComponent', () => {
 				};
 			}
 		});
+
+		quoteService = TestBed.get(QuoteService);
+		spyOn(quoteService, 'quote').and.returnValue('<blockquote>Quoted</blockquote>');
 	});
 
 	function fillValidForm() {
@@ -70,6 +77,10 @@ describe('MailWriterComponent', () => {
 		component.form.controls['cc'].setValue(mailToSend.cc);
 		component.form.controls['subject'].setValue(mailToSend.subject);
 		component.form.controls['content'].setValue(mailToSend.content);
+	}
+
+	function setContentWithStyles() {
+		component.form.controls['content'].setValue('<style>#mail-editor whatever { x: y; }</style>' + mailToSend.content);
 	}
 
 	it('should have a to field', () => {
@@ -158,6 +169,15 @@ describe('MailWriterComponent', () => {
 			fillValidForm();
 			fixture.detectChanges();
 			expect(sendButton.nativeElement.disabled).toBeFalsy();
+		});
+
+		it('should remove #mail-editor from content before sending', () => {
+			fillValidForm();
+			setContentWithStyles();
+			fixture.detectChanges();
+			sendButton.nativeElement.click();
+			fixture.detectChanges();
+			expect(mailService.send.calls.argsFor(0)[0].content).toEqual('<style>whatever { x: y; }</style>This is a content of the mail');
 		});
 
 		it('should call mailService.send when send button clicked with form data, with addresses converted to contacts where possible', () => {
@@ -253,8 +273,8 @@ describe('MailWriterComponent', () => {
 		it('quotes content in the "content" field', () => {
 			let datePipe = TestBed.get(DatePipe);
 			let formattedDate = datePipe.transform(replyMail.date, 'medium');
-			// TODO Review. Tinymce strips the <html> part from the blockquote, but still maybe we should do it first.
-			expect(component.form.controls['content'].value).toEqual(`<p></p><p>On ${formattedDate}, some.from wrote:</p><blockquote><html><body>Some <b>body</b></body></html></blockquote>`);
+			expect(quoteService.quote).toHaveBeenCalledWith(replyMail);
+			expect(component.form.controls['content'].value).toEqual(`<p></p><p>On ${formattedDate}, some.from wrote:</p><blockquote>Quoted</blockquote>`);
 		});
 	});
 });
