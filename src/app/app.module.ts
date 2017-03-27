@@ -11,6 +11,7 @@ import { MailHeaderComponent } from './mail-header/mail-header.component';
 import { AppStateService } from './shared/app-state.service';
 import { MailService } from './shared/mail.service';
 import { ContactService } from './shared/contact.service';
+import { QuoteService } from './shared/quote.service';
 import { MailEditorComponent } from './mail-editor/mail-editor.component';
 import { MailWriterComponent } from './mail-writer/mail-writer.component';
 import { RecipientSelectorComponent } from './recipient-selector/recipient-selector.component';
@@ -38,6 +39,7 @@ import { AttachmentItemComponent } from './attachment-item/attachment-item.compo
 		AppStateService,
 		MailService,
 		ContactService,
+		QuoteService,
 		DatePipe
 	],
 	bootstrap: [AppComponent]

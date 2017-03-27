@@ -5,6 +5,8 @@ import { DebugElement } from '@angular/core';
 
 import { MailEditorComponent } from './mail-editor.component';
 
+declare var tinymce;
+
 describe('MailEditorComponent', () => {
 	let component: MailEditorComponent;
 	let fixture: ComponentFixture<MailEditorComponent>;
@@ -16,6 +18,10 @@ describe('MailEditorComponent', () => {
 	}));
 
 	beforeEach(() => {
+		tinymce = {
+			init: jasmine.createSpy('init'),
+			remove: jasmine.createSpy('remove')
+		};
 		fixture = TestBed.createComponent(MailEditorComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
@@ -29,5 +35,4 @@ describe('MailEditorComponent', () => {
 		component.ngOnDestroy();
 		expect(tinymce.remove).toHaveBeenCalled();
 	});
-
 });
