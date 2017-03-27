@@ -33,11 +33,21 @@ export class QuoteService {
 	private adjustStyles($, styleElements) {
 		return styleElements.map((i, styleElement) => {
 			let $styleElement = $(styleElement);
-			let parsed = css.parse($styleElement.text());
-			this.adjustNodes(parsed.stylesheet.rules);
-			$styleElement.text(css.stringify(parsed));
+			let adjusted = this.tryAdjustStyles($styleElement.text());
+			$styleElement.text(adjusted);
 			return $styleElement;
 		}).get().join('');
+	}
+
+	private tryAdjustStyles(styleStr) {
+		try {
+			let parsed = css.parse(styleStr);
+			this.adjustNodes(parsed.stylesheet.rules);
+			return css.stringify(parsed);
+		} catch (err) {
+			console.warn('Unable to parse mail styles. Removing.');
+			return '';
+		}
 	}
 
 	private adjustNodes(nodes: any[]) {
