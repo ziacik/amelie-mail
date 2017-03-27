@@ -1,7 +1,7 @@
 <div id="container">
 	<div class="ui inverted segment" id="nav">
-		<div class="ui basic inverted circular button" (click)="compose(); writ.open()">Compose</div>
-		<div class="ui basic inverted circular button" (click)="compose(); writ.openReply(appStateService.getActiveMail())">Reply</div>
+		<div id="compose" class="ui basic inverted circular button" (click)="compose(); writ.open()">Compose</div>
+		<div id="reply" class="ui basic inverted circular button" (click)="compose(); writ.openReply(appStateService.getActiveMail())">Reply</div>
 	</div>
 	<div class="ui segment" id="list">
 		<app-mail-list [mails]="mailService.getMails()"></app-mail-list>

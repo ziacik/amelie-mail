@@ -109,4 +109,13 @@ describe('App: AmelieMail', () => {
 			expect(mailView.componentInstance.mail).toBe(activeMail);
 		});
 	});
+
+	describe('compose button', () => {
+		it('opens a mail writer modal', () => {
+			let composeButton = fixture.debugElement.query(By.css('#compose'));
+			composeButton.nativeElement.click();
+			fixture.detectChanges();
+			expect(global.jQueryInstance.modal).toHaveBeenCalledWith('show');
+		});
+	})
 });

@@ -18,12 +18,7 @@ export class AppComponent implements AfterViewInit {
 		this.writer.modal('setting', {
 			duration: 0,
 			autofocus: false,
-			closable: false,
-			onVisible: () => {
-				tinymce.execCommand('mceAddControl', false)
-				setTimeout(() => tinymce.activeEditor.focus(), 1);
-			},
-			onHidden: () => tinymce.execCommand('mceRemoveControl', false)
+			closable: false
 		});
 	}
 
