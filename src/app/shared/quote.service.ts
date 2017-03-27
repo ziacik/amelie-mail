@@ -45,7 +45,7 @@ export class QuoteService {
 			this.adjustNodes(parsed.stylesheet.rules);
 			return css.stringify(parsed);
 		} catch (err) {
-			console.error('Unable to parse mail styles.', err);
+			console.warn('Unable to parse mail styles. Removing.');
 			return '';
 		}
 	}

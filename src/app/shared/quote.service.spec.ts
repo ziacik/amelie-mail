@@ -54,4 +54,10 @@ describe('QuoteService', () => {
 		let result = service.quote(mail);
 		expect(result.replace(/[\n\s]+/g, ' ')).toEqual('<blockquote><style rel="whatever">@media whatever { #mail-editor .some complicated[@wer=e] #style, #mail-editor .another { what: ever; } }</style><style type="text/css">#mail-editor a { whatever: 12px; }</style><p>Some markup</p></blockquote>');
 	});
+
+	it('should remove unparsable styles', () => {
+		setupMail('<html><head><style rel="whatever">unclosed { color:red; </style><style type="text/css">a { whatever: 12px; }</style></head><body><p>Some markup</p></body></html>');
+		let result = service.quote(mail);
+		expect(result.replace(/[\n\s]+/g, ' ')).toEqual('<blockquote><style rel="whatever"></style><style type="text/css">#mail-editor a { whatever: 12px; }</style><p>Some markup</p></blockquote>');
+	});
 });
