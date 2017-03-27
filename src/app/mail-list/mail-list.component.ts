@@ -16,13 +16,4 @@ export class MailListComponent {
 	private setActive(mail) {
 		this.appStateService.setActiveMail(mail);
 	}
-
-	load(mail) {
-		// if (electron) {
-		// 	electron.ipcRenderer.send('get', mail.uid);
-		// 	electron.ipcRenderer.on('got', (event, loadedMail) => {
-		// 		this.zone.run(() => this.selectedMail.emit(loadedMail));
-		// 	});
-		// }
-	}
 }

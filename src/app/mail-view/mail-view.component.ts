@@ -19,8 +19,11 @@ export class MailViewComponent {
 		if (this.isHtml()) {
 			this.html = this.getHtml();
 			this.text = null;
-		} else {
+		} else if (this.isText()) {
 			this.text = this.getText();
+			this.html = null;
+		} else {
+			this.text = null;
 			this.html = null;
 		}
 	}
@@ -49,18 +52,10 @@ export class MailViewComponent {
 	}
 
 	private getText(): string {
-		if (!this.mail || !this.mail.body) {
-			return '';
-		}
-
 		return this.mail.body;
 	}
 
 	private getHtml(): SafeHtml {
-		if (!this.mail || !this.mail.body) {
-			return '';
-		}
-
 		// FIXME Security Issue. Without this, <html> tags (and thus also stylings) are removed. What should we do?
 		return this.domSanitizer.bypassSecurityTrustHtml(this.mail.body);
 	}

@@ -23,6 +23,17 @@ describe('MailViewComponent', () => {
 		fixture.detectChanges();
 	});
 
+	describe('without mail', () => {
+		beforeEach(() => {
+			component.mail = null;
+			fixture.detectChanges();
+		});
+
+		it('should not display anything', () => {
+			expect(fixture.nativeElement.innerText).toEqual('');
+		});
+	});
+
 	describe('when bodyType is text/plain', () => {
 		beforeEach(() => {
 			mail.bodyType = 'text/plain';
