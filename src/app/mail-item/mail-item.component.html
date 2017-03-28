@@ -1,8 +1,33 @@
-<div class="ui mini image"><img src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ getFromDisplayNames() }}&amp;w=35&amp;h=35" /></div>
+<div class="label">
+	<img src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ getFromDisplayNames() }}&amp;w=35&amp;h=35" />
+</div>
 <div class="content">
-	<div class="header">
-		<h5>{{ getFromDisplayNames() }}</h5>
-		<h4>{{ mail.subject }}</h4>
+	<div class="summary">
+		<a class="user">
+			{{ getFromDisplayNames() }}
+		</a> {{ mail.subject }}
+		<div class="date">
+			{{ mail.date | date:short }}
+		</div>
 	</div>
-	<div class="description">{{ mail.plainBody }}</div>
+	<div *ngIf="mail.plainBody" class="extra text">
+		{{ mail.plainBody.substr(0, 100) }}
+	</div>
+	<div class="meta">
+		<a class="like">
+			<i class="empty star icon"></i> Star
+		</a>
+		<a *ngIf="!mail.isSeen" (click)="read()">
+			<i class="checkmark icon"></i> Read
+		</a>
+		<a *ngIf="mail.isSeen" (click)="unread()">
+			<i class="checkmark icon"></i> Unread
+		</a>
+		<a>
+			<i class="reply all icon"></i> Reply
+		</a>
+		<a>
+			<i class="mail forward icon"></i> Forward
+		</a>
+	</div>
 </div>

@@ -1,3 +1,6 @@
-<div class="ui divided selection list">
-	<app-mail-item *ngFor="let mail of mails" class="item" [mail]="mail" (click)="setActive(mail)"></app-mail-item>
+<div class="ui feed">
+	<template ngFor let-mail [ngForOf]="mails">
+		<app-mail-item class="event" [mail]="mail" (click)="setActive(mail)"></app-mail-item>
+		<div class="ui fitted divider"></div>
+	</template>
 </div>

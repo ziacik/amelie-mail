@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { AppStateService } from '../shared/app-state.service';
+import { MailService } from '../shared/mail.service';
 
 @Component({
 	selector: 'app-mail-item',
@@ -14,7 +15,17 @@ export class MailItemComponent {
 	@Input()
 	public mail: any;
 
-	constructor(private appStateService: AppStateService) {
+	constructor(private appStateService: AppStateService, private mailService: MailService) {
+	}
+
+	private read() {
+		this.mailService.markSeen(this.mail);
+		this.mail.isSeen = true;
+	}
+
+	private unread() {
+		this.mailService.unmarkSeen(this.mail);
+		this.mail.isSeen = false;
 	}
 
 	private getFromDisplayNames() {
