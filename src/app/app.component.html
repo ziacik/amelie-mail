@@ -1,4 +1,31 @@
-<div id="container">
+<div>
+	<md-toolbar color="primary">
+		<md-select>
+			<md-option>Gratex</md-option>
+			<md-option>Gmail</md-option>
+		</md-select>
+
+		<span>Amelie Mail</span>
+
+		<button md-icon-button [md-menu-trigger-for]="menu">
+			<md-icon>more_vert</md-icon>
+		</button>
+	</md-toolbar>
+	<md-menu x-position="before" #menu="mdMenu">
+		<button md-menu-item>Option 1</button>
+		<button md-menu-item>Option 2</button>
+	</md-menu>
+
+	<app-mail-list [mails]="mailService.getMails()"></app-mail-list>
+
+	<span class="done">
+		<button md-fab>
+			<md-icon>mode_edit</md-icon>
+		</button>
+	</span>
+</div>
+
+<!-- <div id="container">
 	<div class="ui inverted segment" id="nav">
 		<div class="ui basic inverted circular button" (click)="compose(); writ.open()">Compose</div>
 		<div class="ui basic inverted circular button" (click)="compose(); writ.openReply(appStateService.getActiveMail())">Reply</div>
@@ -11,4 +38,4 @@
 		<app-mail-view id="view" *ngIf="appStateService.getActiveMail()" [mail]="appStateService.getActiveMail()"></app-mail-view>
 	</div>
 </div>
-<app-mail-writer id="writer" #writ class="ui modal"></app-mail-writer>
+<app-mail-writer id="writer" #writ class="ui modal"></app-mail-writer> -->

@@ -1,3 +1,3 @@
-<div class="ui divided selection list">
-	<app-mail-item *ngFor="let mail of mails" class="item" [mail]="mail" (click)="setActive(mail)"></app-mail-item>
-</div>
+<md-grid-list cols="3" rowHeight="50px">
+	<app-mail-item *ngFor="let mail of mails" [mail]="mail" (click)="setActive(mail)"></app-mail-item>
+</md-grid-list>
