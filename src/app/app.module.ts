@@ -1,5 +1,6 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
@@ -17,6 +18,8 @@ import { MailWriterComponent } from './mail-writer/mail-writer.component';
 import { RecipientSelectorComponent } from './recipient-selector/recipient-selector.component';
 import { AttachmentItemComponent } from './attachment-item/attachment-item.component';
 
+import { MdButtonModule } from '@angular/material';
+
 @NgModule({
 	declarations: [
 		AppComponent,
@@ -31,9 +34,11 @@ import { AttachmentItemComponent } from './attachment-item/attachment-item.compo
 		AttachmentItemComponent
 	],
 	imports: [
-		BrowserModule,
 		CommonModule,
-		ReactiveFormsModule
+		BrowserModule,
+		BrowserAnimationsModule,
+		ReactiveFormsModule,
+		MdButtonModule
 	],
 	providers: [
 		AppStateService,
