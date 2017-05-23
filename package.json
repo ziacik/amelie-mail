@@ -14,13 +14,13 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/common": "^2.4.0",
-    "@angular/compiler": "^2.4.0",
-    "@angular/core": "^2.4.0",
-    "@angular/forms": "^2.4.0",
-    "@angular/http": "^2.4.0",
-    "@angular/platform-browser": "^2.4.0",
-    "@angular/platform-browser-dynamic": "^2.4.0",
+    "@angular/common": "^4.0.0",
+    "@angular/compiler": "^4.0.0",
+    "@angular/core": "^4.0.0",
+    "@angular/forms": "^4.0.0",
+    "@angular/http": "^4.0.0",
+    "@angular/platform-browser": "^4.0.0",
+    "@angular/platform-browser-dynamic": "^4.0.0",
     "@angular/router": "^3.4.0",
     "cheerio": "^0.22.0",
     "core-js": "^2.4.1",
@@ -37,12 +37,11 @@
     "stream-to-array": "^2.3.0",
     "string-to-stream": "^1.1.0",
     "tinymce": "^4.5.5",
-    "ts-helpers": "^1.1.1",
-    "zone.js": "^0.7.6"
+    "zone.js": "^0.8.4"
   },
   "devDependencies": {
-    "@angular/cli": "1.0.0-rc.1",
-    "@angular/compiler-cli": "^2.4.0",
+    "@angular/cli": "^1.0.4",
+    "@angular/compiler-cli": "^4.0.0",
     "@types/cheerio": "^0.22.0",
     "@types/css": "0.0.30",
     "@types/jasmine": "2.5.38",
@@ -68,7 +67,7 @@
     "sinon-as-promised": "^4.0.2",
     "sinon-chai": "^2.8.0",
     "ts-node": "~2.0.0",
-    "tslint": "~4.4.2",
-    "typescript": "~2.0.0"
+    "tslint": "~4.5.0",
+    "typescript": "~2.1.0"
   }
 }
