@@ -17,8 +17,7 @@ import { MailEditorComponent } from './mail-editor/mail-editor.component';
 import { MailWriterComponent } from './mail-writer/mail-writer.component';
 import { RecipientSelectorComponent } from './recipient-selector/recipient-selector.component';
 import { AttachmentItemComponent } from './attachment-item/attachment-item.component';
-
-import { MdButtonModule } from '@angular/material';
+import { MaterialModule } from '@angular/material';
 
 @NgModule({
 	declarations: [
@@ -38,7 +37,7 @@ import { MdButtonModule } from '@angular/material';
 		BrowserModule,
 		BrowserAnimationsModule,
 		ReactiveFormsModule,
-		MdButtonModule
+		MaterialModule
 	],
 	providers: [
 		AppStateService,
