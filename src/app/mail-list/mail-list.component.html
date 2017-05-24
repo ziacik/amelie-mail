@@ -1,3 +1,5 @@
-<md-grid-list cols="3" rowHeight="50px">
-	<app-mail-item *ngFor="let mail of mails" [mail]="mail" (click)="setActive(mail)"></app-mail-item>
-</md-grid-list>
+<md-list>
+	<md-list-item *ngFor="let mail of mails">
+		<app-mail-item [mail]="mail" (click)="setActive(mail)"></app-mail-item>
+	</md-list-item>
+</md-list>

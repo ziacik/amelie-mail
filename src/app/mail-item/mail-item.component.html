@@ -1,6 +1,6 @@
-<md-grid-tile rowspan="1" colspan="1">
-	<img md-list-avatar src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ getFromDisplayNames() }}&amp;w=24&amp;h=24" alt="...">
-	<span>{{ getFromDisplayNames() }}</span>
-</md-grid-tile>
-<md-grid-tile rowspan="1" colspan="1">{{ mail.subject }}</md-grid-tile>
-<md-grid-tile rowspan="1" colspan="1">{{ mail.plainBody.substr(0, 100) }}</md-grid-tile>
+<img md-list-avatar src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ getFromDisplayNames() }}&amp;w=24&amp;h=24" alt="...">
+<div md-line>
+	<span style="min-width: 20em;">{{ getFromDisplayNames() }}</span>
+	<span>{{ mail.subject }}</span> -
+	<small>{{ mail.plainBody.substr(0, 100) }}</small>
+</div>
