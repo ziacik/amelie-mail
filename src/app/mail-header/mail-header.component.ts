@@ -18,7 +18,10 @@ export class MailHeaderComponent implements OnInit {
 	}
 
 	public reply(mail) {
-		this.dialog.open(MailWriterComponent, mail);
+		this.dialog.open(MailWriterComponent, {
+			width: '900px',
+			data: mail
+		});
 	}
 
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 
@@ -13,11 +13,10 @@ import { QuoteService } from '../shared/quote.service';
 	templateUrl: './mail-writer.component.html',
 	styleUrls: ['./mail-writer.component.css']
 })
-export class MailWriterComponent implements OnInit {
+export class MailWriterComponent implements OnInit, AfterViewInit {
 	form: FormGroup;
 
 	constructor(@Inject(MD_DIALOG_DATA) private replyMail: any, private builder: FormBuilder, private mailService: MailService, private contactService: ContactService, private quoteService: QuoteService, private datePipe: DatePipe) {
-		console.log(builder);
 	}
 
 	ngOnInit() {
@@ -27,6 +26,13 @@ export class MailWriterComponent implements OnInit {
 			subject: '',
 			content: ['', Validators.required]
 		}, { validator: this.recipientRequired });
+	}
+
+	ngAfterViewInit() {
+		if (this.replyMail) {
+			// TODO See https://github.com/angular/angular/issues/6005 for explanation
+			Promise.resolve().then(() => this.openReply(this.replyMail));
+		}
 	}
 
 	public open() {

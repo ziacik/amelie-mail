@@ -30,6 +30,8 @@ export class AppComponent implements AfterViewInit {
 	}
 
 	public compose() {
-		this.dialog.open(MailWriterComponent);
+		this.dialog.open(MailWriterComponent, {
+			width: '900px'
+		});
 	}
 }
