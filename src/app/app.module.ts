@@ -32,6 +32,7 @@ import { MaterialModule } from '@angular/material';
 		RecipientSelectorComponent,
 		AttachmentItemComponent
 	],
+	entryComponents: [MailWriterComponent],
 	imports: [
 		CommonModule,
 		BrowserModule,

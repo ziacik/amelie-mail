@@ -1,16 +1,6 @@
-<h1 class="ui header">{{ mail.subject }}</h1>
-<div class="ui middle aligned grid">
-	<div class="twelve wide column">
-		<div class="from">From {{ getFromDisplayNames() }}</div>
-		<div class="date">At {{ mail.date | date }}</div>
-		<div class="to">To {{ getToDisplayNames() }}</div>
-		<div class="attachments">
-			<app-attachment-item *ngFor="let attachment of mail.attachments" [attachment]="attachment"></app-attachment-item>
-		</div>
-	</div>
-	<div class="right aligned four wide column">
-		<button id="reply" class="ui basic circular button">Reply</button>
-		<button *ngIf="!mail.isSeen" id="read" class="ui basic circular button" (click)="read()">Read</button>
-		<button *ngIf="mail.isSeen" id="unread" class="ui basic circular button" (click)="unread()">Unread</button>
-	</div>
-</div>
+<img style="float:left" md-card-avatar src="https://placeholdit.imgix.net/~text?bg=8f8f8f&txtclr=ffffe0&txt={{ getFromDisplayNames(mail) }}&amp;w=24&amp;h=24" />
+<md-card-title>{{ getFromDisplayNames() }} - {{ mail.subject }} <span class="date">{{ mail.date | date }}</span></md-card-title>
+<md-card-subtitle>
+	<button md-button (click)="reply(mail)">Reply</button>
+	<app-attachment-item *ngFor="let attachment of mail.attachments" [attachment]="attachment"></app-attachment-item>
+</md-card-subtitle>

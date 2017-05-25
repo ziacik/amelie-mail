@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { AppStateService } from '../shared/app-state.service';
+import { MailService } from '../shared/mail.service';
 
 @Component({
 	selector: 'app-mail-list',
@@ -9,20 +10,54 @@ import { AppStateService } from '../shared/app-state.service';
 export class MailListComponent {
 	@Input()
 	public mails: any[];
+	private activeMailIndex: number;
 
-	constructor(private appStateService: AppStateService) {
+	constructor(private appStateService: AppStateService, private mailService: MailService) {
+		this.activeMailIndex = -1;
 	}
 
-	private setActive(mail) {
-		this.appStateService.setActiveMail(mail);
+	public mailsBefore() {
+		if (this.activeMailIndex < 0) {
+			return this.mails;
+		}
+
+		return this.mails.slice(0, this.activeMailIndex);
 	}
 
-	load(mail) {
-		// if (electron) {
-		// 	electron.ipcRenderer.send('get', mail.uid);
-		// 	electron.ipcRenderer.on('got', (event, loadedMail) => {
-		// 		this.zone.run(() => this.selectedMail.emit(loadedMail));
-		// 	});
-		// }
+	public mailsAfter() {
+		if (this.activeMailIndex < 0) {
+			return [];
+		}
+
+		return this.mails.slice(this.activeMailIndex + 1, this.mails.length);
+	}
+
+	public setActive(mail) {
+		let am = this.mails.indexOf(mail);
+
+		if (this.activeMailIndex === am) {
+			this.appStateService.setActiveMail(null);
+		} else {
+			this.activeMailIndex = am;
+			this.appStateService.setActiveMail(mail);
+		}
+	}
+
+	public getFromDisplayNames(mail) {
+		if (!mail.from || !mail.from.length) {
+			return 'Unknown';
+		} else {
+			return mail.from.map(from => from.name || from.address || 'Unknown').join(', ');
+		}
+	}
+
+	public read(mail) {
+		this.mailService.markSeen(mail);
+		mail.isSeen = true;
+	}
+
+	public unread(mail) {
+		this.mailService.unmarkSeen(mail);
+		mail.isSeen = false;
 	}
 }

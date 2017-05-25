@@ -1,6 +1,8 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { AppStateService } from './shared/app-state.service';
 import { MailService } from './shared/mail.service';
+import { MdDialog } from '@angular/material';
+import { MailWriterComponent } from './mail-writer/mail-writer.component';
 
 @Component({
 	selector: 'app-root',
@@ -10,7 +12,7 @@ import { MailService } from './shared/mail.service';
 export class AppComponent implements AfterViewInit {
 	private writer: any;
 
-	constructor(private appStateService: AppStateService, private mailService: MailService) {
+	constructor(private dialog: MdDialog, private appStateService: AppStateService, private mailService: MailService) {
 	}
 
 	ngAfterViewInit() {
@@ -27,7 +29,7 @@ export class AppComponent implements AfterViewInit {
 		});
 	}
 
-	private compose() {
-		this.writer.modal('show');
+	public compose() {
+		this.dialog.open(MailWriterComponent);
 	}
 }

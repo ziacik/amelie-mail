@@ -16,10 +16,12 @@
 		<button md-menu-item>Option 2</button>
 	</md-menu>
 
-	<app-mail-list [mails]="mailService.getMails()"></app-mail-list>
+	<md-card>
+		<app-mail-list [mails]="mailService.getMails()"></app-mail-list>
+	</md-card>
 
 	<span class="done">
-		<button md-fab>
+		<button md-fab (click)="compose()">
 			<md-icon>mode_edit</md-icon>
 		</button>
 	</span>

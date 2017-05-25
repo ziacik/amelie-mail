@@ -1,6 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+
+import { MD_DIALOG_DATA } from '@angular/material';
 
 import { MailService } from '../shared/mail.service';
 import { ContactService } from '../shared/contact.service';
@@ -12,11 +14,10 @@ import { QuoteService } from '../shared/quote.service';
 	styleUrls: ['./mail-writer.component.css']
 })
 export class MailWriterComponent implements OnInit {
-	@Input() replyMail: any;
-
 	form: FormGroup;
 
-	constructor(private builder: FormBuilder, private mailService: MailService, private contactService: ContactService, private quoteService: QuoteService, private datePipe: DatePipe) {
+	constructor(@Inject(MD_DIALOG_DATA) private replyMail: any, private builder: FormBuilder, private mailService: MailService, private contactService: ContactService, private quoteService: QuoteService, private datePipe: DatePipe) {
+		console.log(builder);
 	}
 
 	ngOnInit() {

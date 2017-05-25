@@ -3,7 +3,7 @@ import { AppStateService } from '../shared/app-state.service';
 import { MailService } from '../shared/mail.service';
 
 @Component({
-	selector: 'app-mail-item',
+	selector: '[app-mail-item]',
 	templateUrl: './mail-item.component.html',
 	styleUrls: ['./mail-item.component.css'],
 	host: {

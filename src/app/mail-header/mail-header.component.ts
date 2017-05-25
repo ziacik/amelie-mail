@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { MailService } from '../shared/mail.service';
+import { MdDialog } from '@angular/material';
+import { MailWriterComponent } from '../mail-writer/mail-writer.component';
 
 @Component({
 	selector: 'app-mail-header',
@@ -9,11 +11,16 @@ import { MailService } from '../shared/mail.service';
 export class MailHeaderComponent implements OnInit {
 	@Input() mail: any;
 
-	constructor(private mailService: MailService) {
+	constructor(private dialog: MdDialog, private mailService: MailService) {
 	}
 
 	ngOnInit() {
 	}
+
+	public reply(mail) {
+		this.dialog.open(MailWriterComponent, mail);
+	}
+
 
 	private read() {
 		this.mailService.markSeen(this.mail);

@@ -1,6 +1,3 @@
-<img md-list-avatar src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ getFromDisplayNames() }}&amp;w=24&amp;h=24" alt="...">
-<div md-line>
-	<span style="min-width: 20em;">{{ getFromDisplayNames() }}</span>
-	<span>{{ mail.subject }}</span> -
-	<small>{{ mail.plainBody.substr(0, 100) }}</small>
-</div>
+<span style="width: 15em;display:inline-block;">{{ getFromDisplayNames() }}</span>
+<span>{{ mail.subject }}</span>
+<small>{{ mail.plainBody.substr(0, 300) }}</small>

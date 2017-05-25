@@ -1,5 +1,30 @@
-<md-list>
-	<md-list-item *ngFor="let mail of mails">
-		<app-mail-item [mail]="mail" (click)="setActive(mail)"></app-mail-item>
+<md-nav-list dense>
+	<md-list-item *ngFor="let mail of mailsBefore()" (click)="setActive(mail)">
+		<img *ngIf="mail.isSeen" md-list-avatar src="https://placeholdit.imgix.net/~text?bg=8f8f8f&txtclr=ffffe0&txt={{ getFromDisplayNames(mail) }}&amp;w=24&amp;h=24" alt="...">
+		<img *ngIf="!mail.isSeen" md-list-avatar src="https://placeholdit.imgix.net/~text?bg=3fa050&txtclr=ffffe0&txt={{ getFromDisplayNames(mail) }}&amp;w=24&amp;h=24" alt="...">
+		<h3 md-line app-mail-item [mail]="mail"></h3>
+		<md-icon *ngIf="!mail.isSeen" (click)="read(mail); $event.stopPropagation();">done</md-icon>
+		<md-icon *ngIf="mail.isSeen" (click)="unread(mail); $event.stopPropagation();">markunread</md-icon>
+		<span>&nbsp;&nbsp;&nbsp;</span>
+		<md-icon>label_outline</md-icon>
 	</md-list-item>
-</md-list>
+</md-nav-list>
+<md-card *ngIf="appStateService.getActiveMail()">
+	<md-card-title (click)="setActive(mail)">
+		<app-mail-header id="header" [mail]="appStateService.getActiveMail()"></app-mail-header>
+	</md-card-title>
+	<md-card-content>
+		<app-mail-view id="view" [mail]="appStateService.getActiveMail()"></app-mail-view>
+	</md-card-content>
+</md-card>
+<md-nav-list dense>
+	<md-list-item *ngFor="let mail of mailsAfter()" (click)="setActive(mail)">
+		<img *ngIf="mail.isSeen" md-list-avatar src="https://placeholdit.imgix.net/~text?bg=8f8f8f&txtclr=ffffe0&txt={{ getFromDisplayNames(mail) }}&amp;w=24&amp;h=24" alt="...">
+		<img *ngIf="!mail.isSeen" md-list-avatar src="https://placeholdit.imgix.net/~text?bg=3fa050&txtclr=ffffe0&txt={{ getFromDisplayNames(mail) }}&amp;w=24&amp;h=24" alt="...">
+		<h3 md-line app-mail-item [mail]="mail"></h3>
+		<md-icon *ngIf="!mail.isSeen" (click)="read(mail); $event.stopPropagation();">done</md-icon>
+		<md-icon *ngIf="mail.isSeen" (click)="unread(mail); $event.stopPropagation();">markunread</md-icon>
+		<span>&nbsp;&nbsp;&nbsp;</span>
+		<md-icon>label_outline</md-icon>
+	</md-list-item>
+</md-nav-list>
