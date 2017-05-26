@@ -59,7 +59,8 @@ class BodyStructure {
 	findNonAttachmentByType(type) {
 		let result;
 		let visitor = structure => {
-			if (structure.type === type && !structure.isAttachment()) {
+			// TODO Review: the !result part is because there can be a mail with more than 1 text/html parts. However, not sure how should we decide which to choose. The mail I seen had the first one good and the second was an empty html.
+			if (!result && structure.type === type && !structure.isAttachment()) {
 				result = structure;
 			}
 		};
