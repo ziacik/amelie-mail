@@ -1,4 +1,4 @@
-<div class="ui small form header" [formGroup]="form">
+<div md-dialog-title [formGroup]="form">
 	<div class="to field">
 		<app-recipient-selector id="to" formControlName="to" placeholder="To"></app-recipient-selector>
 	</div>
@@ -9,11 +9,11 @@
 		<input type="text" id="subject" formControlName="subject" placeholder="Subject" />
 	</div>
 </div>
-<div class="content" [formGroup]="form">
+<md-dialog-content [formGroup]="form">
 	<app-mail-editor formControlName="content"></app-mail-editor>
-</div>
-<div class="actions">
+</md-dialog-content>
+<md-dialog-actions>
 	<div id="editor-tools"></div>
-	<button id="cancel" class="ui cancel button">Cancel</button>
-	<button id="send" class="ui primary ok button" [disabled]="!form.valid" (click)="send()">Send</button>
-</div>
+	<button md-button id="cancel" md-dialog-close>Cancel</button>
+	<button md-button id="send" [disabled]="!form.valid" (click)="send()">Send</button>
+</md-dialog-actions>
