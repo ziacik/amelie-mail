@@ -16,6 +16,8 @@ export class RecipientSelectorComponent implements AfterViewInit, ControlValueAc
 	@Input() placeholder: string;
 	@Input() id: string;
 
+	recipients: any;
+
 	private dropdown: any;
 	private internalValue: string[];
 
@@ -23,14 +25,6 @@ export class RecipientSelectorComponent implements AfterViewInit, ControlValueAc
 	}
 
 	ngAfterViewInit() {
-		this.dropdown = jQuery(this.elementRef.nativeElement.firstChild);
-		this.dropdown.dropdown({
-			allowAdditions: true,
-			forceSelection: false,
-			fullTextSearch: true,
-			showOnFocus: false,
-			onChange: this.change.bind(this)
-		});
 	}
 
 	get value(): string[] {

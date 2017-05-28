@@ -1,10 +1,7 @@
-<div class="ui fluid floating multiple search selection dropdown">
-	<input type="hidden">
-	<i class="dropdown icon"></i>
-	<div class="default text">{{ placeholder }}</div>
-	<div class="menu">
-		<div *ngFor="let contact of contactService.getAll()" class="item" [attr.data-value]="contact.address">
-			<img class="ui mini avatar image" src="https://placeholdit.imgix.net/~text?bg=0fa0a0&txtclr=ffffe0&txt={{ contact.name || contact.address }}&amp;w=16&amp;h=16" /> {{ contact.name || contact.address }}
-		</div>
-	</div>
-</div>
+<md-select placeholder="{{ placeholder }}" multiple="true" name="recipients">
+	<md-option *ngFor="let contact of contactService.getAll()" [value]="contact.address">
+		{{ contact.name || contact.address }}
+	</md-option>
+</md-select>
+
+{{ recipients }}
