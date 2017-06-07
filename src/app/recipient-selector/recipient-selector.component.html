@@ -1,7 +1,16 @@
-<md-select placeholder="{{ placeholder }}" multiple="true" name="recipients">
-	<md-option *ngFor="let contact of contactService.getAll()" [value]="contact.address">
-		{{ contact.name || contact.address }}
-	</md-option>
-</md-select>
+<md-chip-list selectable="false">
+	<md-chip *ngFor="let recipient of internalValue">
+		{{ recipient }}
+		<a href="#">x</a>
+	</md-chip>
+</md-chip-list>
 
-{{ recipients }}
+<md-input-container>
+	<input type="text" mdInput [mdAutocomplete]="contacts" [formControl]="recipient" placeholder="{{ placeholder }}" />
+</md-input-container>
+
+<md-autocomplete #contacts="mdAutocomplete">
+	<md-option *ngFor="let contact of contactService.getAll()" [value]="contact">
+		{{ contact.name }} &lt;{{ contact.address }}&gt;
+	</md-option>
+</md-autocomplete>

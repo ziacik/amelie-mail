@@ -1,19 +1,12 @@
-<div md-dialog-title [formGroup]="form">
-	<div class="to field">
-		<app-recipient-selector id="to" formControlName="to" placeholder="To"></app-recipient-selector>
-	</div>
-	<div class="cc field">
-		<app-recipient-selector id="cc" formControlName="cc" placeholder="Cc"></app-recipient-selector>
-	</div>
-	<div class="subject field">
-		<input type="text" id="subject" formControlName="subject" placeholder="Subject" />
-	</div>
-</div>
 <md-dialog-content [formGroup]="form">
+	<app-recipient-selector id="recipients" formControlName="recipients" placeholder="Recipients"></app-recipient-selector>
+	<md-input-container>
+		<input mdInput type="text" id="subject" formControlName="subject" placeholder="Subject" />
+	</md-input-container>
 	<app-mail-editor formControlName="content"></app-mail-editor>
 </md-dialog-content>
 <md-dialog-actions>
-	<div id="editor-tools"></div>
-	<button md-button id="cancel" md-dialog-close>Cancel</button>
 	<button md-button id="send" [disabled]="!form.valid" (click)="send()">Send</button>
+	<button md-button id="cancel" md-dialog-close>Cancel</button>
+	<div id="editor-tools"></div>
 </md-dialog-actions>

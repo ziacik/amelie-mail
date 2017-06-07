@@ -21,11 +21,10 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 
 	ngOnInit() {
 		this.form = this.builder.group({
-			to: [[]],
-			cc: [[]],
+			recipients: [[], Validators.required],
 			subject: '',
 			content: ['', Validators.required]
-		}, { validator: this.recipientRequired });
+		});
 	}
 
 	ngAfterViewInit() {
@@ -36,8 +35,7 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 	}
 
 	public open() {
-		this.form.controls['to'].setValue([]);
-		this.form.controls['cc'].setValue([]);
+		this.form.controls['recipients'].setValue([]);
 		this.form.controls['subject'].setValue('');
 		this.form.controls['content'].setValue('');
 	}
@@ -69,8 +67,7 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 		let quote = this.quoteService.quote(replyMail);
 		let replyText = `<p></p><p>On ${quotedMailDate}, ${oneFrom.name || oneFrom.address} wrote:</p>${quote}`;
 
-		this.form.controls['to'].setValue(toAddresses);
-		this.form.controls['cc'].setValue(ccAddresses);
+		this.form.controls['recipients'].setValue(toAddresses.concat(ccAddresses));
 		this.form.controls['subject'].setValue(subject);
 		this.form.controls['content'].setValue(replyText);
 	}
@@ -105,16 +102,5 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 		}
 
 		return addresses.map(address => (this.contactService.getByAddress(address) || address));
-	}
-
-	private recipientRequired(group: FormGroup) {
-		let controls = ['to', 'cc'];
-		let atLeastOneOk = controls.some(it => {
-			let validator = Validators.required(group.controls[it]);
-			return !validator || !validator['required'];
-		});
-
-		let result = atLeastOneOk ? null : { recipientRequired: true };
-		controls.forEach(control => group.controls[control].setErrors(result));
 	}
 }

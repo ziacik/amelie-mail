@@ -1,5 +1,5 @@
 import { Component, ElementRef, AfterViewInit, Input, forwardRef } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FormControl, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ContactService } from '../shared/contact.service';
 
 @Component({
@@ -16,12 +16,15 @@ export class RecipientSelectorComponent implements AfterViewInit, ControlValueAc
 	@Input() placeholder: string;
 	@Input() id: string;
 
+	recipient: FormControl;
+
 	recipients: any;
 
 	private dropdown: any;
 	private internalValue: string[];
 
 	constructor(private elementRef: ElementRef, private contactService: ContactService) {
+		this.recipient = new FormControl();
 	}
 
 	ngAfterViewInit() {
