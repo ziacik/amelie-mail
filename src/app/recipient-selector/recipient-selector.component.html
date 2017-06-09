@@ -1,16 +1,16 @@
-<md-chip-list selectable="false">
-	<md-chip *ngFor="let recipient of internalValue">
-		{{ recipient }}
+<md-chip-list>
+	<md-chip *ngFor="let recipient of internalValue" color="primary">
+		{{ recipient.name }}
 		<a href="#">x</a>
 	</md-chip>
 </md-chip-list>
 
 <md-input-container>
-	<input type="text" mdInput [mdAutocomplete]="contacts" [formControl]="recipient" placeholder="{{ placeholder }}" />
+	<input #newRecipient type="text" mdInput (blur)="newRecipient.value.trim() &amp;&amp; addRecipient(newRecipient.value); newRecipient.value = ''" (keyup.enter)="newRecipient.value.trim() &amp;&amp; addRecipient(newRecipient.value); newRecipient.value = ''" [mdAutocomplete]="contacts" [formControl]="recipient" placeholder="Recipient" />
 </md-input-container>
 
 <md-autocomplete #contacts="mdAutocomplete">
-	<md-option *ngFor="let contact of contactService.getAll()" [value]="contact">
-		{{ contact.name }} &lt;{{ contact.address }}&gt;
+	<md-option *ngFor="let contact of contactService.getAll()" [value]="contact.address">
+		{{ contact.name || contact.address }}
 	</md-option>
 </md-autocomplete>

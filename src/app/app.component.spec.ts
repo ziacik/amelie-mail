@@ -4,6 +4,8 @@ import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MaterialModule } from '@angular/material';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 import { AppStateService } from './shared/app-state.service';
@@ -44,7 +46,9 @@ describe('App: AmelieMail', () => {
 				DatePipe
 			],
 			imports: [
-				ReactiveFormsModule
+				ReactiveFormsModule,
+				MaterialModule,
+				NoopAnimationsModule
 			]
 		});
 
@@ -72,41 +76,5 @@ describe('App: AmelieMail', () => {
 		let mailListComponent = fixture.debugElement.query(By.directive(MailListComponent));
 		expect(!!mailListComponent).toBeTruthy();
 		expect(mailListComponent.componentInstance.mails).toBe(mails);
-	});
-
-	describe('with no active mail', () => {
-		it('has no mail header component', () => {
-			let mailHeader = fixture.debugElement.query(By.directive(MailHeaderComponent));
-			expect(!!mailHeader).toBeFalsy();
-		});
-
-		it('has no mail view component', () => {
-			let mailView = fixture.debugElement.query(By.directive(MailViewComponent));
-			expect(!!mailView).toBeFalsy();
-		});
-	});
-
-	describe('with active mail', () => {
-		let activeMail;
-
-		beforeEach(() => {
-			activeMail = {
-				some: 'thing'
-			};
-			spyOn(appStateService, 'getActiveMail').and.returnValue(activeMail);
-			fixture.detectChanges();
-		})
-
-		it('has a mail header component with the mail set', () => {
-			let mailHeader = fixture.debugElement.query(By.directive(MailHeaderComponent));
-			expect(!!mailHeader).toBeTruthy();
-			expect(mailHeader.componentInstance.mail).toBe(activeMail);
-		});
-
-		it('has a mail view component with the mail set', () => {
-			let mailView = fixture.debugElement.query(By.directive(MailViewComponent));
-			expect(!!mailView).toBeTruthy();
-			expect(mailView.componentInstance.mail).toBe(activeMail);
-		});
 	});
 });

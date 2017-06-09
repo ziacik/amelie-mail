@@ -2,6 +2,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
+import { MaterialModule } from '@angular/material';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ContactService } from '../shared/contact.service';
 import { MailService } from '../shared/mail.service';
@@ -17,7 +19,8 @@ describe('MailHeaderComponent', () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			declarations: [AttachmentItemComponent, MailHeaderComponent],
-			providers: [MailService, ContactService]
+			providers: [MailService, ContactService],
+			imports: [NoopAnimationsModule, MaterialModule]
 		}).compileComponents();
 	}));
 

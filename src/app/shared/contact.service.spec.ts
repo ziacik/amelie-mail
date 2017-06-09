@@ -2,10 +2,11 @@
 
 import { TestBed, async, inject } from '@angular/core/testing';
 import { ContactService } from './contact.service';
+import { Contact } from './contact';
 
 describe('ContactService', () => {
 	let service: ContactService;
-	let contact;
+	let contact: Contact;
 	let channels;
 
 	beforeEach(() => {
@@ -18,10 +19,7 @@ describe('ContactService', () => {
 				send: jasmine.createSpy('ipcRenderer.send')
 			}
 		};
-		contact = {
-			name: 'Amelie P',
-			address: 'amelie.p@mail.fr'
-		}
+		contact = new Contact('amelie.p@mail.fr', 'Amelie P');
 		TestBed.configureTestingModule({
 			providers: [ContactService]
 		});
@@ -33,7 +31,7 @@ describe('ContactService', () => {
 	});
 
 	it('register fails when called without a contact', () => {
-		expect(() => service.register()).toThrowError(service.errors.contactArgumentMissing());
+		expect(() => service.register(null)).toThrowError(service.errors.contactArgumentMissing());
 	});
 
 	it('getAll returns an array with a contact registered by register', () => {
@@ -51,29 +49,21 @@ describe('ContactService', () => {
 	});
 
 	it('can register more than one contact', () => {
-		let another = {
-			name: 'Olivia R',
-			address: 'olivia.r@mail.fr'
-		};
+		let another = new Contact('olivia.r@mail.fr', 'Olivia R');
 		service.register(contact);
 		service.register(another);
 		expect(service.getAll()).toEqual([contact, another]);
 	});
 
 	it('after registering another contact with the same address but different name, replaces the first one with the latter', () => {
-		let another = {
-			name: 'Amelie Q',
-			address: 'amelie.p@mail.fr'
-		};
+		let another = new Contact('amelie.p@mail.fr', 'Amelie Q');
 		service.register(contact);
 		service.register(another);
 		expect(service.getAll()).toEqual([another]);
 	});
 
 	it('after registering another contact with the same address but empty name, leaves the first one and discards the latter', () => {
-		let another = {
-			address: 'amelie.p@mail.fr'
-		};
+		let another = new Contact('amelie.p@mail.fr');
 		service.register(contact);
 		service.register(another);
 		expect(service.getAll()).toEqual([contact]);
@@ -88,10 +78,7 @@ describe('ContactService', () => {
 	});
 
 	it('returns myself from getMyself() after receiving info from the contacts:me channel', () => {
-		let myself = {
-			name: 'My Name',
-			address: 'my@address.fr'
-		};
+		let myself = new Contact('my@address.fr', 'My Name');
 		channels['contacts:me'](null, myself);
 		expect(service.getMyself()).toEqual(myself);
 	});

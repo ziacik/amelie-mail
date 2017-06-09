@@ -1,6 +1,8 @@
 import { Component, ElementRef, AfterViewInit, Input, forwardRef } from '@angular/core';
 import { FormControl, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ContactService } from '../shared/contact.service';
+import { Contact } from '../shared/contact';
+import { Recipient } from '../shared/recipient';
 
 @Component({
 	selector: 'app-recipient-selector',
@@ -16,69 +18,45 @@ export class RecipientSelectorComponent implements AfterViewInit, ControlValueAc
 	@Input() placeholder: string;
 	@Input() id: string;
 
-	recipient: FormControl;
-
-	recipients: any;
-
 	private dropdown: any;
-	private internalValue: string[];
+	private internalValue: Recipient[];
+	private recipient: FormControl;
 
 	constructor(private elementRef: ElementRef, private contactService: ContactService) {
 		this.recipient = new FormControl();
+		this.internalValue = [];
 	}
 
 	ngAfterViewInit() {
 	}
 
-	get value(): string[] {
+	get value(): Recipient[] {
 		return this.internalValue;
 	};
 
-	set value(newValues: string[]) {
-		if (this.areValuesDifferent(newValues)) {
-			this.internalValue = newValues;
-
-			if (this.dropdown) {
-				this.dropdown.dropdown('set exactly', newValues);
-			}
-
-			this.onChangeCallback(newValues);
-		}
+	set value(newValues: Recipient[]) {
+		this.internalValue = newValues;
+		this.onChangeCallback(newValues);
 	}
 
-	private areValuesDifferent(otherValue) {
-		if (this.internalValue === otherValue) {
-			return false;
-		}
-
-		if (!this.internalValue || !otherValue) {
-			return true;
-		}
-
-		if (this.internalValue.length != otherValue.length) {
-			return true;
-		}
-
-		for (var i = 0; i < otherValue.length; ++i) {
-			if (this.internalValue[i] !== otherValue[i]) {
-				return true;
-			}
-		}
-
-		return false;
+	addRecipient(address: string) {
+		let contact = this.contactService.getByAddress(address) || new Contact(address);
+		let newRecipient = new Recipient(contact, 'to');
+		this.internalValue.push(newRecipient);
 	}
 
-	private change(value) {
-		this.internalValue = value.split(',');
-		this.onChangeCallback(this.internalValue);
-		this.onTouchedCallback(); // TODO this should be on blur probably
+	colorFor(recipient: Recipient): string {
+		switch (recipient.type) {
+			case 'to': return 'primary';
+			case 'cc': return 'accent';
+		}
 	}
 
 	/* ControlValueAccessor stuff */
 	private onTouchedCallback: () => void = () => { };
 	private onChangeCallback: (_: any) => void = () => { };
 
-	writeValue(value: any) {
+	writeValue(value: Recipient[]) {
 		this.value = value;
 	}
 
