@@ -1,6 +1,6 @@
 <md-chip-list>
 	<md-chip *ngFor="let recipient of internalValue" color="primary">
-		{{ recipient.name }}
+		{{ recipient.name || recipient.address }}
 		<a href="#">x</a>
 	</md-chip>
 </md-chip-list>

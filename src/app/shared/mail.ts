@@ -1,47 +1,56 @@
+import { Recipient } from './recipient';
+import { Contact } from './contact';
+
 export class Mail {
-	public uid: string;
-	public messageId: string;
-	public from: string[];
-	public to: string[];
-	public subject: string;
-	public body: string;
-	public bodyType: string;
+	private _uid: string;
+	private _messageId: string;
+	private _from: Contact;
+	private _recipients: Recipient[];
+	private _subject: string;
+	private _body: string;
+	private _bodyType: string;
+	private _date: Date;
 
-	constructor() {
+	constructor(from: Contact, recipients: Recipient[], subject: string, body: string, date: Date = undefined, bodyType: string = 'text/html', uid: string = null, messageId: string = null) {
+		this._from = from;
+		this._recipients = recipients;
+		this._subject = subject;
+		this._body = body;
+		this._date = date || new Date();
+		this._bodyType = bodyType;
+		this._uid = uid;
+		this._messageId = messageId;
 	}
 
-	public withUid(uid: string): Mail {
-		this.uid = uid;
-		return this;
+	public get uid(): string {
+		return this._uid;
 	}
 
-	public withMessageId(messageId: string): Mail {
-		this.messageId = messageId;
-		return this;
+	public get messageId(): string {
+		return this._messageId;
 	}
 
-	public withFrom(from: string[]): Mail {
-		this.from = from;
-		return this;
+	public get from(): Contact {
+		return this._from;
 	}
 
-	public withTo(to: string[]): Mail {
-		this.to = to;
-		return this;
+	public get recipients(): Recipient[] {
+		return this._recipients.slice();
 	}
 
-	public withSubject(subject: string): Mail {
-		this.subject = subject;
-		return this;
+	public get subject(): string {
+		return this._subject;
 	}
 
-	public withBody(body: string): Mail {
-		this.body = body;
-		return this;
+	public get body(): string {
+		return this._body;
 	}
 
-	public withBodyType(bodyType: string): Mail {
-		this.bodyType = bodyType;
-		return this;
+	public get bodyType(): string {
+		return this._bodyType;
+	}
+
+	public get date(): Date {
+		return this._date;
 	}
 }

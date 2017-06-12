@@ -4,8 +4,14 @@ import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 import { DatePipe } from '@angular/common';
 
-import { ReactiveFormsModule } from '@angular/forms';
+import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
 
+import { AppModule } from '../app.module';
+
+import { Mail } from '../shared/mail';
+import { Recipient } from '../shared/recipient';
+import { Contact } from '../shared/contact';
+import { MailFactoryService } from '../shared/mail-factory.service';
 import { MailService } from '../shared/mail.service';
 import { ContactService } from '../shared/contact.service';
 import { QuoteService } from '../shared/quote.service';
@@ -18,263 +24,256 @@ describe('MailWriterComponent', () => {
 	let fixture: ComponentFixture<MailWriterComponent>;
 	let mailService: any;
 	let quoteService: QuoteService;
-	let mailToSend: any;
 	let sendSpy: any;
+	let mail: Mail;
+	let mailCreatedFromWriter: Mail;
+	let mailFactoryService: MailFactoryService;
+	let myself: Contact;
+	let recipient: Recipient;
+	let createFromWriterSpy;
+	let page: Page;
 
-	beforeEach(async(() => {
+	function configureModuleWith(replyMail: Mail) {
+		mail = replyMail;
+
 		TestBed.configureTestingModule({
-			declarations: [
-				MailWriterComponent,
-				RecipientSelectorComponent,
-				MailEditorComponent
-			],
+			imports: [AppModule],
 			providers: [
-				MailService,
-				ContactService,
-				QuoteService,
-				DatePipe
-			],
-			imports: [
-				ReactiveFormsModule
+				{
+					provide: MD_DIALOG_DATA,
+					useValue: replyMail
+				},
+				{
+					provide: MdDialogRef,
+					useClass: jasmine.createSpy('MdDialogRef')
+				}
 			]
 		}).compileComponents();
-	}));
+	}
 
-	beforeEach(() => {
-		fixture = TestBed.createComponent(MailWriterComponent);
-		component = fixture.componentInstance;
-		fixture.detectChanges();
+	function setupSpiesAndComponent() {
+		recipient = new Recipient(new Contact('somebody@localhost'), 'to');
+		mailCreatedFromWriter = new Mail(null, [], null, '<style>#mail-editor whatever { x: y; }</style>Something');
 
 		mailService = TestBed.get(MailService);
 		spyOn(mailService, 'send');
 
+		myself = new Contact('me@mail.fr', 'me');
 		let contactService = TestBed.get(ContactService);
-		spyOn(contactService, 'getMyself').and.returnValue({
-			name: 'me',
-			address: 'me@mail.fr'
-		});
-		spyOn(contactService, 'getByAddress').and.callFake(address => {
-			if (address === 'somebody@localhost') {
-				return {
-					name: 'Some Body',
-					address: 'somebody@localhost'
-				};
-			}
-		});
+		spyOn(contactService, 'getMyself').and.returnValue(myself);
 
 		quoteService = TestBed.get(QuoteService);
 		spyOn(quoteService, 'quote').and.returnValue('<blockquote>Quoted</blockquote>');
-	});
 
-	function fillValidForm() {
-		mailToSend = {
-			to: ['somebody@localhost'],
-			cc: ['someone@localhost'],
-			subject: 'This is a mail',
-			content: 'This is a content of the mail'
-		};
-		component.form.controls['to'].setValue(mailToSend.to);
-		component.form.controls['cc'].setValue(mailToSend.cc);
-		component.form.controls['subject'].setValue(mailToSend.subject);
-		component.form.controls['content'].setValue(mailToSend.content);
+		mailFactoryService = TestBed.get(MailFactoryService);
+		createFromWriterSpy = spyOn(mailFactoryService, 'createFromWriter')
+		createFromWriterSpy.and.returnValue(mailCreatedFromWriter);
+
+		fixture = TestBed.createComponent(MailWriterComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+
+		page = new Page();
 	}
 
 	function setContentWithStyles() {
-		component.form.controls['content'].setValue('<style>#mail-editor whatever { x: y; }</style>' + mailToSend.content);
+		component.form.controls['content'].setValue('<style>#mail-editor whatever { x: y; }</style>' + mail.body);
 	}
 
-	it('should have a to field', () => {
-		let field = fixture.debugElement.query(By.css("#to"));
-		expect(!!field).toBeTruthy();
-	});
+	describe('when creating a new mail', () => {
+		beforeEach(async(() => {
+			configureModuleWith(new Mail(null, [], null, null));
+		}));
 
-	it('should have a cc field', () => {
-		let field = fixture.debugElement.query(By.css("#cc"));
-		expect(!!field).toBeTruthy();
-	});
+		beforeEach(() => {
+			setupSpiesAndComponent();
+		});
 
-	it('should have a subject field', () => {
-		let field = fixture.debugElement.query(By.css("#subject"));
-		expect(!!field).toBeTruthy();
-	});
+		it('the form is empty', () => {
+			expect(component.form.value).toEqual({
+				recipients: [],
+				subject: null,
+				content: null
+			});
+		});
 
-	it('should have a mail editor', () => {
-		let editor = fixture.debugElement.query(By.directive(MailEditorComponent));
-		expect(!!editor).toBeTruthy();
-	});
-
-	it('should have a send button', () => {
-		let button = fixture.debugElement.query(By.css("button#send"));
-		expect(!!button).toBeTruthy();
-	});
-
-	it('should have a cancel button', () => {
-		let button = fixture.debugElement.query(By.css("button#cancel"));
-		expect(!!button).toBeTruthy();
-	});
-
-	it('should have a form with all the needed controls', () => {
-		expect(component.form).toBeTruthy();
-		expect(Object.keys(component.form.controls)).toEqual(['to', 'cc', 'subject', 'content']);
-	});
-
-	describe('the form', () => {
-		it('should be invalid initially', () => {
+		it('the form is invalid', () => {
 			expect(component.form.valid).toBeFalsy();
 		});
 
-		it('should be valid when all is filled', () => {
-			fillValidForm();
+		it('the send button is disabled', () => {
+			expect(page.sendButton.nativeElement.disabled).toBeTruthy();
+		});
+	});
+
+	describe('when replying to my own mail', () => {
+		let myMail: Mail;
+
+		beforeEach(async(() => {
+			let recipients = [new Recipient(new Contact('some@body'), 'to'), new Recipient(new Contact('another@body'), 'cc'), new Recipient(myself, 'cc')];
+			myMail = new Mail(myself, recipients, 'Some subject', '<html><body>Some <b>body</b></body></html>')
+			configureModuleWith(myMail);
+		}));
+
+		beforeEach(() => {
+			setupSpiesAndComponent();
+		});
+
+		it('initializes form "to" recipients with myMail.to minus myself', () => {
+			let formRecipients = component.form.controls['recipients'].value.filter(it => it.type === 'to');
+			expect(formRecipients.length).toEqual(1);
+			expect(formRecipients[0].address).toEqual('some@body');
+		});
+
+		it('initializes form "cc" recipients with myMail.cc minus myself', () => {
+			let formRecipients = component.form.controls['recipients'].value.filter(it => it.type === 'cc');
+			expect(formRecipients.length).toEqual(1);
+			expect(formRecipients[0].address).toEqual('another@body');
+		});
+	});
+
+	describe('when replying to somebody else\'s mail', () => {
+		let replyMail: Mail;
+
+		beforeEach(async(() => {
+			let recipients = [new Recipient(new Contact('some@body'), 'to'), new Recipient(new Contact('another@body'), 'cc'), new Recipient(myself, 'cc')];
+			replyMail = new Mail(new Contact('sender@mail', 'some.from'), recipients, 'Some subject', '<html><body>Some <b>body</b></body></html>')
+			configureModuleWith(replyMail);
+		}));
+
+		beforeEach(() => {
+			setupSpiesAndComponent();
+		});
+
+		it('initializes form "to" recipients with myMail.from', () => {
+			let formRecipients = component.form.controls['recipients'].value.filter(it => it.type === 'to');
+			expect(formRecipients.length).toEqual(1);
+			expect(formRecipients[0].address).toEqual('sender@mail');
+		});
+
+		it('initializes form "cc" recipients with the sum of myMail.to and myMail.cc minus myself', () => {
+			let formRecipients = component.form.controls['recipients'].value.filter(it => it.type === 'cc');
+			expect(formRecipients.length).toEqual(2);
+			expect(formRecipients[0].address).toEqual('some@body');
+			expect(formRecipients[1].address).toEqual('another@body');
+		});
+	});
+
+	describe('when replying to a mail with empty subject', () => {
+		let replyMail: Mail;
+
+		beforeEach(async(() => {
+			replyMail = new Mail(myself, [], '', '')
+			configureModuleWith(replyMail);
+		}));
+
+		beforeEach(() => {
+			setupSpiesAndComponent();
+		});
+
+		it('subject is initialized with "Re:"', () => {
+			expect(component.form.controls['subject'].value).toEqual('Re:');
+		});
+	});
+
+	describe('when replying to a mail with subject that already contains a Re:', () => {
+		let replyMail: Mail;
+
+		beforeEach(async(() => {
+			replyMail = new Mail(myself, [], 'RE: something', '')
+			configureModuleWith(replyMail);
+		}));
+
+		beforeEach(() => {
+			setupSpiesAndComponent();
+		});
+
+		it('the "Re:" prefix is not duplicated in the subject', () => {
+			expect(component.form.controls['subject'].value).toEqual('RE: something');
+		});
+	});
+
+	describe('when replying to any mail', () => {
+		let replyMail: Mail;
+
+		beforeEach(async(() => {
+			let recipients = [new Recipient(new Contact('some@body'), 'to'), new Recipient(new Contact('another@body'), 'cc'), new Recipient(myself, 'cc')];
+			replyMail = new Mail(new Contact('sender@mail', 'some.from'), recipients, 'Some subject', '<html><body>Some <b>body</b></body></html>')
+			configureModuleWith(replyMail);
+		}));
+
+		beforeEach(() => {
+			setupSpiesAndComponent();
+		});
+
+		it('the form is valid', () => {
 			expect(component.form.valid).toBeTruthy();
 		});
 
-		it('should be invalid when content is empty', () => {
-			fillValidForm();
+		it('the send button is enabled', () => {
+			expect(page.sendButton.nativeElement.disabled).toBeFalsy();
+		});
+
+		it('the form becomes invalid when content is empty', () => {
 			component.form.controls['content'].setValue('');
 			expect(component.form.valid).toBeFalsy();
 		});
 
-		it('should be invalid when neither to nor cc is filled', () => {
-			fillValidForm();
-			component.form.controls['to'].setValue('');
-			component.form.controls['cc'].setValue('');
+		it('the form becomes invalid when no recipients are filled', () => {
+			component.form.controls['recipients'].setValue([]);
 			expect(component.form.valid).toBeFalsy();
 		});
 
-		it('should be valid when to is filled and cc is not', () => {
-			fillValidForm();
-			component.form.controls['cc'].setValue('');
-			expect(component.form.valid).toBeTruthy();
-		});
-
-		it('should be valid when cc is filled and to is not', () => {
-			fillValidForm();
-			component.form.controls['to'].setValue('');
-			expect(component.form.valid).toBeTruthy();
-		});
-	});
-
-	describe('the send button', () => {
-		let sendButton: any;
-
-		beforeEach(() => {
-			sendButton = fixture.debugElement.query(By.css("button#send"));
-		});
-
-		it('should be disabled when the form is invalid', () => {
-			expect(sendButton.nativeElement.disabled).toBeTruthy();
-		});
-
-		it('should be enabled when the form is valid', () => {
-			fillValidForm();
-			fixture.detectChanges();
-			expect(sendButton.nativeElement.disabled).toBeFalsy();
-		});
-
-		it('should remove #mail-editor from content before sending', () => {
-			fillValidForm();
-			setContentWithStyles();
-			fixture.detectChanges();
-			sendButton.nativeElement.click();
-			fixture.detectChanges();
-			expect(mailService.send.calls.argsFor(0)[0].content).toEqual('<style>whatever { x: y; }</style>This is a content of the mail');
-		});
-
-		it('should call mailService.send when send button clicked with form data, with addresses converted to contacts where possible', () => {
-			fillValidForm();
-			fixture.detectChanges();
-			sendButton.nativeElement.click();
-			fixture.detectChanges();
-			let augmentedMailToSend = {
-				to: [{
-					name: 'Some Body',
-					address: 'somebody@localhost'
-				}],
-				cc: ['someone@localhost'],
-				subject: 'This is a mail',
-				content: 'This is a content of the mail'
-			};
-			expect(mailService.send).toHaveBeenCalledWith(augmentedMailToSend);
-		});
-	});
-
-	describe('open', () => {
-		beforeEach(() => {
-			fillValidForm();
-			component.open();
-		});
-
-		it('clears the form', () => {
-			expect(component.form.controls['to'].value).toEqual([]);
-			expect(component.form.controls['cc'].value).toEqual([]);
-			expect(component.form.controls['subject'].value).toEqual('');
-			expect(component.form.controls['content'].value).toEqual('');
-		});
-	});
-
-	describe('openReply', () => {
-		let replyMail;
-
-		beforeEach(() => {
-			replyMail = {
-				from: [{ name: 'some.from', address: 'some.from@mail.fr' }, { name: 'another.from', address: 'another.from@mail.fr' }],
-				to: [{ name: 'me', address: 'me@mail.fr' }, { name: 'somebody.else', address: 'somebody.else@mail.com' }],
-				cc: [{ name: 'cced', address: 'cced@mail.fr' }, { name: 'anothercc', address: 'anothercc@mail.is' }],
-				subject: 'Some subject',
-				date: new Date(2017, 4, 20, 12, 30, 50, 123),
-				body: '<html><body>Some <b>body</b></body></html>'
-			};
-			component.openReply(replyMail);
-		});
-
-		it('does not fail when the replyMail has no fields set', () => {
-			expect(() => component.openReply({})).not.toThrow();
-		});
-
-		it('sets from to the "to" field if i am not in the replyMail.from', () => {
-			expect(component.form.controls['to'].value).toEqual(['some.from@mail.fr', 'another.from@mail.fr']);
-		});
-
-		it('sets sum of to and cc minus myself to the "cc" field if i am not in the replyMail.from', () => {
-			expect(component.form.controls['cc'].value).toEqual(['somebody.else@mail.com', 'cced@mail.fr', 'anothercc@mail.is']);
-		});
-
-		it('sets sum of from and to minus myself to the "to" field if i am in the replyMail.from', () => {
-			replyMail.from.push({ name: 'me', address: 'me@mail.fr' });
-			component.openReply(replyMail);
-			expect(component.form.controls['to'].value).toEqual(['some.from@mail.fr', 'another.from@mail.fr', 'somebody.else@mail.com']);
-		});
-
-		it('sets cc minus myself to the "cc" field if i am in the replyMail.from', () => {
-			replyMail.from.push({ name: 'me', address: 'me@mail.fr' });
-			component.openReply(replyMail);
-			expect(component.form.controls['to'].value).toEqual(['some.from@mail.fr', 'another.from@mail.fr', 'somebody.else@mail.com']);
-		});
-
-		it('sets subject to the "subject" field, adding a "Re: " prefix', () => {
+		it('subject is initialized with replyMail.subject, adding a "Re: " prefix', () => {
 			expect(component.form.controls['subject'].value).toEqual('Re: Some subject');
 		});
 
-		it('sets just "Re:" to the "subject" field if replyMail subject is empty', () => {
-			replyMail.subject = '';
-			component.openReply(replyMail);
-			expect(component.form.controls['subject'].value).toEqual('Re:');
-		});
-
-		it('does not duplicate an already existing "Re:" prefix in the subject', () => {
-			let prefixes = ['Re:', 'RE:', 'Re: '];
-			prefixes.forEach(prefix => {
-				replyMail.subject = `${prefix}Something`;
-				component.openReply(replyMail);
-				expect(component.form.controls['subject'].value).toEqual(`${prefix}Something`);
-			});
-		});
-
-		it('quotes content in the "content" field', () => {
+		it('the replyMail.body is quoted in content field', () => {
 			let datePipe = TestBed.get(DatePipe);
 			let formattedDate = datePipe.transform(replyMail.date, 'medium');
 			expect(quoteService.quote).toHaveBeenCalledWith(replyMail);
 			expect(component.form.controls['content'].value).toEqual(`<p></p><p>On ${formattedDate}, some.from wrote:</p><blockquote>Quoted</blockquote>`);
 		});
+
+		describe('the send button', () => {
+			let sendButton: any;
+
+			beforeEach(() => {
+				sendButton = fixture.debugElement.query(By.css("button#send"));
+			});
+
+			it('should be disabled when the form is invalid', () => {
+				component.form.controls['content'].setValue('');
+				fixture.detectChanges();
+				expect(sendButton.nativeElement.disabled).toBeTruthy();
+			});
+
+			it('should be enabled when the form is valid', () => {
+				expect(sendButton.nativeElement.disabled).toBeFalsy();
+			});
+
+			it('should remove #mail-editor from content before sending', () => {
+				setContentWithStyles();
+				fixture.detectChanges();
+				sendButton.nativeElement.click();
+				fixture.detectChanges();
+				expect(createFromWriterSpy.calls.argsFor(0)[0].content).toEqual('<style>whatever { x: y; }</style><html><body>Some <b>body</b></body></html>');
+			});
+
+			it('should create a mail from form data and call mailService.send with it', () => {
+				sendButton.nativeElement.click();
+				fixture.detectChanges();
+				expect(mailFactoryService.createFromWriter).toHaveBeenCalledWith(component.form.value);
+				expect(mailService.send).toHaveBeenCalledWith(mailCreatedFromWriter);
+			});
+		});
 	});
+
+	class Page {
+		sendButton: DebugElement;
+
+		constructor() {
+			this.sendButton = fixture.debugElement.query(By.css("button#send"));
+		}
+	}
 });

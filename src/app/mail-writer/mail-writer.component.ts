@@ -1,10 +1,13 @@
-import { Component, OnInit, AfterViewInit, Input, Inject } from '@angular/core';
+import { Component, OnInit, Input, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 
 import { MD_DIALOG_DATA } from '@angular/material';
 
+import { Mail } from '../shared/mail';
+import { Recipient } from '../shared/recipient';
 import { MailService } from '../shared/mail.service';
+import { MailFactoryService } from '../shared/mail-factory.service';
 import { ContactService } from '../shared/contact.service';
 import { QuoteService } from '../shared/quote.service';
 
@@ -13,49 +16,43 @@ import { QuoteService } from '../shared/quote.service';
 	templateUrl: './mail-writer.component.html',
 	styleUrls: ['./mail-writer.component.css']
 })
-export class MailWriterComponent implements OnInit, AfterViewInit {
+export class MailWriterComponent implements OnInit {
 	form: FormGroup;
 
-	constructor(@Inject(MD_DIALOG_DATA) private replyMail: any, private builder: FormBuilder, private mailService: MailService, private contactService: ContactService, private quoteService: QuoteService, private datePipe: DatePipe) {
+	constructor(@Inject(MD_DIALOG_DATA) private replyMail: Mail, private builder: FormBuilder, private mailService: MailService, private contactService: ContactService, private quoteService: QuoteService, private datePipe: DatePipe, private mailFactoryService: MailFactoryService) {
 	}
 
 	ngOnInit() {
 		this.form = this.builder.group({
-			recipients: [[], Validators.required],
-			subject: '',
-			content: ['', Validators.required]
+			recipients: [this.getInitialRecipients(), Validators.required],
+			subject: this.getAdjustedSubject(),
+			content: [this.getQuotedContent(), Validators.required]
 		});
 	}
 
-	ngAfterViewInit() {
-		if (this.replyMail) {
-			// TODO See https://github.com/angular/angular/issues/6005 for explanation
-			Promise.resolve().then(() => this.openReply(this.replyMail));
+	private getInitialRecipients(): Recipient[] {
+		if (!this.replyMail.from) {
+			return [];
 		}
-	}
-
-	public open() {
-		this.form.controls['recipients'].setValue([]);
-		this.form.controls['subject'].setValue('');
-		this.form.controls['content'].setValue('');
-	}
-
-	public openReply(replyMail: any) {
-		let from = replyMail.from || [];
-		let to = replyMail.to || [];
-		let cc = replyMail.cc || [];
-		let oneFrom = from[0] || {};
 
 		let myAddress = this.contactService.getMyself().address;
-		let iamInFrom = from.some(it => it.address === myAddress);
+		let isMyMail = this.replyMail.from.address === myAddress;
 
-		let toContacts = iamInFrom ? from.concat(to) : from;
-		let ccContacts = iamInFrom ? cc : to.concat(cc);
+		if (isMyMail) {
+			return this.replyMail.recipients.filter(r => r.address !== myAddress);
+		}
 
-		let toAddresses = toContacts.filter(it => it.address !== myAddress).map(it => it.address);
-		let ccAddresses = ccContacts.filter(it => it.address !== myAddress).map(it => it.address);
+		let recipients = [ new Recipient(this.replyMail.from, 'to') ];
+		recipients = recipients.concat(this.replyMail.recipients.filter(r => r.address !== myAddress).map(r => new Recipient(r.contact, 'cc')));
+		return recipients;
+	}
 
-		let subject = replyMail.subject;
+	private getAdjustedSubject(): string {
+		if (!this.replyMail.from) {
+			return null;
+		}
+
+		let subject = this.replyMail.subject;
 
 		if (!subject) {
 			subject = 'Re:';
@@ -63,28 +60,26 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 			subject = 'Re: ' + subject;
 		}
 
-		let quotedMailDate = this.datePipe.transform(replyMail.date, 'medium');
-		let quote = this.quoteService.quote(replyMail);
-		let replyText = `<p></p><p>On ${quotedMailDate}, ${oneFrom.name || oneFrom.address} wrote:</p>${quote}`;
+		return subject;
+	}
 
-		this.form.controls['recipients'].setValue(toAddresses.concat(ccAddresses));
-		this.form.controls['subject'].setValue(subject);
-		this.form.controls['content'].setValue(replyText);
+	private getQuotedContent(): string {
+		if (!this.replyMail.body) {
+			return null;
+		}
+
+		let from = this.replyMail.from;
+		let quotedMailDate = this.datePipe.transform(this.replyMail.date, 'medium');
+		let quote = this.quoteService.quote(this.replyMail);
+		let replyText = `<p></p><p>On ${quotedMailDate}, ${from.name || from.address} wrote:</p>${quote}`;
+
+		return replyText;
 	}
 
 	private send() {
-		let mail = this.form.value;
-		if (mail.to) {
-			mail.to = this.toContacts(mail.to);
-		}
-		if (mail.cc) {
-			mail.cc = this.toContacts(mail.cc);
-		}
-		if (mail.bcc) {
-			mail.bcc = this.toContacts(mail.bcc);
-		}
-
-		this.removeStylePrefixesFrom(mail);
+		let mailFormValue = this.form.value;
+		this.removeStylePrefixesFrom(mailFormValue);
+		let mail = this.mailFactoryService.createFromWriter(mailFormValue);
 		this.mailService.send(mail);
 	}
 
@@ -94,13 +89,5 @@ export class MailWriterComponent implements OnInit, AfterViewInit {
 		}
 
 		mail.content = mail.content.replace(/#mail-editor /g, '');
-	}
-
-	private toContacts(addresses) {
-		if (!addresses) {
-			return addresses;
-		}
-
-		return addresses.map(address => (this.contactService.getByAddress(address) || address));
 	}
 }

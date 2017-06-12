@@ -13,7 +13,7 @@ import { RecipientSelectorComponent } from './recipient-selector.component';
 import { MdAutocomplete } from '@angular/material';
 import { MdChipList, MdChip } from '@angular/material';
 
-fdescribe('RecipientSelectorComponent', () => {
+describe('RecipientSelectorComponent', () => {
 	let component: RecipientSelectorComponent;
 	let contactService: ContactService;
 	let fixture: ComponentFixture<RecipientSelectorComponent>;
