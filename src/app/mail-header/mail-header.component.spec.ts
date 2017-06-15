@@ -84,7 +84,7 @@ describe('MailHeaderComponent', () => {
 	});
 
 	it('should have a Read button if the mail is unseen', () => {
-		mail.markUnseen();
+		mail.unmarkSeen();
 		fixture.detectChanges();
 		let element = fixture.debugElement.query(By.css('button#read'));
 		expect(!!element).toBeTruthy();
@@ -105,14 +105,14 @@ describe('MailHeaderComponent', () => {
 	});
 
 	it('should not have an Unread button if the mail is unseen', () => {
-		mail.markUnseen();
+		mail.unmarkSeen();
 		fixture.detectChanges();
 		let element = fixture.debugElement.query(By.css('button#unread'));
 		expect(!!element).toBeFalsy();
 	});
 
 	it('should call mailService.markSeen when Read button clicked and mark the mail seen', () => {
-		mail.markUnseen();
+		mail.unmarkSeen();
 		fixture.detectChanges();
 		let element = fixture.debugElement.query(By.css('button#read'));
 		element.nativeElement.click();

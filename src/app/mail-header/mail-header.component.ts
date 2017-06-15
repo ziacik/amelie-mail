@@ -33,6 +33,6 @@ export class MailHeaderComponent implements OnInit {
 
 	private unread() {
 		this.mailService.unmarkSeen(this.mail);
-		this.mail.markUnseen();
+		this.mail.unmarkSeen();
 	}
 }

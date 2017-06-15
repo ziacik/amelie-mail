@@ -13,7 +13,7 @@ class ImapService {
 		this.attachmentDecoder = attachmentDecoder;
 		this.mimeCodec = mimeCodec;
 
-Client.prototype.TIMEOUT_SOCKET_LOWER_BOUND = 90000;
+		Client.prototype.TIMEOUT_SOCKET_LOWER_BOUND = 90000; // FIXME hardcoded, bad design
 
 		this.errors = {
 			uidArgumentMissing: 'Missing uid argument.',
@@ -33,8 +33,7 @@ Client.prototype.TIMEOUT_SOCKET_LOWER_BOUND = 90000;
 			.flatMap(accountSettings => {
 				this.client = new this.Client(accountSettings.imap.host, accountSettings.imap.port, accountSettings.imap.options);
 				this.client.logLevel = this.client.LOG_LEVEL_INFO;
-console.log(this.client.TIMEOUT_SOCKET_LOWER_BOUND);
-				this.client.TIMEOUT_SOCKET_LOWER_BOUND = 90000;
+				this.client.TIMEOUT_SOCKET_LOWER_BOUND = 90000; // FIXME hardcoded
 				return this._connectAndStart();
 			})
 			.concat(this._listen())

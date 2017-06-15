@@ -9,21 +9,23 @@ export class Mail {
 	private _subject: string;
 	private _body: string;
 	private _bodyType: string;
+	private _preview: string;
 	private _date: Date;
 	private _attachments: any[];
 	private _isSeen: boolean;
 
-	constructor(from: Contact, recipients: Recipient[], subject: string, body: string, date: Date = undefined, bodyType: string = 'text/html', uid: string = null, messageId: string = null, attachments: any[] = [], isSeen: boolean = false) {
+	constructor(from: Contact, recipients: Recipient[], contents: any, flags: any = {}, metaData: any = {}) {
 		this._from = from;
 		this._recipients = recipients;
-		this._subject = subject;
-		this._body = body;
-		this._date = date || new Date();
-		this._bodyType = bodyType;
-		this._uid = uid;
-		this._messageId = messageId;
-		this._attachments = attachments;
-		this._isSeen = isSeen;
+		this._subject = contents.subject;
+		this._body = contents.body;
+		this._preview = contents.preview;
+		this._bodyType = metaData.bodyType;
+		this._date = metaData.date;
+		this._uid = metaData.uid;
+		this._messageId = metaData.messageId;
+		this._attachments = contents.attachments;
+		this._isSeen = flags.isSeen;
 	}
 
 	public get uid(): string {
@@ -62,6 +64,10 @@ export class Mail {
 		return this._attachments.slice();
 	}
 
+	public get preview(): string {
+		return this._preview;
+	}
+
 	public get isSeen(): boolean {
 		return this._isSeen;
 	}
@@ -70,12 +76,7 @@ export class Mail {
 		this._isSeen = true;
 	}
 
-	public markUnseen() {
+	public unmarkSeen() {
 		this._isSeen = false;
-	}
-
-	// FIXME
-	public get plainBody(): string {
-		return this._body;
 	}
 }

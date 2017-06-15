@@ -91,7 +91,7 @@ class Mail {
 		if (bodyType === 'text/plain') {
 			return body.trim(200);
 		} else if (bodyType === 'text/html') {
-			return ''; //this._htmlToText(body);
+			return this._htmlToText(body).trim(200);
 		}
 	}
 

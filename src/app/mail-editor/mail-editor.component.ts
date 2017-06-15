@@ -64,6 +64,9 @@ export class MailEditorComponent implements AfterViewInit, OnDestroy, ControlVal
 	private setup(editor) {
 		this.editor = editor;
 		editor.on('change', this.change.bind(this));
+		if (this.content) {
+			setTimeout(() => editor.setContent(this.content), 0);
+		}
 	}
 
 	private change(e) {
