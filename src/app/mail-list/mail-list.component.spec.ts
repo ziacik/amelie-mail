@@ -3,6 +3,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
+import { Mail } from '../shared/mail';
+import { AppModule } from '../app.module';
 import { AppStateService } from '../shared/app-state.service';
 import { MailItemComponent } from '../mail-item/mail-item.component';
 import { MailListComponent } from './mail-list.component';
@@ -15,12 +17,8 @@ describe('MailListComponent', () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [
-				MailItemComponent,
-				MailListComponent
-			],
-			providers: [
-				AppStateService
+			imports: [
+				AppModule
 			]
 		}).compileComponents();
 	}));
@@ -47,11 +45,8 @@ describe('MailListComponent', () => {
 
 	it('should display a mail item for each mail in the list', () => {
 		let mails = [
-			{
-				body: 'first'
-			}, {
-				body: 'second'
-			}
+			new Mail(null, [], null, null),
+			new Mail(null, [], null, null)
 		];
 		component.mails = mails;
 		fixture.detectChanges();
@@ -63,7 +58,7 @@ describe('MailListComponent', () => {
 	});
 
 	it('when a mail item is clicked, active mail is set in app state service', () => {
-		let mails = [{}];
+		let mails = [new Mail(null, [], null, null)];
 		component.mails = mails;
 		fixture.detectChanges();
 		let mailItems = fixture.debugElement.queryAll(By.directive(MailItemComponent));

@@ -1,6 +1,6 @@
-<img style="float:left" md-card-avatar src="https://placeholdit.imgix.net/~text?bg=8f8f8f&txtclr=ffffe0&txt={{ getFromDisplayNames(mail) }}&amp;w=24&amp;h=24" />
-<md-card-title>{{ getFromDisplayNames() }} - {{ mail.subject }} <span class="date">{{ mail.date | date }}</span></md-card-title>
+<img style="float:left" md-card-avatar src="https://placeholdit.imgix.net/~text?bg=8f8f8f&txtclr=ffffe0&txt={{ mail.from.name }}&amp;w=24&amp;h=24" />
+<md-card-title>{{ mail.from.name || mail.from.address }} - {{ mail.subject }} <span class="date">{{ mail.date | date:'medium' }}</span></md-card-title>
 <md-card-subtitle>
-	<button md-button (click)="reply(mail)">Reply</button>
+	<button id="reply" md-button (click)="reply(mail)">Reply</button>
 	<app-attachment-item *ngFor="let attachment of mail.attachments" [attachment]="attachment"></app-attachment-item>
 </md-card-subtitle>

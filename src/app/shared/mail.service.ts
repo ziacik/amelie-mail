@@ -1,14 +1,17 @@
 import { Injectable, NgZone } from '@angular/core';
 import { ContactService } from './contact.service';
+import { MailFactoryService } from './mail-factory.service';
+import { Mail } from '../shared/mail';
+import { Recipient } from '../shared/recipient';
 
 declare var electron: any;
 
 @Injectable()
 export class MailService {
-	private mails: any[];
+	private mails: Mail[];
 	private errors: any;
 
-	constructor(private zone: NgZone, private contactService: ContactService) {
+	constructor(private zone: NgZone, private contactService: ContactService, private mailFactoryService: MailFactoryService) {
 		this.mails = [];
 		this.errors = {
 			mailArgumentMissing: 'Mail argument missing.'
@@ -20,25 +23,25 @@ export class MailService {
 		}
 	}
 
-	public getMails(): any[] {
+	public getMails(): Mail[] {
 		return this.mails;
 	}
 
-	public markSeen(mail: any) {
+	public markSeen(mail: Mail) {
 		if (!mail) {
 			throw new Error(this.errors.mailArgumentMissing);
 		}
 		electron.ipcRenderer.send('mail:mark:seen', mail.uid);
 	}
 
-	public unmarkSeen(mail: any) {
+	public unmarkSeen(mail: Mail) {
 		if (!mail) {
 			throw new Error(this.errors.mailArgumentMissing);
 		}
 		electron.ipcRenderer.send('mail:unmark:seen', mail.uid);
 	}
 
-	public send(mail: any) {
+	public send(mail: Mail) {
 		if (!mail) {
 			throw new Error(this.errors.mailArgumentMissing);
 		}
@@ -50,35 +53,23 @@ export class MailService {
 	}
 
 	private registerFetch() {
-		electron.ipcRenderer.on('mail:fetch', (event, mails) => {
+		electron.ipcRenderer.on('mail:fetch', (event, mailData) => {
 			this.zone.run(() => {
-				this.registerContactsFrom(mails);
-				this.mails = mails.slice().reverse().concat(this.mails);
+				let newMails: Mail[] = this.mailFactoryService.createFromServerData(mailData);
+				this.registerContactsFrom(newMails);
+				this.mails = newMails.reverse().concat(this.mails);
 			});
 		});
 	}
 
-	private registerContactsFrom(mails: any[]) {
+	private registerContactsFrom(mails: Mail[]) {
 		mails.forEach(mail => {
 			this.registerContactsFromOne(mail);
 		})
 	}
 
-	private registerContactsFromOne(mail: any) {
-		if (mail.from) {
-			this.registerContacts(mail.from);
-		}
-		if (mail.to) {
-			this.registerContacts(mail.to);
-		}
-		if (mail.cc) {
-			this.registerContacts(mail.cc);
-		}
-	}
-
-	private registerContacts(contacts: any[]) {
-		contacts.forEach(contact => {
-			this.contactService.register(contact);
-		});
+	private registerContactsFromOne(mail: Mail) {
+		this.contactService.register(mail.from);
+		mail.recipients.forEach((recipient: Recipient) => this.contactService.register(recipient.contact));
 	}
 }

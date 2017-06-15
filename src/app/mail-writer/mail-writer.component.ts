@@ -31,7 +31,7 @@ export class MailWriterComponent implements OnInit {
 	}
 
 	private getInitialRecipients(): Recipient[] {
-		if (!this.replyMail.from) {
+		if (!this.replyMail || !this.replyMail.from) {
 			return [];
 		}
 
@@ -48,7 +48,7 @@ export class MailWriterComponent implements OnInit {
 	}
 
 	private getAdjustedSubject(): string {
-		if (!this.replyMail.from) {
+		if (!this.replyMail || !this.replyMail.from) {
 			return null;
 		}
 
@@ -64,7 +64,7 @@ export class MailWriterComponent implements OnInit {
 	}
 
 	private getQuotedContent(): string {
-		if (!this.replyMail.body) {
+		if (!this.replyMail || !this.replyMail.body) {
 			return null;
 		}
 

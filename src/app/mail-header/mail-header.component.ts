@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { MailService } from '../shared/mail.service';
 import { MdDialog } from '@angular/material';
 import { MailWriterComponent } from '../mail-writer/mail-writer.component';
+import { Mail } from '../shared/mail';
 
 @Component({
 	selector: 'app-mail-header',
@@ -9,7 +10,7 @@ import { MailWriterComponent } from '../mail-writer/mail-writer.component';
 	styleUrls: ['./mail-header.component.css']
 })
 export class MailHeaderComponent implements OnInit {
-	@Input() mail: any;
+	@Input() mail: Mail;
 
 	constructor(private dialog: MdDialog, private mailService: MailService) {
 	}
@@ -27,31 +28,11 @@ export class MailHeaderComponent implements OnInit {
 
 	private read() {
 		this.mailService.markSeen(this.mail);
-		this.mail.isSeen = true;
+		this.mail.markSeen();
 	}
 
 	private unread() {
 		this.mailService.unmarkSeen(this.mail);
-		this.mail.isSeen = false;
-	}
-
-	// TODO should refactor to make this dry (move to Mail)
-	private getFromDisplayNames() {
-		if (!this.mail.from || !this.mail.from.length) {
-			return 'Unknown';
-		} else {
-			return this.mail.from.map(from => from.name || from.address || 'Unknown').join(', ');
-		}
-	}
-
-	// TODO should refactor to make this dry (move to Mail)
-	private getToDisplayNames() {
-		let recipients = (this.mail.to || []).concat(this.mail.cc || []);
-
-		if (!recipients.length) {
-			return '';
-		} else {
-			return recipients.map(to => to.name || to.address || 'Unknown').join(', ');
-		}
+		this.mail.markUnseen();
 	}
 }
