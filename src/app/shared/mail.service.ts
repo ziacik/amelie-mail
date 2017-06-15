@@ -45,7 +45,7 @@ export class MailService {
 		if (!mail) {
 			throw new Error(this.errors.mailArgumentMissing);
 		}
-		electron.ipcRenderer.send('mail:send', mail);
+		electron.ipcRenderer.send('mail:send', this.mailFactoryService.toServerData(mail));
 	}
 
 	private startListening() {

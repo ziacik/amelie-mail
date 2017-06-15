@@ -8,8 +8,36 @@ export class MailFactoryService {
 	constructor() {
 	}
 
+	public toServerData(mail: Mail): any {
+		return {
+			to: mail.recipients.filter(r => r.type === 'to').map(r => ({
+				address: r.contact.address,
+				name: r.contact.name
+			})),
+			cc: mail.recipients.filter(r => r.type === 'cc').map(r => ({
+				address: r.contact.address,
+				name: r.contact.name
+			})),
+			bcc: mail.recipients.filter(r => r.type === 'bcc').map(r => ({
+				address: r.contact.address,
+				name: r.contact.name
+			})),
+			subject: mail.subject,
+			content: mail.body
+		};
+	}
+
 	public createFromWriter(mailData: any): Mail {
-		return null;
+		let contents = {
+			subject: mailData.subject,
+			body: mailData.content
+		};
+		let metaData = {
+			bodyType: 'text/html'
+		};
+		let from: Contact = new Contact('adad');
+
+		return new Mail(from, mailData.recipients, contents, {}, metaData);
 	}
 
 	public createFromServerData(mailData: any[]): Mail[] {
