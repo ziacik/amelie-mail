@@ -53,7 +53,7 @@ describe('MailWriterComponent', () => {
 
 	function setupSpiesAndComponent() {
 		recipient = new Recipient(new Contact('somebody@localhost'), 'to');
-		mailCreatedFromWriter = new Mail(null, [], null, '<style>#mail-editor whatever { x: y; }</style>Something');
+		mailCreatedFromWriter = new Mail(null, [], { body: '<style>#mail-editor whatever { x: y; }</style>Something' });
 
 		mailService = TestBed.get(MailService);
 		spyOn(mailService, 'send');

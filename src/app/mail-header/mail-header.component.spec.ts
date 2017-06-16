@@ -2,9 +2,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
-import { MaterialModule } from '@angular/material';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
+import { AppModule } from '../app.module';
 import { Mail } from '../shared/mail';
 import { Contact } from '../shared/contact';
 import { Recipient } from '../shared/recipient';
@@ -21,9 +20,7 @@ describe('MailHeaderComponent', () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [AttachmentItemComponent, MailHeaderComponent],
-			providers: [MailService, ContactService],
-			imports: [NoopAnimationsModule, MaterialModule]
+			imports: [AppModule]
 		}).compileComponents();
 	}));
 
@@ -36,7 +33,7 @@ describe('MailHeaderComponent', () => {
 			new Recipient(new Contact('second.cc@localhost'), 'cc')
 		];
 		let attachments = [{ one: 1 }, { two: 2 }];
-		mail = new Mail(from, recipients, 'Some subject', null, new Date(2017, 2, 3, 15, 50, 20, 153), 'text/html', null, null, attachments);
+		mail = new Mail(from, recipients, { subject: 'Some subject', attachments: attachments }, {}, { date : new Date(2017, 2, 3, 15, 50, 20, 153) });
 		fixture = TestBed.createComponent(MailHeaderComponent);
 		component = fixture.componentInstance;
 		component.mail = mail;
