@@ -54,7 +54,7 @@ export class MailFactoryService {
 		let contents = {
 			subject: mailData.subject,
 			body: mailData.body,
-			preview: (mailData.plainBody || '').substr(300),
+			preview: (mailData.plainBody || '').substr(0, 200),
 			attachments: mailData.attachments
 		};
 

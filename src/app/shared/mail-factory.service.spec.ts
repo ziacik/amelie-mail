@@ -10,6 +10,6 @@ describe('MailFactoryService', () => {
 	});
 
 	it('should create a mail from Writer form', () => {
-		expect(service).toBeTruthy();
+		throw new Error('Should test');
 	});
 });
