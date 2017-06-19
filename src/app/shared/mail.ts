@@ -2,7 +2,7 @@ import { Recipient } from './recipient';
 import { Contact } from './contact';
 
 export class Mail {
-	private _uid: string;
+	private _uid: number;
 	private _messageId: string;
 	private _from: Contact;
 	private _recipients: Recipient[];
@@ -28,7 +28,7 @@ export class Mail {
 		this._isSeen = flags.isSeen;
 	}
 
-	public get uid(): string {
+	public get uid(): number {
 		return this._uid;
 	}
 

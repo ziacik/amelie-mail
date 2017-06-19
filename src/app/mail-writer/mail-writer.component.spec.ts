@@ -82,7 +82,7 @@ describe('MailWriterComponent', () => {
 
 	describe('when creating a new mail', () => {
 		beforeEach(async(() => {
-			configureModuleWith(new Mail(null, [], null, null));
+			configureModuleWith(null);
 		}));
 
 		beforeEach(() => {
@@ -111,7 +111,7 @@ describe('MailWriterComponent', () => {
 
 		beforeEach(async(() => {
 			let recipients = [new Recipient(new Contact('some@body'), 'to'), new Recipient(new Contact('another@body'), 'cc'), new Recipient(myself, 'cc')];
-			myMail = new Mail(myself, recipients, 'Some subject', '<html><body>Some <b>body</b></body></html>')
+			myMail = new Mail(myself, recipients, { subject: 'Some subject', body: '<html><body>Some <b>body</b></body></html>'})
 			configureModuleWith(myMail);
 		}));
 
@@ -137,7 +137,7 @@ describe('MailWriterComponent', () => {
 
 		beforeEach(async(() => {
 			let recipients = [new Recipient(new Contact('some@body'), 'to'), new Recipient(new Contact('another@body'), 'cc'), new Recipient(myself, 'cc')];
-			replyMail = new Mail(new Contact('sender@mail', 'some.from'), recipients, 'Some subject', '<html><body>Some <b>body</b></body></html>')
+			replyMail = new Mail(new Contact('sender@mail', 'some.from'), recipients, { subject: 'Some subject', body: '<html><body>Some <b>body</b></body></html>'})
 			configureModuleWith(replyMail);
 		}));
 
@@ -163,7 +163,7 @@ describe('MailWriterComponent', () => {
 		let replyMail: Mail;
 
 		beforeEach(async(() => {
-			replyMail = new Mail(myself, [], '', '')
+			replyMail = new Mail(myself, [], {})
 			configureModuleWith(replyMail);
 		}));
 
@@ -180,7 +180,7 @@ describe('MailWriterComponent', () => {
 		let replyMail: Mail;
 
 		beforeEach(async(() => {
-			replyMail = new Mail(myself, [], 'RE: something', '')
+			replyMail = new Mail(myself, [], {subject: 'RE: something'})
 			configureModuleWith(replyMail);
 		}));
 
@@ -198,7 +198,7 @@ describe('MailWriterComponent', () => {
 
 		beforeEach(async(() => {
 			let recipients = [new Recipient(new Contact('some@body'), 'to'), new Recipient(new Contact('another@body'), 'cc'), new Recipient(myself, 'cc')];
-			replyMail = new Mail(new Contact('sender@mail', 'some.from'), recipients, 'Some subject', '<html><body>Some <b>body</b></body></html>')
+			replyMail = new Mail(new Contact('sender@mail', 'some.from'), recipients, { subject: 'Some subject', body: '<html><body>Some <b>body</b></body></html>'})
 			configureModuleWith(replyMail);
 		}));
 

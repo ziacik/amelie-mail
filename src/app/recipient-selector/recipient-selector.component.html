@@ -1,5 +1,5 @@
 <md-chip-list>
-	<md-chip *ngFor="let recipient of internalValue" color="primary">
+	<md-chip *ngFor="let recipient of internalValue" color="{{ colorFor(recipient) }}">
 		{{ recipient.name || recipient.address }}
 		<a href="#">x</a>
 	</md-chip>

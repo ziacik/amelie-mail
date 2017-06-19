@@ -9,11 +9,11 @@ declare var electron: any;
 @Injectable()
 export class MailService {
 	private mails: Mail[];
-	private errors: any;
+	private _errors: any;
 
 	constructor(private zone: NgZone, private contactService: ContactService, private mailFactoryService: MailFactoryService) {
 		this.mails = [];
-		this.errors = {
+		this._errors = {
 			mailArgumentMissing: 'Mail argument missing.'
 		};
 
@@ -21,6 +21,10 @@ export class MailService {
 			this.registerFetch();
 			this.startListening();
 		}
+	}
+
+	public get errors(): any {
+		return this._errors;
 	}
 
 	public getMails(): Mail[] {

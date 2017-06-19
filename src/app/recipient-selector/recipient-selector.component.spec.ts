@@ -53,9 +53,9 @@ describe('RecipientSelectorComponent', () => {
 		expect(contactService.getAll).toHaveBeenCalled();
 		let autocomplete: MdAutocomplete = fixture.debugElement.query(By.directive(MdAutocomplete)).componentInstance;
 		expect(autocomplete.options.length).toEqual(2);
-		expect(autocomplete.options.first.value).toEqual(contact1);
+		expect(autocomplete.options.first.value).toEqual('amelie.p@mail.fr');
 		expect(autocomplete.options.first.viewValue).toEqual('Amelie P');
-		expect(autocomplete.options.last.value).toEqual(contact2);
+		expect(autocomplete.options.last.value).toEqual('olivia.r@mail.fr');
 		expect(autocomplete.options.last.viewValue).toEqual('olivia.r@mail.fr');
 	});
 

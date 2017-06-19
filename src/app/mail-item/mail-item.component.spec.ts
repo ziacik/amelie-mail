@@ -20,7 +20,7 @@ describe('MailItemComponent', () => {
 
 	beforeEach(() => {
 		let from: Contact = new Contact('amelie@some', 'Amelie Some');
-		mail = new Mail(from, [], 'Save the world', 'A preview of how to save the world.');
+		mail = new Mail(from, [], { subject: 'Save the world', preview: 'A preview of how to save the world.'});
 		fixture = TestBed.createComponent(MailItemComponent);
 		component = fixture.componentInstance;
 		component.mail = mail;

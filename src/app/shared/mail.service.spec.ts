@@ -2,47 +2,35 @@
 
 import { TestBed, async, inject } from '@angular/core/testing';
 import { MailService } from './mail.service';
+import { MailFactoryService } from './mail-factory.service';
 import { ContactService } from './contact.service';
+import { Mail } from './mail';
+import { Contact } from './contact';
+import { Recipient } from './recipient';
 
 describe('MailService', () => {
 	let service: MailService;
+	let mailFactoryService: MailFactoryService;
 	let contactService: ContactService;
 	let channels: any;
-	let mails: any[];
+	let mails: Mail[];
+	let mailData: any[];
+	let contacts: Contact[];
 
 	beforeEach(() => {
-		mails = [
-			{
-				uid: 1,
-				from: [
-					{
-						name: 'One',
-						address: 'one@localhost'
-					},
-					{
-						name: 'Two',
-						address: 'two@localhost'
-					}
-				],
-				to: [
-					{
-						name: 'Three',
-						address: 'three@localhost'
-					}
-				]
-			},
-			{
-				cc: [
-					{
-						name: 'Four',
-						address: 'four@localhost'
-					}
-				],
-				uid: 2
-			}
-		];
+		let from = new Contact('from@localhost');
+		let contact1 = new Contact('two@localhost');
+		let contact2 = new Contact('three@localhost');
+		let contact3 = new Contact('four@localhost');
+		let recipients1 = [new Recipient(contact1, 'to'), new Recipient(contact2, 'to')];
+		let recipients2 = [new Recipient(contact3, 'cc')];
+		mailData = [{ one: 'mail'}, { two: 'mail'}];
+		let mail1 = new Mail(from, recipients1, {}, {}, { uid: 1 });
+		let mail2 = new Mail(from, recipients2, {}, {}, { uid: 2 });
+		contacts = [from, contact1, contact2, contact3];
+		mails = [mail1, mail2];
 		channels = {};
-		global.electron = {
+		global['electron'] = {
 			ipcRenderer: {
 				on: jasmine.createSpy('ipcRenderer.on').and.callFake((channel, callback) => {
 					channels[channel] = callback;
@@ -51,11 +39,14 @@ describe('MailService', () => {
 			}
 		};
 		TestBed.configureTestingModule({
-			providers: [MailService, ContactService]
+			providers: [MailService, ContactService, MailFactoryService]
 		});
 		service = TestBed.get(MailService);
 		contactService = TestBed.get(ContactService);
 		spyOn(contactService, 'register');
+		mailFactoryService = TestBed.get(MailFactoryService);
+		spyOn(mailFactoryService, 'toServerData').and.returnValue({ converted: 'mail' });
+		spyOn(mailFactoryService, 'createFromServerData').and.returnValue(mails);
 	});
 
 	it('registers for mail:fetch ipc channel', () => {
@@ -67,11 +58,11 @@ describe('MailService', () => {
 	});
 
 	it('throws when markSeen called without a mail', () => {
-		expect(() => service.markSeen()).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
+		expect(() => service.markSeen(null)).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
 	});
 
 	it('throws when unmarkSeen called without a mail', () => {
-		expect(() => service.unmarkSeen()).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
+		expect(() => service.unmarkSeen(null)).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
 	});
 
 	it('can send a mail:mark:seen signal', () => {
@@ -85,17 +76,22 @@ describe('MailService', () => {
 	});
 
 	it('throws when send called without a mail', () => {
-		expect(() => service.send()).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
+		expect(() => service.send(null)).toThrowError(service.errors.mailArgumentMissing || '(error not defined)');
 	});
 
 	it('can send a mail:send signal', () => {
 		service.send(mails[0]);
-		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:send', mails[0]);
+		expect(mailFactoryService.toServerData).toHaveBeenCalledWith(mails[0]);
+		expect(electron.ipcRenderer.send).toHaveBeenCalledWith('mail:send', { converted: 'mail' });
 	});
 
 	describe('when mails are received via mail:fetch channel', () => {
 		beforeEach(() => {
-			channels['mail:fetch'](null, mails);
+			channels['mail:fetch'](null, mailData);
+		});
+
+		it('they are converted via factory', () => {
+			expect(mailFactoryService.createFromServerData).toHaveBeenCalledWith(mailData);
 		});
 
 		it('they are stored in mails property in reverse order', () => {
@@ -107,30 +103,19 @@ describe('MailService', () => {
 		});
 
 		it('they are merged with existing mails by adding to the start in reverse order', () => {
-			let moreMails = [{ uid: 3 }, { uid: 4 }];
-			channels['mail:fetch'](null, moreMails);
+			let moreMails = [new Mail(null, [], {}, {}, { uid: 3}), new Mail(null, [], {}, {}, { uid: 4})];
+			(mailFactoryService.createFromServerData as jasmine.Spy).and.returnValue(moreMails);
+			channels['mail:fetch'](null, mailData);
 			let mails = service.getMails();
 			expect(!!mails).toBeTruthy();
 			expect(mails.map(it => it.uid)).toEqual([4, 3, 2, 1]);
 		});
 
 		it('all contacts from them are registered using the contact service', () => {
-			expect(contactService.register).toHaveBeenCalledWith({
-				name: 'One',
-				address: 'one@localhost'
-			});
-			expect(contactService.register).toHaveBeenCalledWith({
-				name: 'Two',
-				address: 'two@localhost'
-			});
-			expect(contactService.register).toHaveBeenCalledWith({
-				name: 'Three',
-				address: 'three@localhost'
-			});
-			expect(contactService.register).toHaveBeenCalledWith({
-				name: 'Four',
-				address: 'four@localhost'
-			});
+			expect(contactService.register).toHaveBeenCalledWith(contacts[0]);
+			expect(contactService.register).toHaveBeenCalledWith(contacts[1]);
+			expect(contactService.register).toHaveBeenCalledWith(contacts[2]);
+			expect(contactService.register).toHaveBeenCalledWith(contacts[3]);
 		});
 	});
 });

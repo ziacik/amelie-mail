@@ -46,7 +46,7 @@ export class ContactService {
 
 	private registerContactsMeChannel() {
 		electron.ipcRenderer.on('contacts:me', (event, data) => {
-			this.myself = new Contact(data.name, data.address);
+			this.myself = new Contact(data.address, data.name);
 		});
 		electron.ipcRenderer.send('contacts:me');
 	}

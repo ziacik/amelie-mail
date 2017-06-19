@@ -1,51 +1,50 @@
-import {Mail} from './mail';
+import { Mail } from './mail';
+import { Contact } from './contact';
+import { Recipient } from './recipient';
 
 describe('Mail', () => {
-	let mail;
+	let mail: Mail;
+	let from: Contact;
+	let recipients: Recipient[];
+	let contents: any;
+	let flags: any;
+	let metaData: any;
 
 	beforeEach(() => {
-		mail = new Mail();
+		from = new Contact('some.from');
+		recipients = [new Recipient(from, 'to')];
+		contents = {
+			subject: 'Subject',
+			body: 'Body',
+			preview: 'Preview'
+		};
+		flags = {
+			isSeen: true
+		};
+		metaData = {
+			uid: 123,
+			messageId: 'messageId',
+			date: new Date(2017, 4, 5, 12, 40, 0),
+			bodyType: 'text/html'
+		};
+		mail = new Mail(from, recipients, contents, flags, metaData);
 	});
 
-	it('can have an uid', () => {
-		let result = mail.withUid('uid');
-		expect(mail.uid).toEqual('uid');
-		expect(result).toEqual(mail);
+	it('has from and recipients', () => {
+		expect(mail.from).toEqual(from);
+		expect(mail.recipients).toEqual(recipients);
 	});
 
-	it('can have a messageId', () => {
-		let result = mail.withMessageId('message@id');
-		expect(mail.messageId).toEqual('message@id');
-		expect(result).toEqual(mail);
-	});
-
-	it('can have a from', () => {
-		let result = mail.withFrom(['one', 'two']);
-		expect(mail.from).toEqual(['one', 'two']);
-		expect(result).toEqual(mail);
-	})
-
-	it('can have a to', () => {
-		let result = mail.withTo(['one', 'two']);
-		expect(mail.to).toEqual(['one', 'two']);
-		expect(result).toEqual(mail);
-	})
-
-	it('can have a subject', () => {
-		let result = mail.withSubject('Some subject');
-		expect(mail.subject).toEqual('Some subject');
-		expect(result).toEqual(mail);
-	})
-
-	it('can have a bodyType', () => {
-		let result = mail.withBodyType('text/html');
+	it('can have meta data', () => {
+		expect(mail.messageId).toEqual('messageId');
+		expect(mail.uid).toEqual(123);
+		expect(mail.date).toEqual(new Date(2017, 4, 5, 12, 40, 0));
 		expect(mail.bodyType).toEqual('text/html');
-		expect(result).toEqual(mail);
-	})
+	});
 
-	it('can have a body', () => {
-		let result = mail.withBody('Some body.');
-		expect(mail.body).toEqual('Some body.');
-		expect(result).toEqual(mail);
+	it('can have subject, body and preview', () => {
+		expect(mail.subject).toEqual('Subject');
+		expect(mail.body).toEqual('Body');
+		expect(mail.preview).toEqual('Preview');
 	})
 });

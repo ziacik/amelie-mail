@@ -11,7 +11,7 @@ describe('ContactService', () => {
 
 	beforeEach(() => {
 		channels = {};
-		global.electron = {
+		global['electron'] = {
 			ipcRenderer: {
 				on: jasmine.createSpy('ipcRenderer.on').and.callFake((channel, callback) => {
 					channels[channel] = callback;
