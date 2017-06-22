@@ -5,6 +5,14 @@ export class Recipient {
 	private _type: string;
 
 	constructor(contact: Contact, type: string) {
+		if (!contact) {
+			throw new Error('Contact argument missing.');
+		}
+
+		if (!type) {
+			throw new Error('Type argument missing.');
+		}
+
 		this._contact = contact;
 		this._type = type;
 	}

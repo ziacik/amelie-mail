@@ -33,6 +33,10 @@ describe('MailWriterComponent', () => {
 	let createFromWriterSpy;
 	let page: Page;
 
+	beforeEach(() => {
+		myself = new Contact('me@mail.fr', 'me');
+	});
+
 	function configureModuleWith(replyMail: Mail) {
 		mail = replyMail;
 
@@ -58,7 +62,6 @@ describe('MailWriterComponent', () => {
 		mailService = TestBed.get(MailService);
 		spyOn(mailService, 'send');
 
-		myself = new Contact('me@mail.fr', 'me');
 		let contactService = TestBed.get(ContactService);
 		spyOn(contactService, 'getMyself').and.returnValue(myself);
 
@@ -99,6 +102,12 @@ describe('MailWriterComponent', () => {
 
 		it('the form is invalid', () => {
 			expect(component.form.valid).toBeFalsy();
+		});
+
+		it('the form becomes valid when content and recipient is added', () => {
+			component.form.controls['content'].setValue('some content');
+			component.form.controls['recipients'].setValue([new Recipient(myself, 'to')]);
+			expect(component.form.valid).toBeTruthy();
 		});
 
 		it('the send button is disabled', () => {
@@ -220,7 +229,8 @@ describe('MailWriterComponent', () => {
 		});
 
 		it('the form becomes invalid when no recipients are filled', () => {
-			component.form.controls['recipients'].setValue([]);
+			let recipients = component.form.controls['recipients'];
+			recipients.setValue([]);
 			expect(component.form.valid).toBeFalsy();
 		});
 

@@ -53,11 +53,11 @@ export class MailListComponent {
 
 	public read(mail) {
 		this.mailService.markSeen(mail);
-		mail.isSeen = true;
+		mail.markSeen();
 	}
 
 	public unread(mail) {
 		this.mailService.unmarkSeen(mail);
-		mail.isSeen = false;
+		mail.unmarkSeen();
 	}
 }
