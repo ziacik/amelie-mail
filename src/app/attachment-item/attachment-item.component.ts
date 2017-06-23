@@ -12,7 +12,7 @@ export class AttachmentItemComponent {
 	constructor(private domSanitizer: DomSanitizer) {
 	}
 
-	private getAttachmentUrl(): SafeUrl {
+	getAttachmentUrl(): SafeUrl {
 		return this.domSanitizer.bypassSecurityTrustUrl(`excid:${this.attachment.excid}`);
 	}
 }

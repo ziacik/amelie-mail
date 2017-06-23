@@ -6,7 +6,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { MailListComponent } from './mail-list/mail-list.component';
 import { MailViewComponent } from './mail-view/mail-view.component';
-import { MailContentViewComponent } from './mail-content-view/mail-content-view.component';
 import { MailItemComponent } from './mail-item/mail-item.component';
 import { MailHeaderComponent } from './mail-header/mail-header.component';
 import { AppStateService } from './shared/app-state.service';
@@ -25,7 +24,6 @@ import { MaterialModule } from '@angular/material';
 		AppComponent,
 		MailListComponent,
 		MailViewComponent,
-		MailContentViewComponent,
 		MailItemComponent,
 		MailHeaderComponent,
 		MailEditorComponent,

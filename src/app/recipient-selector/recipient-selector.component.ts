@@ -18,11 +18,12 @@ export class RecipientSelectorComponent implements AfterViewInit, ControlValueAc
 	@Input() placeholder: string;
 	@Input() id: string;
 
-	private dropdown: any;
 	private internalValue: Recipient[];
-	private recipient: FormControl;
 
-	constructor(private elementRef: ElementRef, private contactService: ContactService) {
+	recipient: FormControl;
+
+	// TODO instead of making contactService public, add a method exposing contacts
+	constructor(private elementRef: ElementRef, public contactService: ContactService) {
 		this.recipient = new FormControl();
 		this.internalValue = [];
 	}

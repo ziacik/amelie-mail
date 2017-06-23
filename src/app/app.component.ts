@@ -12,7 +12,8 @@ import { MailWriterComponent } from './mail-writer/mail-writer.component';
 export class AppComponent implements AfterViewInit {
 	private writer: any;
 
-	constructor(private dialog: MdDialog, private appStateService: AppStateService, private mailService: MailService) {
+	// TODO instead of making mailService public, expose mail via method
+	constructor(private dialog: MdDialog, private appStateService: AppStateService, public mailService: MailService) {
 	}
 
 	ngAfterViewInit() {

@@ -32,7 +32,7 @@ export class MailViewComponent {
 	constructor(private domSanitizer: DomSanitizer) {
 	}
 
-	private isText(): boolean {
+	isText(): boolean {
 		if (!this.mail) {
 			return false;
 		}
@@ -40,7 +40,7 @@ export class MailViewComponent {
 		return this.mail.bodyType === 'text/plain';
 	}
 
-	private isHtml(): boolean {
+	isHtml(): boolean {
 		if (!this.mail) {
 			return false;
 		}

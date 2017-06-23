@@ -12,7 +12,7 @@ export class MailListComponent {
 	public mails: any[];
 	private activeMailIndex: number;
 
-	constructor(private appStateService: AppStateService, private mailService: MailService) {
+	constructor(public appStateService: AppStateService, private mailService: MailService) {
 		this.activeMailIndex = -1;
 	}
 

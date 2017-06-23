@@ -30,6 +30,13 @@ export class MailWriterComponent implements OnInit {
 		});
 	}
 
+	send() {
+		let mailFormValue = this.form.value;
+		this.removeStylePrefixesFrom(mailFormValue);
+		let mail = this.mailFactoryService.createFromWriter(mailFormValue);
+		this.mailService.send(mail);
+	}
+
 	private getInitialRecipients(): Recipient[] {
 		if (!this.replyMail || !this.replyMail.from) {
 			return [];
@@ -74,13 +81,6 @@ export class MailWriterComponent implements OnInit {
 		let replyText = `<p></p><p>On ${quotedMailDate}, ${from.name || from.address} wrote:</p>${quote}`;
 
 		return replyText;
-	}
-
-	private send() {
-		let mailFormValue = this.form.value;
-		this.removeStylePrefixesFrom(mailFormValue);
-		let mail = this.mailFactoryService.createFromWriter(mailFormValue);
-		this.mailService.send(mail);
 	}
 
 	private removeStylePrefixesFrom(mail) {
